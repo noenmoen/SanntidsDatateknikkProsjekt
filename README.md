@@ -1,0 +1,2 @@
+# SanntidsDatateknikkProsjekt
+Readme fil
