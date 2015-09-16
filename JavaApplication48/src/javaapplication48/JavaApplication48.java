@@ -17,6 +17,6 @@ public class JavaApplication48
      */
     public static void main(String[] args)
     {
-        System.out.println("morten er en hest");    }
+        System.out.println("morten har en hestkuk");    }
     
 }
