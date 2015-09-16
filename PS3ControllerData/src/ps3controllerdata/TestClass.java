@@ -24,24 +24,16 @@ public class TestClass {
      * @throws java.io.IOException
      */
     private static final long CONNECT_TIMEOUT = 3000;
+
     public static void main(String[] args) throws IOException {
 
-        try {
-            ClassPathLibraryLoader.loadNativeHIDLibrary();
-            HIDManager dManager = HIDManager.getInstance();
-            HIDDeviceInfo[] info = dManager.listDevices();
-            for (HIDDeviceInfo hIDDeviceInfo : info) {
-                //System.out.println(hIDDeviceInfo.getProduct_string() + " Vendor id: " + hIDDeviceInfo.getVendor_id() + " product id: " + hIDDeviceInfo.getProduct_id() + " ");
-            }
-        } catch (IOException ex) {
-            //Logger.getLogger(formLiveReload.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        ClassPathLibraryLoader.loadNativeHIDLibrary();
+
         Controller c = HIDControllerFinder.findController();
-        //System.out.println(c.getProductString());
         PS3ControllerRead reader = new PS3ControllerRead(c);
         reader.start();
         ARDrone drone = null;
-        
+
         try {
             drone = new ARDrone();
             drone.connect();
@@ -49,13 +41,11 @@ public class TestClass {
 
             // Wait until drone is ready
             drone.waitForReady(CONNECT_TIMEOUT);
-        }
-        catch(Throwable e) {
+        } catch (Throwable e) {
             System.out.println("Initializing drone failed.");
         }
         DroneControl dc = new DroneControl(drone, reader);
         dc.start();
-        
 
     }
 
