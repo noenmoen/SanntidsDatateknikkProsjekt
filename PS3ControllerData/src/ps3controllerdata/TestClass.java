@@ -41,6 +41,7 @@ public class TestClass {
         PS3ControllerRead reader = new PS3ControllerRead(c);
         reader.start();
         ARDrone drone = null;
+        
         try {
             drone = new ARDrone();
             drone.connect();
