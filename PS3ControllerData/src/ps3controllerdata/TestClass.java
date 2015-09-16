@@ -44,6 +44,10 @@ public class TestClass {
         } catch (Throwable e) {
             System.out.println("Initializing drone failed.");
         }
+        if (drone != null) {
+            System.out.println("Drone version: " + drone.getDroneVersion());
+            System.out.println("Drone config: " + drone.readDroneConfiguration());
+        }
         DroneControl dc = new DroneControl(drone, reader);
         dc.start();
 
