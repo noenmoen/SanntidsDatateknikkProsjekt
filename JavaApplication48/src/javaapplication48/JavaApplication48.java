@@ -9,14 +9,17 @@ package javaapplication48;
  *
  * @author Martin Strøm Pedersen
  */
-public class JavaApplication48
-{
+public class JavaApplication48 {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args)
-    {
-        System.out.println("morten har en hestkuk");    }
-    
+    public static void main(String[] args) {
+        System.out.println("morten har en hestkuk");
+        test();
+    }
+
+    public static void test() {
+        test();
+    }
 }
