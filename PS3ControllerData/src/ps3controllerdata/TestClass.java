@@ -23,33 +23,41 @@ public class TestClass {
      * @param args the command line arguments
      * @throws java.io.IOException
      */
-    private static final long CONNECT_TIMEOUT = 5000;
+    private static final long CONNECT_TIMEOUT = 3000;
 
-    public static void main(String[] args) throws IOException {
-        Semaphore sem = new Semaphore(1,true);
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Semaphore sem = new Semaphore(1, true);
         ClassPathLibraryLoader.loadNativeHIDLibrary();
         ControllerStateStorage storage = new ControllerStateStorage();
 
         Controller c = HIDControllerFinder.findController();
         PS3ControllerRead reader = new PS3ControllerRead(c, sem, storage);
-        
+
         ARDrone drone = null;
 
         try {
+
             drone = new ARDrone();
+
             drone.connect();
-            drone.waitForReady(CONNECT_TIMEOUT);
+
             drone.clearEmergencySignal();
+
+            drone.waitForReady(CONNECT_TIMEOUT);
+            
             drone.trim();
             // Wait until drone is ready
-            
+
         } catch (Throwable e) {
             System.out.println("Initializing drone failed." + e);
         }
         if (drone != null) {
             System.out.println("Drone version: " + drone.getDroneVersion());
-            System.out.println("Drone config: " + drone.readDroneConfiguration());
+            //System.out.println("Drone config: " + drone.readDroneConfiguration());
         }
+
+        
+        
         DroneControl dc = new DroneControl(drone, sem, storage);
         reader.start();
         dc.start();
