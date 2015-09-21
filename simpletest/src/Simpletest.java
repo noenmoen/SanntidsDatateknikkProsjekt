@@ -4,7 +4,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
-class SimpleSample {
+class Simpletest {
 
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -13,8 +13,6 @@ class SimpleSample {
     public static void main(String[] args) throws Exception {
 
         String fileName = "" + System.getProperty("user.dir") + "/A4.jpg";
-        File f = new File(fileName);
-        System.out.println(f.isFile());
         Mat newImage = Imgcodecs.imread(fileName);
         if (newImage.dataAddr() == 0) {
             throw new Exception("Couldn't open file " + fileName);
