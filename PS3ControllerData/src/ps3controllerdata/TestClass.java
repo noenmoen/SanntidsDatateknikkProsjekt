@@ -9,9 +9,9 @@ import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.controllers.*;
 import com.codeminders.ardrone.controllers.hid.manager.HIDControllerFinder;
 import com.codeminders.hidapi.ClassPathLibraryLoader;
-import com.codeminders.hidapi.HIDDeviceInfo;
-import com.codeminders.hidapi.HIDManager;
+
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
 
 /**
  *
@@ -25,30 +25,41 @@ public class TestClass {
      */
     private static final long CONNECT_TIMEOUT = 3000;
 
-    public static void main(String[] args) throws IOException {
-
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Semaphore sem = new Semaphore(1, true);
         ClassPathLibraryLoader.loadNativeHIDLibrary();
+        ControllerStateStorage storage = new ControllerStateStorage();
 
         Controller c = HIDControllerFinder.findController();
-        PS3ControllerRead reader = new PS3ControllerRead(c);
-        reader.start();
+        PS3ControllerRead reader = new PS3ControllerRead(c, sem, storage);
+
         ARDrone drone = null;
 
         try {
+
             drone = new ARDrone();
+
             drone.connect();
+
             drone.clearEmergencySignal();
 
-            // Wait until drone is ready
             drone.waitForReady(CONNECT_TIMEOUT);
+            
+            drone.trim();
+            // Wait until drone is ready
+
         } catch (Throwable e) {
-            System.out.println("Initializing drone failed.");
+            System.out.println("Initializing drone failed." + e);
         }
         if (drone != null) {
             System.out.println("Drone version: " + drone.getDroneVersion());
-            System.out.println("Drone config: " + drone.readDroneConfiguration());
+            //System.out.println("Drone config: " + drone.readDroneConfiguration());
         }
-        DroneControl dc = new DroneControl(drone, reader);
+
+        
+        
+        DroneControl dc = new DroneControl(drone, sem, storage);
+        reader.start();
         dc.start();
 
     }
