@@ -12,6 +12,7 @@ class Simpletest {
 
     public static void main(String[] args) throws Exception {
 
+        long a = System.currentTimeMillis();
         String fileName = "" + System.getProperty("user.dir") + "/A4.jpg";
         Mat newImage = Imgcodecs.imread(fileName);
         if (newImage.dataAddr() == 0) {
@@ -20,6 +21,8 @@ class Simpletest {
             ImageViewer imageViewer = new ImageViewer();
             imageViewer.show(newImage, "Loaded image");
         }
+        long b = System.currentTimeMillis();
+        System.out.println(b-a);
     }
 
 }
