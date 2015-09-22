@@ -14,6 +14,7 @@ class Simpletest
     public static void main(String[] args) throws Exception
     {
         int i = 0;
+        long sum = 0;
         while (i < 100) {
             long a = System.currentTimeMillis();
             String fileName = "" + System.getProperty("user.dir") + "/A4.jpg";
@@ -26,9 +27,11 @@ class Simpletest
                 imageViewer.show(newImage, "Loaded image");
             }
             long b = System.currentTimeMillis();
+            sum += b - a;
             System.out.println(b - a);
             i++;
         }
+        System.out.println("Gjennomsnitt: " + sum/i);
     }
 
 }
