@@ -6,9 +6,6 @@
 package DroneProject;
 
 import com.codeminders.ardrone.ARDrone;
-import com.codeminders.ardrone.controllers.*;
-import com.codeminders.ardrone.controllers.hid.manager.HIDControllerFinder;
-import com.codeminders.hidapi.ClassPathLibraryLoader;
 
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
@@ -27,11 +24,11 @@ public class ControlTower {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Semaphore sem = new Semaphore(1, true);
-        ClassPathLibraryLoader.loadNativeHIDLibrary();
+
         ControllerStateStorage storage = new ControllerStateStorage();
 
-        Controller c = HIDControllerFinder.findController();
-        PS3ControllerReader reader = new PS3ControllerReader(c, sem, storage);
+
+        PS3ControllerReader reader = new PS3ControllerReader(sem, storage);
 
         ARDrone drone = null;
 
@@ -57,7 +54,7 @@ public class ControlTower {
         }
 
         
-        
+        VideoPlayer player = new VideoPlayer(drone);
         DroneControl dc = new DroneControl(drone, sem, storage);
         reader.start();
         dc.start();

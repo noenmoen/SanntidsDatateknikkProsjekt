@@ -6,6 +6,8 @@
 package DroneProject;
 
 import com.codeminders.ardrone.controllers.*;
+import com.codeminders.ardrone.controllers.hid.manager.HIDControllerFinder;
+import com.codeminders.hidapi.ClassPathLibraryLoader;
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
@@ -21,22 +23,29 @@ public class PS3ControllerReader extends Thread {
     private Semaphore sem;
     private final Controller c;
     private GameControllerState state;
+    private GameControllerState oldState;
     private ControllerStateStorage storage;
 
-    public PS3ControllerReader(Controller c, Semaphore s, ControllerStateStorage storage) {
+    public PS3ControllerReader(Semaphore s, ControllerStateStorage storage) throws IOException {
+        ClassPathLibraryLoader.loadNativeHIDLibrary();
+        c = HIDControllerFinder.findController();
+        
         sem = s;
-        this.c = c;
         this.storage = storage;
     }
 
     @Override
     public void run() {
+        oldState = null;
         try {
 
             while (true) {
 
                 state = c.read();
+                ControllerStateChange cont_change = new ControllerStateChange(oldState, state);
+                if (cont_change.isButtonStateChanged() || cont_change.isJoysticksChanged())
                 setState(state);
+                oldState = state;
             }
         } catch (IOException ex) {
             Logger.getLogger(PS3ControllerReader.class.getName()).log(Level.SEVERE, null, ex);

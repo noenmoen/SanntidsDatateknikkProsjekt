@@ -1,3 +1,8 @@
+/** Modified 2012 by Tim Wood
+*    Minor changes to work with ARDrone 2.0
+*/
+
+
 
 package com.codeminders.ardrone;
 
@@ -12,6 +17,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import java.awt.image.BufferedImage;
+
 
 import com.codeminders.ardrone.commands.ConfigureCommand;
 import com.codeminders.ardrone.commands.ControlCommand;
@@ -28,7 +36,10 @@ import com.codeminders.ardrone.commands.TakeOffCommand;
 import com.codeminders.ardrone.data.ARDroneDataReader;
 import com.codeminders.ardrone.data.ChannelProcessor;
 import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10NavDataDecoder;
+import com.codeminders.ardrone.data.decoder.ardrone20.ARDrone20NavDataDecoder;
 import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10VideoDataDecoder;
+import com.codeminders.ardrone.data.decoder.ardrone20.ARDrone20VideoDataDecoder;
+// import com.codeminders.ardrone.decoder.TestH264DataDecoder;
 import com.codeminders.ardrone.data.logger.ARDroneDataReaderAndLogWrapper;
 import com.codeminders.ardrone.data.logger.DataLogger;
 import com.codeminders.ardrone.data.navdata.FlyingState;
@@ -127,9 +138,9 @@ public class ARDrone
 
     private static final int                NAVDATA_PORT      = 5554;
     private static final int                VIDEO_PORT        = 5555;
-    private static final int                CONTROL_PORT      = 5559;
+    private static final int                CONTROL_PORT      = 5556; // Changed from 5559, version 2.0 (vegard)
     
-    private static final int                NAVDATA_BUFFER_SIZE = 4096;
+    private static final int                NAVDATA_BUFFER_SIZE = 1024; //4096;
     private static final int                VIDEO_BUFFER_SIZE = 100 * 1024;
 
     final static byte[]                     DEFAULT_DRONE_IP  = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
@@ -165,9 +176,12 @@ public class ARDrone
     private NavDataDecoder                  ext_nav_data_decoder;
     
     private DroneVersionReader              versionReader;
+    private int                             versionNum;
+
+    private int coolItBuddy = 0;
 
     public ARDrone() throws UnknownHostException
-    {
+    {        
         this(InetAddress.getByAddress(DEFAULT_DRONE_IP), 1000, 1000);
     }
 
@@ -327,10 +341,12 @@ public class ARDrone
             try {
                 String versionStr = versionReader.readDroneVersion();
                 log.log(Level.FINER, "Drone version string: " + versionStr);
+                System.out.println("ARDrone version: " + versionStr);
                 version = Integer.parseInt(versionStr.substring(0, versionStr.indexOf('.')));
             } catch (NumberFormatException e) {
                 log.log(Level.SEVERE, "Failed to discover drone version. Using configuration for drone version: " + version, e);
             }
+            versionNum = version;
             
             cmd_socket = new DatagramSocket();
 
@@ -340,10 +356,11 @@ public class ARDrone
             cmd_sending_thread.start();
             
             enableVideo();
+            // disableVideo();
             enableAutomaticVideoBitrate();
 
             NavDataDecoder nav_data_decoder = (null == ext_nav_data_decoder) ?
-                    new  ARDrone10NavDataDecoder(this, NAVDATA_BUFFER_SIZE)
+                    getNavDecoder(version) //new  ARDrone10NavDataDecoder(this, NAVDATA_BUFFER_SIZE)
                     :
                     ext_nav_data_decoder;
                     
@@ -371,17 +388,36 @@ public class ARDrone
 
         } catch(IOException ex)
         {
+            System.out.println("IOexception in connect");
             changeToErrorState(ex);
             throw ex;
         }
     }
 
+    private NavDataDecoder getNavDecoder(int version) throws IOException {
+        switch (version) {
+            case 1:
+                return   new ARDrone10NavDataDecoder(this, NAVDATA_BUFFER_SIZE);
+            case 2:
+                return   new ARDrone20NavDataDecoder(this, NAVDATA_BUFFER_SIZE);
+            default:
+                return   new ARDrone10NavDataDecoder(this, NAVDATA_BUFFER_SIZE);
+        }
+      
+    }
+    
     private VideoDataDecoder getVideoDecoder(int version) throws IOException {
         switch (version) {
             case 1:
                 return   new ARDrone10VideoDataDecoder(this, VIDEO_BUFFER_SIZE);
             case 2:
-                 return null; // no decoder implemented yet
+                try{
+                    disableAutomaticVideoBitrate(); // test this
+                    return   new ARDrone20VideoDataDecoder(this);
+                } catch (Exception e){
+                    System.out.println(e);
+                    return null;
+                }
             default:
                 return   new ARDrone10VideoDataDecoder(this, VIDEO_BUFFER_SIZE);
         }
@@ -518,7 +554,8 @@ public class ARDrone
     {
         if(nd.isBatteryTooLow() || nd.isNotEnoughPower())
         {
-            log.severe("Battery pb " + nd.toString());
+            //if(coolItBuddy++ % 20 == 0) log.severe("Battery pb " + nd.toString());
+            if(coolItBuddy++ % 60 == 0) System.out.println("Battery is getting low: " + nd.getBattery() );
         }
 
         synchronized(emergency_mutex)
@@ -556,6 +593,9 @@ public class ARDrone
                 } else if(state == State.BOOTSTRAP && nd.getMode() == Mode.DEMO)
                 {
                     changeState(State.DEMO);
+                } else if(state == State.CONNECTING && nd.getMode() == Mode.DEMO)
+                {
+                    changeState(State.DEMO);
                 }
 
                 if(state != State.CONNECTING && nd.isCommunicationProblemOccurred())
@@ -582,7 +622,8 @@ public class ARDrone
 
     public void playAnimation(int animation_no, int duration) throws IOException
     {
-        cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
+        if( versionNum == 1) cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
+        else cmd_queue.add(new ConfigureCommand("control:flight_anim", animation_no + "," + duration));
     }
 
     public void playAnimation(Animation animation, int duration) throws IOException
@@ -692,6 +733,14 @@ public class ARDrone
         {
             for(DroneVideoListener l : image_listeners)
                 l.frameReceived(startX, startY, w, h, rgbArray, offset, scansize);
+        }
+    }
+    protected void videoFrameReceived(BufferedImage bi)
+    {
+        synchronized(image_listeners)
+        {
+            for(DroneVideoListener l : image_listeners)
+                l.frameReceived(bi);
         }
     }
 
