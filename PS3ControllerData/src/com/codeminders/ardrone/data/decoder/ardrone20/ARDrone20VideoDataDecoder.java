@@ -11,7 +11,7 @@ import com.twilight.h264.decoder.AVFrame;
 import com.twilight.h264.decoder.AVPacket;
 import com.twilight.h264.decoder.H264Decoder;
 import com.twilight.h264.decoder.MpegEncContext;
-//import com.twilight.h264.util.FrameUtils; Added new FrameUtils class that handles AVFrame
+//import com.twilight.h264.util.FrameUtils; (Vegard) Added new FrameUtils class that handles AVFrame
 
 public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
 
@@ -121,7 +121,7 @@ public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
                     while (avpkt.size > 0) {
                         len = c.avcodec_decode_video2(picture, got_picture, avpkt);
                         if (len < 0) {
-                            System.out.println("Error while decoding frame "+ frame);
+                            //System.out.println("Error while decoding frame "+ frame);
                             // Discard current packet and proceed to next packet
                             break;
                         } // if
