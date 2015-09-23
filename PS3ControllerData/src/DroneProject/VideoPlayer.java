@@ -74,6 +74,7 @@ public class VideoPlayer implements  DroneVideoListener, NavDataListener, DroneS
     }
     private void updateBatteryStatus(int value)     {
         java.awt.EventQueue.invokeLater(() -> {
+            System.out.println("Battery status: " + value);
             batteryStatus.setText(value + "%");
             if(value < 15)
             {
