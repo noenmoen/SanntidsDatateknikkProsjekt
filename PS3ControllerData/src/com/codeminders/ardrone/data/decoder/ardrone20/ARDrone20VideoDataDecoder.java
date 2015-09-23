@@ -121,7 +121,7 @@ public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
                     while (avpkt.size > 0) {
                         len = c.avcodec_decode_video2(picture, got_picture, avpkt);
                         if (len < 0) {
-                            System.out.println("Error while decoding frame "+ frame);
+                            System.out.println("Error while decoding frame "+ frame + len);
                             // Discard current packet and proceed to next packet
                             break;
                         } // if
