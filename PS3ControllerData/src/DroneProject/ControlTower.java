@@ -8,6 +8,7 @@ package DroneProject;
 import com.codeminders.ardrone.ARDrone;
 
 import java.io.IOException;
+import java.util.Timer;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -21,6 +22,7 @@ public class ControlTower {
      * @throws java.io.IOException
      */
     private static final long CONNECT_TIMEOUT = 3000;
+    private static final int SCHEDULE_RATE = 10;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Semaphore sem = new Semaphore(1, true);
@@ -52,12 +54,11 @@ public class ControlTower {
             System.out.println("Drone version: " + drone.getDroneVersion());
             //System.out.println("Drone config: " + drone.readDroneConfiguration());
         }
-
-        
+        Timer fTimer = new Timer();
         VideoPlayer player = new VideoPlayer(drone);
         DroneControl dc = new DroneControl(drone, sem, storage);
-        reader.start();
-        dc.start();
+        fTimer.scheduleAtFixedRate(reader, 0, SCHEDULE_RATE);
+        fTimer.scheduleAtFixedRate(dc, 5, SCHEDULE_RATE);
 
     }
 

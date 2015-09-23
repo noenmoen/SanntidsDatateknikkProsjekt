@@ -8,6 +8,7 @@ package DroneProject;
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.controllers.GameControllerState;
 import java.io.IOException;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  * @author vegard Class for testing flight of the drone using PS3 dual shock
  * controller
  */
-public class DroneControl extends Thread {
+public class DroneControl extends TimerTask {
 
     private final ARDrone drone;
     private boolean freeroam;

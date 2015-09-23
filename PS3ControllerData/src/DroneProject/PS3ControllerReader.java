@@ -9,6 +9,7 @@ import com.codeminders.ardrone.controllers.*;
 import com.codeminders.ardrone.controllers.hid.manager.HIDControllerFinder;
 import com.codeminders.hidapi.ClassPathLibraryLoader;
 import java.io.IOException;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
  * @author vegard Class for testing the dualshock 3 -> java inteface Prints out
  * the states of the ds3
  */
-public class PS3ControllerReader extends Thread {
+public class PS3ControllerReader extends TimerTask {
 
     private Semaphore sem;
     private final Controller c;
@@ -39,7 +40,7 @@ public class PS3ControllerReader extends Thread {
         oldState = null;
         try {
 
-            while (true) {
+            while (c != null) {
 
                 state = c.read();
                 ControllerStateChange cont_change = new ControllerStateChange(oldState, state);
@@ -60,7 +61,7 @@ public class PS3ControllerReader extends Thread {
         }
         if (!storage.getAvailable()) {
             storage.setState(state);
-            System.out.println("Controller set the state.");
+            
         }
         sem.release();
     }
