@@ -10,5 +10,9 @@ package ImageProcessing;
  * @author Morten
  */
 public class CircleDetection {
+
+    public CircleDetection()
+    {
+    }
     
 }
