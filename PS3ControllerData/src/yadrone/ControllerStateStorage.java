@@ -3,8 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package DroneProject;
+package yadrone;
 
+/**
+ *
+ * @author vegard
+ */
 import com.codeminders.ardrone.controllers.GameControllerState;
 
 /**
@@ -38,3 +42,4 @@ public class ControllerStateStorage {
     }
 
 }
+

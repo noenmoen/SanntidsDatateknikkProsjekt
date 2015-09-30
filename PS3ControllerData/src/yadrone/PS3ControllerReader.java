@@ -3,9 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package DroneProject;
+package yadrone;
+
+/**
+ *
+ * @author vegard
+ */
 
 import com.codeminders.ardrone.controllers.*;
+
 import com.codeminders.ardrone.controllers.hid.manager.HIDControllerFinder;
 import com.codeminders.hidapi.ClassPathLibraryLoader;
 import java.io.IOException;
@@ -70,5 +76,3 @@ public class PS3ControllerReader extends TimerTask {
         return state != null;
     }
 }
-
-    
