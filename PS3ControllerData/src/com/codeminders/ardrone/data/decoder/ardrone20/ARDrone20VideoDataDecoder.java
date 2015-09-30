@@ -14,9 +14,11 @@ import static com.twilight.h264.decoder.H264Context.NAL_IDR_SLICE;
 import static com.twilight.h264.decoder.H264Context.NAL_SLICE;
 import com.twilight.h264.decoder.H264Decoder;
 import com.twilight.h264.decoder.MpegEncContext;
+import java.io.IOException;
 //import com.twilight.h264.util.FrameUtils; (Vegard) Added new FrameUtils class that handles AVFrame
 
-public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
+public class ARDrone20VideoDataDecoder extends VideoDataDecoder
+{
 
     Logger log = Logger.getLogger(this.getClass().getName());
 
@@ -39,7 +41,8 @@ public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
 
     int dataPointer;
 
-    public ARDrone20VideoDataDecoder(ARDrone drone) {
+    public ARDrone20VideoDataDecoder(ARDrone drone)
+    {
         super(drone);
 
         avpkt = new AVPacket();
@@ -68,9 +71,28 @@ public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
     }
 
     @Override
-    public void run() {
-
+    public void run()
+    {
         InputStream fin = getDataReader().getDataStream();
+        while (true) {
+            try {
+                if (fin.read() == (int) 'P') {
+                    System.out.println("P found!");
+                    if (fin.read() == (int) 'a'
+                            || fin.read() == (int) 'V'
+                            || fin.read() == (int) 'E') {
+                        System.out.println("PaVE found");
+                        for (int i = 5; i <= 68; i++) {
+                            fin.read();
+                        }
+                        break;
+                    }
+                }
+            }
+            catch (IOException ex) {
+                System.out.println(ex);
+            }
+        }
         try {
             // avpkt must contain exactly 1 NAL Unit in order for decoder to decode correctly.
             // thus we must read until we get next NAL header before sending it to decoder.
@@ -80,7 +102,7 @@ public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
             int fileOffset = 0;
             foundFrameStart = false;
 
-		    // avpkt must contain exactly 1 NAL Unit in order for decoder to decode correctly.
+            // avpkt must contain exactly 1 NAL Unit in order for decoder to decode correctly.
             // thus we must read until we get next NAL header before sending it to decoder.
             // Find 1st NAL
             int[] cacheRead = new int[5];
@@ -104,6 +126,7 @@ public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
 
             // 4 first bytes always indicate NAL header
             while (hasMoreNAL) {
+                
                 inbuf_int[0] = cacheRead[0];
                 inbuf_int[1] = cacheRead[1];
                 inbuf_int[2] = cacheRead[2];
@@ -159,7 +182,7 @@ public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
                     while (avpkt.size > 0) {
                         len = c.avcodec_decode_video2(picture, got_picture, avpkt);
                         if (len < 0) {
-                            System.out.println("Error while decoding frame " + frame +" " + len);
+                            System.out.println("Error while decoding frame " + frame + " " + len);
                             // Discard current packet and proceed to next packet
                             break;
                         } // if
@@ -178,25 +201,29 @@ public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
                         avpkt.size -= len;
                         avpkt.data_offset += len;
                     }
-                } catch (Exception ie) {
+                }
+                catch (Exception ie) {
                     // Any exception, we should try to proceed reading next packet!
                     log.log(Level.FINEST, "Error decodeing frame", ie);
                 } // try
 
             } // while
 
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             log.log(Level.FINEST, "Error in decoder initialization", ex);
         }
 
     }
 
     @Override
-    public void finish() {
+    public void finish()
+    {
         c.avcodec_close();
     }
 
-    private boolean isEndOfFrame(int code) {
+    private boolean isEndOfFrame(int code)
+    {
         int nal = code & 0x1F;
 
         if (nal == NAL_AUD) {
@@ -210,7 +237,8 @@ public class ARDrone20VideoDataDecoder extends VideoDataDecoder {
                 return true;
             }
             foundFrameStart = true;
-        } else {
+        }
+        else {
             foundFrameStart = false;
         }
 
