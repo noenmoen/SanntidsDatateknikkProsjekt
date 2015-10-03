@@ -35,7 +35,7 @@ public class VideoListener extends JFrame implements ImageListener {
 
         drone.getVideoManager().addImageListener(this);
         System.out.println("In VideoListener: Added imagelistener");
-
+       
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
