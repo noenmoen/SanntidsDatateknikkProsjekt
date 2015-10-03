@@ -14,6 +14,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -27,7 +30,6 @@ public class VideoListener extends JFrame implements ImageListener {
 
     public VideoListener(final IARDrone drone) {
         super("YADrone Video");
-
         setSize(640, 360);
         setVisible(true);
 
@@ -69,6 +71,13 @@ public class VideoListener extends JFrame implements ImageListener {
                 repaint();
             }
         });
+
+    }
+    public BufferedImage getDroneImage() {
+        return image;
+    }
+    public boolean hasDroneImage() {
+        return image != null;
     }
 
 }

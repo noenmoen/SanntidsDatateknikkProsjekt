@@ -33,11 +33,11 @@ public class YADrone {
         }
         DroneGUI ui = new DroneGUI(drone);
         ui.start();
-        try {
+        /*try {
             PS3ControllerReader reader = new PS3ControllerReader(mySem, store);
         } catch (IOException ex) {
             Logger.getLogger(YADrone.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }*/
         DroneControl cont = new DroneControl(drone, mySem, store);
     }
 }
