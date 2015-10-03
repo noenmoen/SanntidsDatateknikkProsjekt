@@ -57,7 +57,7 @@ public class ImageConverter {
     public Mat BufferedImageToMat(BufferedImage image) {
         int rows = image.getWidth();
         int cols = image.getHeight();
-        int type = CvType.CV_8UC(3);
+        int type = image.getType();
         Mat newMat = new Mat(rows, cols, CvType.channels(type));
         System.out.println(CvType.channels(type));
 
