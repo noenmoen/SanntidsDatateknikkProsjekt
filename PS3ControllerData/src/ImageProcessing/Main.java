@@ -21,21 +21,12 @@ public class Main {
      */
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        ImageViewer v = new ImageViewer();
+        ImageViewer iv = new ImageViewer();
         long a = System.currentTimeMillis();
         String fileName = "" + System.getProperty("user.dir") + "/dronetest00.PNG";   //Bilde av typen BGR
         Mat inImage = Imgcodecs.imread(fileName);
+        CircleDetection cd = new CircleDetection(inImage, 500, 10, 4, 15,204,200,10);
         
-//        System.out.println(inImage.channels());
-//        ImageConverter ic = new ImageConverter();
-//        v.show(inImage);
-//        BufferedImage bi = ic.MatToBufferedImage(inImage, ".JPG");
-//        v.show(bi, "bufferImage");
-//        Mat mi = ic.BufferedImageToMat(bi);
-//        System.out.println(mi.depth() + " " + mi.channels() + " " + mi.width() + " " + mi.height());
-//        v.show(mi);
-
-            CircleDetection C = new CircleDetection(inImage,1000,70,2);
         long b = System.currentTimeMillis();
         long c = b - a;
         System.out.println("runtime: " + c);
