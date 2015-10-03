@@ -36,7 +36,7 @@ public class PS3ControllerReader extends TimerTask {
     public PS3ControllerReader(Semaphore s, ControllerStateStorage storage) throws IOException {
         ClassPathLibraryLoader.loadNativeHIDLibrary();
         c = HIDControllerFinder.findController();
-        
+        System.out.println("SET UP DS3 " + c.getName());
         sem = s;
         this.storage = storage;
     }

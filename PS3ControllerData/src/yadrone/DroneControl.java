@@ -43,7 +43,7 @@ public class DroneControl extends TimerTask {
                     Logger.getLogger(DroneControl.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 state = storage.getState();
-                System.out.println("Dronecontrol got a state ");
+
 
                 move(state);
 
@@ -72,8 +72,8 @@ public class DroneControl extends TimerTask {
     private void move(GameControllerState st) {
         if (st.isTriangle()) {
             System.out.println("Drone take off");
-
-            drone.takeOff();
+            drone.getCommandManager().takeOff().doFor(5000);
+            //drone.takeOff();
 
         }
         // Pressing square will enable/disable free roaming
@@ -95,9 +95,10 @@ public class DroneControl extends TimerTask {
         }
         // Pressing cross on the DS3 will make the drone land
         if (st.isCross()) {
+            System.out.println("Drone landing");
             freeroam = false;
-
-            drone.landing();
+            drone.getCommandManager().landing().doFor(5000);
+            //drone.landing();
 
         }
     }
