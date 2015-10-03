@@ -47,7 +47,7 @@ public class CircleDetection {
         v.show(RGB.get(0),"0");
         v.show(RGB.get(1),"1");
         v.show(RGB.get(2),"2");
-        Mat g = RGB.get(1).clone();
+        Mat g = RGB.get(0).clone();
         System.out.println(g.height()+" " + g.width());
 //        int depth = originalImage.get;
         //convert to gray
