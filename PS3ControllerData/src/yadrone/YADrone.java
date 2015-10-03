@@ -8,6 +8,7 @@ package yadrone;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import java.io.IOException;
+import java.util.Timer;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,8 +23,10 @@ public class YADrone {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-       Semaphore mySem = new Semaphore(1,true);
+        Timer timer = new Timer();
+        Semaphore mySem = new Semaphore(1, true);
         ControllerStateStorage store = new ControllerStateStorage();
+        PS3ControllerReader reader = null;
         IARDrone drone = null;
         try {
             drone = new ARDrone();
@@ -31,14 +34,16 @@ public class YADrone {
         } catch (Exception exc) {
             exc.printStackTrace();
         }
-        DroneGUI ui = new DroneGUI(drone);
-        ui.start();
-        /*try {
-            PS3ControllerReader reader = new PS3ControllerReader(mySem, store);
+        DroneGUI gui = new DroneGUI(drone);
+        gui.start();
+        
+        try {
+            reader = new PS3ControllerReader(mySem, store);
         } catch (IOException ex) {
             Logger.getLogger(YADrone.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        }
+        timer.scheduleAtFixedRate(reader, 0, 5);
         DroneControl cont = new DroneControl(drone, mySem, store);
+        timer.scheduleAtFixedRate(cont, 0, 5);
     }
 }
-
