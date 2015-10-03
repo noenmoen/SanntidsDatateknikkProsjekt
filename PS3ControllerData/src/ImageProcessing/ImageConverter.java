@@ -16,31 +16,35 @@ import org.opencv.imgcodecs.Imgcodecs;
  *
  * @author Morten
  */
-public class ImageConverter {
+public class ImageConverter
+{
 
     Mat matrix;
     MatOfByte mob;
     String fileExten;
 
-    public ImageConverter() {
+    public ImageConverter()
+    {
 
     }
 
-    public BufferedImage MatToBufferedImage(Mat matrix, String fileExtension) {
+    public BufferedImage MatToBufferedImage(Mat matrix, String fileExtension)
+    {
         this.matrix = matrix;
         fileExten = fileExtension;
         mob = new MatOfByte();
         //convert the matrix into a matrix of bytes appropriate for
         //this file extension
         Imgcodecs.imencode(fileExten, matrix, mob);
-        
+
         //convert the "matrix of bytes" into a byte array
         byte[] byteArray = mob.toArray();
         BufferedImage bufImage = null;
         try {
             InputStream in = new ByteArrayInputStream(byteArray);
             bufImage = ImageIO.read(in);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         return bufImage;
@@ -53,23 +57,21 @@ public class ImageConverter {
      * @param image
      * @return
      */
-
-    public Mat BufferedImageToMat(BufferedImage image) {
-        int rows = image.getWidth();
-        int cols = image.getHeight();
-        int type = image.getType();
-        Mat newMat = new Mat(rows, cols, CvType.channels(type));
-        System.out.println(CvType.channels(type));
-
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                newMat.put(r, c, image.getRGB(r, c));
-            }
-        }
+    public Mat BufferedImageToMat(BufferedImage image)
+    {
+        int rows = 360;
+        int cols = 640;
+        int type = CvType.CV_8UC3;
+        System.out.println("Rows: " + image.getHeight());
+        Mat newMat = new Mat(rows, cols, type);
+        byte[] data = ((DataBufferByte) 
+                image.getRaster().getDataBuffer()).getData();
+        newMat.put(0, 0, data);
         return newMat;
     }
 
-    public Image toBufferedImage(Mat matrix) {
+    public Image toBufferedImage(Mat matrix)
+    {
         int type = BufferedImage.TYPE_BYTE_GRAY;
         if (matrix.channels() > 1) {
             type = BufferedImage.TYPE_3BYTE_BGR;
