@@ -59,7 +59,7 @@ public class TestCircleDetection {
         Vector<Mat> HSV = new Vector<>();
 
         Imgproc.cvtColor(originalImage, originalImage, Imgproc.COLOR_BGR2HSV_FULL);
-        Core.split(mat, HSV);
+        Core.split(originalImage, HSV);
         Mat h = HSV.get(0);
         Mat s = HSV.get(1);
         Mat v = HSV.get(2);
@@ -102,13 +102,16 @@ public class TestCircleDetection {
         
         Mat ad1 = new Mat();
         Mat ad2 =  new Mat();
-        Core.add(ht2, st2, ad1);
-        Core.add(ad1, vt2, ad2);
-//        iv.show(ad2," Added after threshold");
+        Mat ad3 =  new Mat();
+        Core.multiply(ht2, st2, ad1);
+        Core.multiply(ad1, vt2, ad2);
+//        Core.multiply(ad2,originalImage,ad3);
+//        iv.show(ad3," multiplyed after threshold");
         Mat circles = CircleFinder(vt2, denom, cannyThresh_upper,
                 cannyThresh_inner, circle_min, circle_max);
         Mat image = DrawCircles(circles, originalImage, color, lineWidth);
         iv.show(image, "Resulting Image");
+
 //        Imgproc.Sobel(BW, gaussFiltered, -1, 1, 1);
 //        Imgproc.Sobel(gaussFiltered, gaussFiltered, -1, 1, 1);
 //        Core.add(BW, gaussFiltered, added);

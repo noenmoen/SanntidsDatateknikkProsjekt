@@ -22,11 +22,14 @@ public class Main {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         ImageViewer iv = new ImageViewer();
-        long a = System.currentTimeMillis();
-        String fileName = "" + System.getProperty("user.dir") + "/dronetest00.PNG";   //Bilde av typen BGR
+        
+        String fileName = "" + System.getProperty("user.dir") + "/" + 
+                "dronetest1"+
+                ".PNG";   //Bilde av typen BGR
         Mat inImage = Imgcodecs.imread(fileName);
+        long a = System.currentTimeMillis();
         TestCircleDetection cd = new TestCircleDetection(
-                inImage, 2000, 50, 4, 25,204,200,1);
+                inImage, 1000, 30, 3, 13,204,200,2);
         
         long b = System.currentTimeMillis();
         long c = b - a;
