@@ -17,7 +17,7 @@ import org.opencv.imgproc.Imgproc;
  *
  * @author Morten
  */
-public class CircleDetection {
+public class TestCircleDetection {
 
     private int highThreshold;
     private double doublehighThreshold;
@@ -33,7 +33,7 @@ public class CircleDetection {
     /**
      * clean constructor
      */
-    public CircleDetection() {
+    public TestCircleDetection() {
 
     }
 
@@ -46,7 +46,7 @@ public class CircleDetection {
      * @param denom
      * @param kernel
      */
-    public CircleDetection(Mat mat, int cannyThresh_upper, int cannyThresh_inner, int denom, int kernel, int highthreshold,int lowthreshold, double sigmaX) {
+    public TestCircleDetection(Mat mat, int cannyThresh_upper, int cannyThresh_inner, int denom, int kernel, int highthreshold,int lowthreshold, double sigmaX) {
         this.gaussKernel = new Size(kernel, kernel);
         this.sigmaX = sigmaX;
         this.highThreshold = highthreshold;
@@ -78,9 +78,9 @@ public class CircleDetection {
         Imgproc.adaptiveThreshold(h, ht, highThreshold, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 99, -1);
         Imgproc.adaptiveThreshold(h, st, highThreshold, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 99, -1);
         Imgproc.adaptiveThreshold(h, vt, highThreshold, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 99, -1);
-        iv.show(ht, "Thresholding: HT");
-        iv.show(st, "Thresholding: ST");
-        iv.show(vt, "Thresholding: VT");
+//        iv.show(ht, "Thresholding: HT");
+//        iv.show(st, "Thresholding: ST");
+//        iv.show(vt, "Thresholding: VT");
 
         Mat ht1 = new Mat();
         Mat st1 = new Mat();
@@ -88,19 +88,27 @@ public class CircleDetection {
         Imgproc.threshold(h, ht1, doublehighThreshold, 255, Imgproc.THRESH_BINARY);
         Imgproc.threshold(h, st1, doublehighThreshold, 255, Imgproc.THRESH_BINARY);
         Imgproc.threshold(h, vt1, doublehighThreshold, 255, Imgproc.THRESH_BINARY);
-        iv.show(ht1, "Thresholding: HT1");
-        iv.show(st1, "Thresholding: ST1");
-        iv.show(vt1, "Thresholding: VT1");
+//        iv.show(ht1, "Thresholding: HT1");
+//        iv.show(st1, "Thresholding: ST1");
+//        iv.show(vt1, "Thresholding: VT1");
         
-        Mat ht2 = MinMaxThreshold(hg,lowThreshold , highThreshold);
-        Mat st2 = MinMaxThreshold(sg,lowThreshold , highThreshold);
-        Mat vt2 = MinMaxThreshold(vg,lowThreshold , highThreshold);
-        System.out.println(ht2.cols()+"  " + ht2.rows());
-        System.out.println(st2.cols()+"  " + st2.rows());
-        System.out.println(vt2.cols()+"  " + vt2.rows());
+        Mat ht2 = MinMaxThreshold(hg,0.575*255, 0.664*255);
+        Mat st2 = MinMaxThreshold(sg,0.308*255 , 255);
+        Mat vt2 = MinMaxThreshold(vg,0.29 , 0.607*255);
+
         iv.show(ht2, "Thresholding: HT2");
         iv.show(st2, "Thresholding: ST2");
         iv.show(vt2, "Thresholding: VT2");
+        
+        Mat ad1 = new Mat();
+        Mat ad2 =  new Mat();
+        Core.add(ht2, st2, ad1);
+        Core.add(ad1, vt2, ad2);
+//        iv.show(ad2," Added after threshold");
+        Mat circles = CircleFinder(vt2, denom, cannyThresh_upper,
+                cannyThresh_inner, circle_min, circle_max);
+        Mat image = DrawCircles(circles, originalImage, color, lineWidth);
+        iv.show(image, "Resulting Image");
 //        Imgproc.Sobel(BW, gaussFiltered, -1, 1, 1);
 //        Imgproc.Sobel(gaussFiltered, gaussFiltered, -1, 1, 1);
 //        Core.add(BW, gaussFiltered, added);
@@ -118,7 +126,7 @@ public class CircleDetection {
 //        iv.show(image, "FUDGE");
     }
 
-    public Mat MinMaxThreshold(Mat mat, int minThresh, int maxThresh) {
+    public Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh) {
         Mat newMat = new Mat(mat.size(),mat.type());
  
         double[] data0 = new double[3];
@@ -135,7 +143,6 @@ public class CircleDetection {
         for (c = 0; c < mat.width(); c++) {
             for (r = 0; r < mat.height(); r++) {
                 double x = mat.get(r, c)[0];
-                System.out.println(x);
                 if (x > minThresh && x < maxThresh) {
                     newMat.put(r, c, data1);
 
@@ -216,11 +223,11 @@ public class CircleDetection {
 
     /**
      *
-     * @param circles: Is given by Houghcircles
-     * @param image: The image you draw circles on
-     * @param color: type Scalar
-     * @param lineWidth: 1,2,3,4
-     * @return Mat: the image drawn
+     * @param circles- Is given by Houghcircles
+     * @param image- The image you draw circles on
+     * @param color- type Scalar
+     * @param lineWidth- 1,2,3,4....
+     * @return Mat- the image drawn
      */
     public Mat DrawCircles(Mat circles, Mat image, Scalar color, int lineWidth) {
         System.out.println("Number of circles found: " + circles.cols());

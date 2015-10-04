@@ -25,7 +25,8 @@ public class Main {
         long a = System.currentTimeMillis();
         String fileName = "" + System.getProperty("user.dir") + "/dronetest00.PNG";   //Bilde av typen BGR
         Mat inImage = Imgcodecs.imread(fileName);
-        CircleDetection cd = new CircleDetection(inImage, 500, 10, 4, 15,204,200,10);
+        TestCircleDetection cd = new TestCircleDetection(
+                inImage, 2000, 50, 4, 25,204,200,1);
         
         long b = System.currentTimeMillis();
         long c = b - a;
