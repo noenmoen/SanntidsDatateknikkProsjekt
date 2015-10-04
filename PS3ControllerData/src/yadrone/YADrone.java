@@ -5,6 +5,7 @@
  */
 package yadrone;
 
+import ImageProcessing.CircleDetection;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import java.io.IOException;
@@ -34,6 +35,8 @@ public class YADrone {
         } catch (Exception exc) {
             exc.printStackTrace();
         }
+        CircleDetection cd = new CircleDetection(1000, 30, 3, 13, 204, 200, 3, drone, 3);
+        cd.start();
         DroneGUI gui = new DroneGUI(drone);
         gui.start();
         
@@ -45,5 +48,6 @@ public class YADrone {
         timer.scheduleAtFixedRate(reader, 0, 5);
         DroneControl cont = new DroneControl(drone, mySem, store);
         timer.scheduleAtFixedRate(cont, 0, 5);
+        
     }
 }

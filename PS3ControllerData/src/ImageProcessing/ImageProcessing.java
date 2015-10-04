@@ -5,6 +5,8 @@
  */
 package ImageProcessing;
 
+import de.yadrone.base.ARDrone;
+import de.yadrone.base.IARDrone;
 import java.awt.image.BufferedImage;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -14,23 +16,25 @@ import org.opencv.imgcodecs.Imgcodecs;
  *
  * @author Morten
  */
-public class ImageProcessing {
+public class ImageProcessing
+{
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        ImageViewer iv = new ImageViewer();
-        long a = System.currentTimeMillis();
-        String fileName = "" + System.getProperty("user.dir") + "/dronetest00.PNG";   //Bilde av typen BGR
-        Mat inImage = Imgcodecs.imread(fileName);
-        TestCircleDetection cd = new TestCircleDetection(inImage, 500, 10, 4, 15,204,200,10);
-        
-        long b = System.currentTimeMillis();
-        long c = b - a;
-        System.out.println("runtime: " + c);
-
+    public static void main(String[] args)
+    {
+       
+        IARDrone drone = null;
+        try {
+            drone = new ARDrone();
+            drone.start();
+        }
+        catch (Exception exc) {
+            exc.printStackTrace();
+        }
+        CircleDetection cd = new CircleDetection(1000, 30, 3, 13, 204, 200, 3, drone, 10);
+        cd.start();
     }
 
 }

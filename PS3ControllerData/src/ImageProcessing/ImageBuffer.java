@@ -17,41 +17,47 @@ import java.util.ArrayList;
 public class ImageBuffer implements ImageListener
 {
 
-    private ArrayList<BufferedImage> buffer = null;
+//    private ArrayList<BufferedImage> buffer = null;
     private final int bufferSize;
-    int newest = -1;
-    int oldest = 0;
+    private int newest = -1;
+    private int oldest = 0;
+    private BufferedImage[] buffer;
 
     public ImageBuffer(final IARDrone drone, int bufferSize)
     {
         this.bufferSize = bufferSize;
-        buffer = new ArrayList<>(bufferSize);
+//        buffer = new ArrayList<>();
         drone.getVideoManager().addImageListener(this);
+        buffer = new BufferedImage[bufferSize];
     }
 
     @Override
-    public void imageUpdated(BufferedImage bi)
+    public synchronized void imageUpdated(BufferedImage bi)
     {
         incrementNewest();
-        if (newest == oldest && !buffer.isEmpty()) {
+        if (newest == oldest && !(buffer[0]==null)) {
             incrementOldest();
         }
-        buffer.add(newest, bi);
+//        System.out.println("newest: " + newest);
+        buffer[newest]=bi;
+        notify();
     }
 
-    public BufferedImage getBufferedImage()
+    public synchronized BufferedImage getBufferedImage()
     {
-        BufferedImage image = buffer.get(oldest);
+//        System.out.println("oldest: " + oldest);
+        BufferedImage image = buffer[oldest];
         if (oldest != newest) {
             incrementOldest();
         }
+        notify();
         return image;
     }
 
     private void incrementNewest()
     {
         newest++;
-        if (newest > bufferSize) {
+        if (newest >= bufferSize) {
             newest = 0;
         }
     }
@@ -59,7 +65,7 @@ public class ImageBuffer implements ImageListener
     private void incrementOldest()
     {
         oldest++;
-        if (oldest > bufferSize) {
+        if (oldest >= bufferSize) {
             oldest = 0;
         }
     }
