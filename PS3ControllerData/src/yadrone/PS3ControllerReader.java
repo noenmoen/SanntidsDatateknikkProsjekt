@@ -51,7 +51,7 @@ public class PS3ControllerReader extends TimerTask {
                 state = c.read();
                 ControllerStateChange cont_change = new ControllerStateChange(oldState, state);
                 if (cont_change.isButtonStateChanged() || cont_change.isJoysticksChanged())
-                setState(state);
+                setState();
                 oldState = state;
             }
         } catch (IOException ex) {
@@ -59,7 +59,7 @@ public class PS3ControllerReader extends TimerTask {
         }
     }
 
-    private void setState(GameControllerState s) {
+    private void setState() {
         try {
             sem.acquire();
         } catch (InterruptedException ex) {
@@ -72,7 +72,4 @@ public class PS3ControllerReader extends TimerTask {
         sem.release();
     }
 
-    public boolean hasData() {
-        return state != null;
-    }
 }

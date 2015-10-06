@@ -24,9 +24,11 @@ public class DroneControl extends TimerTask {
     private Semaphore sem;
     private ControllerStateStorage storage;
     private GameControllerState state;
+    private NavDataListener navData;
 
     public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage) {
         sem = s;
+        navData = new NavDataListener(drone);
         this.storage = storage;
         this.drone = drone;
         freeroam = false;
