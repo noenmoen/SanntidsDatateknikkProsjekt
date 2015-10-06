@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * @author vegard Class for testing flight of the drone using PS3 dual shock
  * controller
  */
-public class DroneControl extends TimerTask {
+public class DroneControl extends Thread {
 
     private final IARDrone drone;
     private boolean freeroam;
@@ -33,6 +33,12 @@ public class DroneControl extends TimerTask {
         this.drone = drone;
         freeroam = false;
     }
+    public DroneControl(Semaphore s, ControllerStateStorage storage) {
+        sem = s;
+        this.storage = storage;
+        freeroam = false;
+        drone = null;
+    }
 
     @Override
     public void run() {
@@ -45,7 +51,6 @@ public class DroneControl extends TimerTask {
                     Logger.getLogger(DroneControl.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 state = storage.getState();
-
 
                 move(state);
 
@@ -74,7 +79,7 @@ public class DroneControl extends TimerTask {
     private void move(GameControllerState st) {
         if (st.isTriangle()) {
             System.out.println("Drone take off");
-            drone.getCommandManager().takeOff().doFor(5000);
+            drone.getCommandManager().takeOff().doFor(2000);
             //drone.takeOff();
 
         }
@@ -82,24 +87,24 @@ public class DroneControl extends TimerTask {
         // While free roaming, the drone is controlled by the analog sticks of the DS3
         if (st.isSquare()) {
             System.out.println("Freeroaming");
-            freeroam = !freeroam;
-            if (!freeroam) {
-
-                drone.freeze(); // Stop all movement of drone if free roam is disabled
-
-            }
+            freeroam = true;
+        }
+        if (st.isCircle()) {
+            System.out.println("Disabled freeroam");
+            freeroam = false;
+            drone.freeze(); // Stop all movement of drone if free roam is disabled
         }
         // If free roam is enabled and the drone is hovering, it can be controlled by the DS3
         if (freeroam) {
-
-            drone.move3D(getLeftJoystickX(), getLeftJoystickY(), getRightJoystickY(), getRightJoystickX());
+            //System.out.println("Coord: left x = " + getLeftJoystickX()+"left y = " + -getLeftJoystickY()+"right y = " + -getRightJoystickY()+"right x = " + getRightJoystickX());
+            drone.move3D(getLeftJoystickX(), -getLeftJoystickY(), -getRightJoystickY(), getRightJoystickX());
 
         }
         // Pressing cross on the DS3 will make the drone land
         if (st.isCross()) {
             System.out.println("Drone landing");
             freeroam = false;
-            drone.getCommandManager().landing().doFor(5000);
+            drone.getCommandManager().landing().doFor(3000);
             //drone.landing();
 
         }

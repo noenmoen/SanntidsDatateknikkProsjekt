@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  * @author vegard Class for testing the dualshock 3 -> java inteface Prints out
  * the states of the ds3
  */
-public class PS3ControllerReader extends TimerTask {
+public class PS3ControllerReader extends Thread {
 
     private Semaphore sem;
     private final Controller c;
@@ -51,7 +51,7 @@ public class PS3ControllerReader extends TimerTask {
                 state = c.read();
                 ControllerStateChange cont_change = new ControllerStateChange(oldState, state);
                 if (cont_change.isButtonStateChanged() || cont_change.isJoysticksChanged())
-                setState();
+                setState(state);
                 oldState = state;
             }
         } catch (IOException ex) {
@@ -59,14 +59,14 @@ public class PS3ControllerReader extends TimerTask {
         }
     }
 
-    private void setState() {
+    private void setState(GameControllerState s) {
         try {
             sem.acquire();
         } catch (InterruptedException ex) {
             Logger.getLogger(PS3ControllerReader.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (!storage.getAvailable()) {
-            storage.setState(state);
+            storage.setState(s);
             
         }
         sem.release();
