@@ -37,6 +37,7 @@ public class NavDataListener {
 			
 			public void voltageChanged(int vbat_raw) { }
 		});
+                
                 drone.getNavDataManager().addAltitudeListener(new AltitudeListener() {
                     public void receivedAltitude(int altitude)
                     {

@@ -8,6 +8,8 @@ package yadrone;
 import ImageProcessing.CircleDetection;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
+import de.yadrone.base.command.VideoBitRateMode;
+import de.yadrone.base.command.VideoCodec;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.concurrent.Semaphore;
@@ -35,6 +37,11 @@ public class YADrone {
         } catch (Exception exc) {
             exc.printStackTrace();
         }
+        
+        drone.getCommandManager().setVideoBitrateControl(VideoBitRateMode.DISABLED); // Test this        
+        drone.getCommandManager().setVideoCodec(VideoCodec.H264_720P); // Test this
+        drone.getCommandManager().setVideoBitrate(4000); // Test (max bitrate)
+        
         CircleDetection cd = new CircleDetection(1000, 30, 3, 13, 204, 200, 3, drone, 3);
         cd.start();
         DroneGUI gui = new DroneGUI(drone);
