@@ -59,13 +59,14 @@ public class ImageConverter
      */
     public Mat BufferedImageToMat(BufferedImage image)
     {
-        int rows = 360;
-        int cols = 640;
+        int rows = image.getHeight();
+        int cols = image.getWidth();
+        System.out.println(
+                "Resolution: " + image.getWidth() + "x" + image.getHeight());
         int type = CvType.CV_8UC3;
-        System.out.println("Rows: " + image.getHeight());
         Mat newMat = new Mat(rows, cols, type);
-        byte[] data = ((DataBufferByte) 
-                image.getRaster().getDataBuffer()).getData();
+        byte[] data = 
+                ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         newMat.put(0, 0, data);
         return newMat;
     }
