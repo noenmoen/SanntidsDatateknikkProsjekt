@@ -30,7 +30,7 @@ public class VideoListener extends JFrame implements ImageListener {
 
     public VideoListener(final IARDrone drone) {
         super("YADrone Video");
-        setSize(640, 360);
+        setSize(1280, 720);
         setVisible(true);
 
         drone.getVideoManager().addImageListener(this);
