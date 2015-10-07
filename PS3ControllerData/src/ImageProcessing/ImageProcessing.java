@@ -18,22 +18,22 @@ import org.opencv.imgcodecs.Imgcodecs;
  */
 public class ImageProcessing
 {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args)
-    {       
-        IARDrone drone = null;
-        try {
-            drone = new ARDrone();
-            drone.start();
-        }
-        catch (Exception exc) {
-            exc.printStackTrace();
-        }
-        CircleDetection cd = new CircleDetection(1000, 30, 3, 13, 204, 200, 3, drone, 10);
-        cd.start();
-    }
+//
+//    /**
+//     * @param args the command line arguments
+//     */
+//    public static void main(String[] args)
+//    {       
+//        IARDrone drone = null;
+//        try {
+//            drone = new ARDrone();
+//            drone.start();
+//        }
+//        catch (Exception exc) {
+//            exc.printStackTrace();
+//        }
+//        CircleDetection cd = new CircleDetection(1000, 30, 3, 13, 204, 200, 3, drone, 10);
+//        cd.start();
+//    }
 
 }
