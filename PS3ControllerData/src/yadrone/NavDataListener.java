@@ -62,7 +62,7 @@ public class NavDataListener {
         drone.getNavDataManager().addAttitudeListener(new AttitudeListener() {
 
             public void attitudeUpdated(float pitch, float roll, float yaw) {
-                System.out.println("Pitch: " + pitch + " Roll: " + roll + " Yaw: " + yaw);
+                //System.out.println("Pitch: " + pitch + " Roll: " + roll + " Yaw: " + yaw);
                 setRollPitchYaw(roll, pitch, yaw);
 
             }
@@ -77,7 +77,7 @@ public class NavDataListener {
         drone.getNavDataManager().addBatteryListener(new BatteryListener() {
 
             public void batteryLevelChanged(int percentage) {
-                System.out.println("Battery: " + percentage + " %");
+                //System.out.println("Battery: " + percentage + " %");
                 setPercentage(percentage);
             }
 
@@ -87,7 +87,7 @@ public class NavDataListener {
 
         drone.getNavDataManager().addAltitudeListener(new AltitudeListener() {
             public void receivedAltitude(int altitude) {
-                System.out.println("Altitude: " + altitude);
+                //System.out.println("Altitude: " + altitude);
                 setAltitude(altitude);
             }
 

@@ -38,14 +38,10 @@ public class DroneControl extends Thread {
         this.storage = storage;
         this.drone = drone;
         freeroam = false;
+        mode = DroneMode.MAN_MODE;
+       
     }
 
-    public DroneControl(Semaphore s, ControllerStateStorage storage) {
-        sem = s;
-        this.storage = storage;
-        freeroam = false;
-        drone = null;
-    }
 
     @Override
     public void run() {
@@ -92,6 +88,7 @@ public class DroneControl extends Thread {
 
     private void move(GameControllerState st) {
         if (st.isTriangle()) {
+            drone.getCommandManager().flatTrim();
             System.out.println("Drone take off");
             drone.getCommandManager().takeOff().doFor(2000);
             //drone.takeOff();
@@ -119,6 +116,7 @@ public class DroneControl extends Thread {
             System.out.println("Drone landing");
             freeroam = false;
             drone.getCommandManager().landing().doFor(3000);
+            drone.getCommandManager().flatTrim();
             //drone.landing();
 
         }

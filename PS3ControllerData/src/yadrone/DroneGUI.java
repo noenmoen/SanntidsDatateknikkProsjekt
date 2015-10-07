@@ -35,11 +35,12 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
     private IARDrone drone;
 
     public DroneGUI(IARDrone drone, DroneControl cont) {
-        initComponents();
         this.drone = drone;
         v1 = new VideoListener(drone);
         navData = new NavDataListener(drone);
         this.cont = cont;
+        initComponents();
+        this.setVisible(true);
 
     }
 
