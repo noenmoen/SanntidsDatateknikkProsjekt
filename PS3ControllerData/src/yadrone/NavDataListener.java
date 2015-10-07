@@ -17,11 +17,11 @@ import de.yadrone.base.navdata.BatteryListener;
  */
 public class NavDataListener {
 
-    float pitch;
-    float roll;
-    float yaw;
-    int percentage;
-    int altitude;
+    private float pitch;
+    private float roll;
+    private float yaw;
+    private int percentage;
+    private int altitude;
 
     public void setRollPitchYaw(float roll, float pitch, float yaw) {
         this.roll = roll;

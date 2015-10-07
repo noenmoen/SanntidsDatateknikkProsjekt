@@ -30,7 +30,7 @@ public class VideoListener extends JPanel implements ImageListener {
         setVisible(true);
 
         drone.getVideoManager().addImageListener(this);
-        System.out.println("In VideoListener: Added imagelistener");
+        
        
         addMouseListener(new MouseAdapter() {
             @Override
@@ -38,15 +38,6 @@ public class VideoListener extends JPanel implements ImageListener {
                 drone.getCommandManager().setVideoChannel(VideoChannel.NEXT);
             }
         });
-
-        // close the 
-//        addWindowListener(new WindowAdapter() {
-//            @Override
-//            public void windowClosing(WindowEvent e) {
-//                drone.stop();
-//                System.exit(0);
-//            }
-//        });
 
     }
 

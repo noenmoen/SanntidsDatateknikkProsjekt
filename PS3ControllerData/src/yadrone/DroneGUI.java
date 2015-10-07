@@ -127,7 +127,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
             }
         });
 
-        modeTextField.setText("Mode");
+        modeTextField.setText("Mode: Manual mode");
 
         rollTextField.setText("Roll:");
 
@@ -145,7 +145,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
                 ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(ButtonPanel1Layout.createSequentialGroup()
                         .addGap(103, 103, 103)
-                        .addComponent(modeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(modeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGroup(ButtonPanel1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -158,9 +158,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
                         .addGap(35, 35, 35)
                         .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(ButtonPanel1Layout.createSequentialGroup()
-                                        .addComponent(altitudeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(altitudeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(batTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(batTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGroup(ButtonPanel1Layout.createSequentialGroup()
                                         .addComponent(manButton, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
