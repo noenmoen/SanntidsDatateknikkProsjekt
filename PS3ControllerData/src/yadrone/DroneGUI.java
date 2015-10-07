@@ -15,6 +15,11 @@ import de.yadrone.base.IARDrone;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  *
@@ -27,32 +32,47 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
      */
     private VideoListener v1;
     private NavDataListener navData;
-    private BufferedImage pi;
+
     private DroneControl cont;
     private IARDrone drone;
     private final ProcessedImagePanel pil;
 
-    public DroneGUI(IARDrone drone, DroneControl cont,ProcessedImagePanel pil) {
+    public DroneGUI(IARDrone drone, DroneControl cont, ProcessedImagePanel pil) {
         this.drone = drone;
         v1 = new VideoListener(drone);
         navData = new NavDataListener(drone);
         this.cont = cont;
         this.pil = pil;
+        try {
+            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception ex) {
+            }
+
+        }
         initComponents();
-        this.setVisible(true);     
+        this.setVisible(true);
     }
 
     @Override
     public void run() {
-//
-//      
-        rollTextField.setText("Roll: " + navData.getRoll());
-        pitchTextField.setText("Pitch: " + navData.getPitch());
-        yawTextField.setText("Yaw: " + navData.getYaw());
-        altitudeTextField.setText("Altitude: " + navData.getAltitude());
-        batTextField.setText("Battery status : " + navData.getPercentage() + "%");
-        repaintTextFields();
+        while (true) {
+            rollTextField.setText("Roll: " + navData.getRoll());
+            pitchTextField.setText("Pitch: " + navData.getPitch());
+            yawTextField.setText("Yaw: " + navData.getYaw());
+            altitudeTextField.setText("Altitude: " + navData.getAltitude());
+            batTextField.setText("Battery status : " + navData.getPercentage() + "%");
+            repaintTextFields();
+        }
     }
+
     @SuppressWarnings("unchecked")
 
     private void initComponents() {
@@ -139,7 +159,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
                 ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(ButtonPanel1Layout.createSequentialGroup()
                         .addGap(103, 103, 103)
-                        .addComponent(modeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(modeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGroup(ButtonPanel1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -240,10 +260,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         cont.setMode(DroneControl.DroneMode.AUTO_MODE);
     }
 
-    public void setProcessedImage(BufferedImage processedImage) {
-        pi = processedImage;
-    }
-
     // Variables declaration - do not modify                     
     private javax.swing.JPanel ButtonPanel1;
     private javax.swing.JPanel ImageProcessViewer;
@@ -265,6 +281,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         yawTextField.repaint();
         altitudeTextField.repaint();
         batTextField.repaint();
+
     }
 
 }
