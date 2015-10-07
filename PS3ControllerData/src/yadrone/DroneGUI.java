@@ -10,14 +10,11 @@
  */
 package yadrone;
 
-import ImageProcessing.ImageBuffer;
+import ImageProcessing.ProcessedImagePanel;
 import de.yadrone.base.IARDrone;
-import de.yadrone.base.video.ImageListener;
-import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import org.opencv.core.Mat;
 
 /**
  *
@@ -33,15 +30,16 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
     private BufferedImage pi;
     private DroneControl cont;
     private IARDrone drone;
+    private final ProcessedImagePanel pil;
 
-    public DroneGUI(IARDrone drone, DroneControl cont) {
+    public DroneGUI(IARDrone drone, DroneControl cont,ProcessedImagePanel pil) {
         this.drone = drone;
         v1 = new VideoListener(drone);
         navData = new NavDataListener(drone);
         this.cont = cont;
+        this.pil = pil;
         initComponents();
-        this.setVisible(true);
-
+        this.setVisible(true);     
     }
 
     @Override
@@ -54,11 +52,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         altitudeTextField.setText("Altitude: " + navData.getAltitude());
         batTextField.setText("Battery status : " + navData.getPercentage() + "%");
         repaintTextFields();
-        if (pi != null) {
-            ImageProcessViewer.paint(pi.createGraphics());
-        }
     }
-
     @SuppressWarnings("unchecked")
 
     private void initComponents() {
@@ -72,7 +66,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         });
         jPanel1 = new javax.swing.JPanel();
         VideoStreamViewer = v1;
-        ImageProcessViewer = new javax.swing.JPanel();
+        ImageProcessViewer = pil;
         ButtonPanel1 = new javax.swing.JPanel();
         manButton = new javax.swing.JButton();
         autoButton = new javax.swing.JButton();
