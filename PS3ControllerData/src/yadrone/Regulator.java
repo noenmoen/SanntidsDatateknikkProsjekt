@@ -43,7 +43,7 @@ public class Regulator {
         avg[2] = sumR / elements;
         filteredCoordinates.add(avg);
         if (rawCoordinates.size() > elements) {
-            rawCoordinates.remove(elements);
+            rawCoordinates.remove(0);
         }
     }
 
@@ -55,15 +55,17 @@ public class Regulator {
         if (!v.empty() && v.cols() == 1 && v.rows() == 1) {
             rawCoordinates.add(v);
         }
-
-        if (rawCoordinates.size() - 1 > 5) {
-            rawCoordinates.remove(6);
+    }
+    public double[] getLatestCoordinate(){
+        if(filteredCoordinates.size()> 5){
+            filteredCoordinates.remove(0);
         }
+        return filteredCoordinates.get(filteredCoordinates.size()-1);
     }
     
-    public void DistanceEstimate(double[] a){
+    public void DistanceEstimate(double[] circleinfo){
         double realRad = CircleDiameter/2;
-        double virtualRadius = a[3];
+        double virtualRadius = circleinfo[3];
         
     }
     
