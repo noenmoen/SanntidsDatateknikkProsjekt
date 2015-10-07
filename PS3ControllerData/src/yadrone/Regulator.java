@@ -28,6 +28,7 @@ public class Regulator {
      *
      */
     public void CoordinateFilter() {
+        
         int elements = 6;
         double[] avg = new double[3];
         double sumX = 0;
@@ -56,11 +57,13 @@ public class Regulator {
             rawCoordinates.add(v);
         }
     }
-    public double[] getLatestCoordinate(){
+    public Mat getLatestCoordinate(){
+        Mat mat = new Mat();
         if(filteredCoordinates.size()> 5){
             filteredCoordinates.remove(0);
         }
-        return filteredCoordinates.get(filteredCoordinates.size()-1);
+        mat.put(0, 0, filteredCoordinates.get(filteredCoordinates.size()-1));
+        return mat;
     }
     
     public void DistanceEstimate(double[] circleinfo){
