@@ -6,6 +6,7 @@
 package yadrone;
 
 import ImageProcessing.CircleDetection;
+import ImageProcessing.ProcessedImagePanel;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoBitRateMode;
@@ -32,6 +33,7 @@ public class YADrone
         Semaphore mySem = new Semaphore(1, true);
         ControllerStateStorage store = new ControllerStateStorage();
         PS3ControllerReader reader = null;
+        ProcessedImagePanel pip = new ProcessedImagePanel();
         IARDrone drone = null;
         try {
             drone = new ARDrone();
@@ -54,10 +56,11 @@ public class YADrone
         DroneControl cont = new DroneControl(drone, mySem, store);
         //timer.scheduleAtFixedRate(cont, 5, 10);
         cont.start();
-        DroneGUI gui = new DroneGUI(drone, cont);       
-        Thread guiThread = new Thread(gui);        
+        DroneGUI gui = new DroneGUI(drone, cont, pip);
+        Thread guiThread = new Thread(gui);
         guiThread.start();
-        CircleDetection cd = new CircleDetection(1000, 30, 3, 13, 204, 200, 3, drone, 3, gui);
+        CircleDetection cd = new CircleDetection(
+                1000, 30, 3, 13, 204, 200, 3, drone, 3, gui, pip);
         cd.start();
     }
 }
