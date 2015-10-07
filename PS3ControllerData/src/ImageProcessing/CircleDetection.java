@@ -155,8 +155,6 @@ public class CircleDetection extends Thread
 
     /**
      *
-     *
-     *
      * @param circles: Is given by Houghcircles
      * @param image: The image you draw cirles on
      * @return

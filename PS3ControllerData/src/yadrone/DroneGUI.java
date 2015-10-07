@@ -25,6 +25,7 @@ public class DroneGUI extends Thread {
     public DroneGUI(final IARDrone drone) {
         i = 0;
         videoPanel = new VideoListener(drone);
+        
     }
 
     @Override
