@@ -16,6 +16,7 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import yadrone.DroneGUI;
+import yadrone.Regulator;
 
 /**
  *
@@ -42,6 +43,7 @@ public class CircleDetection extends Thread implements ImageListener
     private BufferedImage bufferedImage;
     private DroneGUI droneGUI;
     private final ProcessedImagePanel pil;
+    private final Regulator reg;
 
     /**
      * clean constructor
@@ -71,7 +73,8 @@ public class CircleDetection extends Thread implements ImageListener
             IARDrone drone,
             int bufferSize,
             DroneGUI droneGUI,
-            ProcessedImagePanel pil)
+            ProcessedImagePanel pil,
+            Regulator reg)
     {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         this.cannyThresh_upper = cannyThresh_upper;
@@ -85,6 +88,7 @@ public class CircleDetection extends Thread implements ImageListener
         drone.getVideoManager().addImageListener(this);
         this.droneGUI = droneGUI;
         this.pil = pil;
+        this.reg = reg;
     }
 
     private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh)
@@ -258,11 +262,11 @@ public class CircleDetection extends Thread implements ImageListener
                 }
 
             }
-            Mat originalImage = image;
+            Mat originalImage = image.clone();
             Vector<Mat> HSV = new Vector<>();
 
             Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
-            Core.split(originalImage, HSV);
+            Core.split(image, HSV);
             Mat h = HSV.get(0);
             Mat s = HSV.get(1);
             Mat v = HSV.get(2);
@@ -283,6 +287,7 @@ public class CircleDetection extends Thread implements ImageListener
             Mat ad1 = new Mat();
             Mat ad2 = new Mat();
             Mat ad3 = new Mat();
+            Mat out = new Mat();
             Core.multiply(ht2, st2, ad1);
             Core.multiply(ad1, vt2, ad2);
             Core.multiply(st2, vt2, ad3);
@@ -293,11 +298,27 @@ public class CircleDetection extends Thread implements ImageListener
 //            }
 //            iv.show(ad2, "Thresholding: ad2");
 //            iv.show(ad3, "Thresholding: ad3");
-            Mat circles = CircleFinder(vt2, denom, cannyThresh_upper,
+            Mat circles = CircleFinder(ad2, denom, cannyThresh_upper,
                     cannyThresh_inner, circle_min, circle_max);
-            Mat image1 = DrawCircles(circles, image, color, lineWidth);
+            Vector<Mat> channels = new Vector<>();
+            Core.split(originalImage, channels);
+            Core.multiply(channels.get(0), ad2, channels.get(0));
+            Core.multiply(channels.get(1), ad2, channels.get(1));
+            Core.multiply(channels.get(2), ad2, channels.get(2));
+            Core.merge(channels, originalImage);            
+//            try {
+//                System.out.println(circles.cols() + " " + circles.rows());
+//                reg.AddNewCoordinate(circles);
+//
+//                out = DrawCircles(reg.getLatestCoordinate(), originalImage, color, lineWidth);
+//            }
+//            catch (Exception e) {
+//                System.out.println(e.getMessage());
+//                out = DrawCircles(circles, originalImage, color, lineWidth);
+//            }
+            out = DrawCircles(circles, originalImage, color, lineWidth);
 //            iv.show(image1, "Resulting Image");
-            pil.setBufferedImage((BufferedImage)ic.toBufferedImage(ad2));
+            pil.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
             System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
         }
     }
