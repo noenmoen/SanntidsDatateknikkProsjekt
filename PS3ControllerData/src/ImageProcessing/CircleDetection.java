@@ -275,7 +275,7 @@ public class CircleDetection extends Thread implements ImageListener
             Mat ht2 = MinMaxThreshold(hg, 0.400 * 255, 0.900 * 255);
             Mat st2 = MinMaxThreshold(sg, 0.103 * 255, 255);
             Mat vt2 = MinMaxThreshold(vg, 0.221*255, 0.665 * 255);
-            iv.show(ht2, "Thresholding: HT2");
+//            iv.show(ht2, "Thresholding: HT2");
 //            iv.show(st2, "Thresholding: ST2");
 //            iv.show(vt2, "Thresholding: VT2");
             Mat ad1 = new Mat();
@@ -289,12 +289,13 @@ public class CircleDetection extends Thread implements ImageListener
 //            Imgproc.erode(ad2, ad2, );
 //            Imgproc.dilate(ad2, ad2, image);
 //            }
-            iv.show(ad2, "Thresholding: ad2");
+//            iv.show(ad2, "Thresholding: ad2");
 //            iv.show(ad3, "Thresholding: ad3");
             Mat circles = CircleFinder(vt2, denom, cannyThresh_upper,
                     cannyThresh_inner, circle_min, circle_max);
             Mat image1 = DrawCircles(circles, image, color, lineWidth);
 //            iv.show(image1, "Resulting Image");
+            droneGUI.setProcessedImage(ic.MatToBufferedImage(ad2,"png"));
             System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
         }
     }
