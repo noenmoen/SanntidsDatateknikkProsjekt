@@ -19,12 +19,18 @@ import java.util.logging.Logger;
  */
 public class DroneControl extends Thread {
 
+    public enum DroneMode {
+
+        MAN_MODE, AUTO_MODE
+    };
+
     private final IARDrone drone;
     private boolean freeroam;
     private Semaphore sem;
     private ControllerStateStorage storage;
     private GameControllerState state;
     private NavDataListener navData;
+    private DroneMode mode;
 
     public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage) {
         sem = s;
@@ -33,6 +39,7 @@ public class DroneControl extends Thread {
         this.drone = drone;
         freeroam = false;
     }
+
     public DroneControl(Semaphore s, ControllerStateStorage storage) {
         sem = s;
         this.storage = storage;
@@ -43,18 +50,25 @@ public class DroneControl extends Thread {
     @Override
     public void run() {
         while (true) {
-            while (storage.getAvailable()) { // If the controller has produced new data
+            switch (mode) {
+                case MAN_MODE:
+                    while (storage.getAvailable()) { // If the controller has produced new data
 
-                try {
-                    sem.acquire();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(DroneControl.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                state = storage.getState();
+                        try {
+                            sem.acquire();
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(DroneControl.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        state = storage.getState();
 
-                move(state);
+                        move(state);
 
-                sem.release();
+                        sem.release();
+                        break;
+                    }
+                case AUTO_MODE:
+                    drone.getCommandManager().landing().doFor(2000); // Automatic mode not implemented yet
+                    
             }
         }
     }
@@ -108,5 +122,9 @@ public class DroneControl extends Thread {
             //drone.landing();
 
         }
+    }
+
+    public void setMode(DroneMode mode) {
+        this.mode = mode;
     }
 }

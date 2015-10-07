@@ -42,8 +42,8 @@ public class YADrone {
 
 //        CircleDetection cd = new CircleDetection(1000, 30, 3, 13, 204, 200, 3, drone, 3);
 //        cd.start();
-        DroneGUI gui = new DroneGUI(drone);
-        gui.start();
+        
+        //gui.start(); (runnable, not thread)
 //        long startTime = System.currentTimeMillis();
 //        while(startTime>(System.currentTimeMillis()-20*1000)){}
 //        drone.stop();
@@ -58,5 +58,8 @@ public class YADrone {
         DroneControl cont = new DroneControl(drone, mySem, store);
         //timer.scheduleAtFixedRate(cont, 5, 10);
         cont.start();
+        DroneGUI gui = new DroneGUI(drone, cont);
+        Thread guiThread = new Thread(gui);
+        guiThread.start();
     }
 }
