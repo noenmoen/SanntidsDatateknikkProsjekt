@@ -12,14 +12,17 @@ import org.opencv.core.Mat;
  *
  * @author Morten
  */
-public class Regulator {
+public class Regulator
+{
 
     private ArrayList<Mat> rawCoordinates;
     private ArrayList<double[]> filteredCoordinates;
-    private final double CircleDiameter = 83;
+    private final double CIRCLE_DIAMETER = 83;
 
-    public Regulator() {
-
+    public Regulator()
+    {
+        rawCoordinates = new ArrayList<>();
+        filteredCoordinates = new ArrayList<>();
     }
 
     /**
@@ -27,13 +30,17 @@ public class Regulator {
      * Returns the average from the 6 last coordinates
      *
      */
-    public void CoordinateFilter() {
-        
-        int elements = 6;
+    public void CoordinateFilter()
+    {
+
+        int elements = 9;
         double[] avg = new double[3];
         double sumX = 0;
         double sumY = 0;
         double sumR = 0;
+        if (rawCoordinates.size() > 10) {
+            rawCoordinates.remove(0);
+        }
         for (int i = 0; i < (elements - 1); i++) {
             sumX = sumX + (double) rawCoordinates.get(i).get(0, 0)[0];
             sumY = sumY + (double) rawCoordinates.get(i).get(0, 0)[1];
@@ -50,26 +57,29 @@ public class Regulator {
 
     /**
      * Add a new raw coordinate
+     *
      * @param v
      */
-    public void AddNewCoordinate(Mat v) {
-        if (!v.empty() && v.cols() == 1 && v.rows() == 1) {
+    public synchronized void AddNewCoordinate(Mat v)
+    {
+        if (v.cols() == 1 && v.rows() == 1) {
             rawCoordinates.add(v);
-        }
+        }        
+        CoordinateFilter();
     }
-    public Mat getLatestCoordinate(){
+
+    public synchronized Mat getLatestCoordinate()
+    {
         Mat mat = new Mat();
-        if(filteredCoordinates.size()> 5){
-            filteredCoordinates.remove(0);
-        }
-        mat.put(0, 0, filteredCoordinates.get(filteredCoordinates.size()-1));
+        mat.put(0, 0, filteredCoordinates.get(filteredCoordinates.size() - 1));
         return mat;
     }
-    
-    public void DistanceEstimate(double[] circleinfo){
-        double realRad = CircleDiameter/2;
+
+    public void DistanceEstimate(double[] circleinfo)
+    {
+        double realRad = CIRCLE_DIAMETER / 2;
         double virtualRadius = circleinfo[3];
-        
+
     }
-    
+
 }
