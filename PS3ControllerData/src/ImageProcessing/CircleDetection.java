@@ -5,7 +5,10 @@
  */
 package ImageProcessing;
 
+
 import de.yadrone.base.IARDrone;
+import de.yadrone.base.video.ImageListener;
+import java.awt.image.BufferedImage;
 import java.util.Vector;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -13,12 +16,13 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import yadrone.DroneGUI;
 
 /**
  *
  * @author Morten
  */
-public class CircleDetection extends Thread
+public class CircleDetection extends Thread implements ImageListener
 {
 
     private int highThreshold;
@@ -36,7 +40,8 @@ public class CircleDetection extends Thread
     private int denom;
     private ImageViewer iv = new ImageViewer();
     private ImageConverter ic = new ImageConverter();
-    private ImageBuffer ib;
+    private BufferedImage bufferedImage;
+    private DroneGUI droneGUI;
 
     /**
      * clean constructor
@@ -64,7 +69,8 @@ public class CircleDetection extends Thread
             int lowthreshold,
             double sigmaX,
             IARDrone drone,
-            int bufferSize)
+            int bufferSize,
+            DroneGUI droneGUI)
     {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         this.cannyThresh_upper = cannyThresh_upper;
@@ -75,7 +81,8 @@ public class CircleDetection extends Thread
         this.doublehighThreshold = (double) highthreshold;
         this.lowThreshold = lowthreshold;
         this.sigmaX = sigmaX;
-        ib = new ImageBuffer(drone, bufferSize);
+        drone.getVideoManager().addImageListener(this);
+        this.droneGUI = droneGUI;
     }
 
     private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh)
@@ -154,6 +161,8 @@ public class CircleDetection extends Thread
     }
 
     /**
+     *
+     *
      *
      * @param circles: Is given by Houghcircles
      * @param image: The image you draw cirles on
@@ -241,15 +250,13 @@ public class CircleDetection extends Thread
             Mat image = null;
             while (image == null) {
                 try {
-                    image = ic.BufferedImageToMat(ib.getBufferedImage());
+                    image = ic.BufferedImageToMat(bufferedImage);
                 }
                 catch (Exception e) {
                 }
 
             }
             Mat originalImage = image;
-            Mat canny = new Mat();
-            Mat gaussFiltered = new Mat();
             Vector<Mat> HSV = new Vector<>();
 
             Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
@@ -265,59 +272,36 @@ public class CircleDetection extends Thread
             Imgproc.GaussianBlur(s, sg, gaussKernel, sigmaX);
             Imgproc.GaussianBlur(v, vg, gaussKernel, sigmaX);
 
-//            //Thresholdnign:
-//            Mat ht = new Mat();
-//            Mat st = new Mat();
-//            Mat vt = new Mat();
-//            Imgproc.adaptiveThreshold(h, ht, highThreshold, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 99, -1);
-//            Imgproc.adaptiveThreshold(h, st, highThreshold, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 99, -1);
-//            Imgproc.adaptiveThreshold(h, vt, highThreshold, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 99, -1);
-////        iv.show(ht, "Thresholding: HT");
-////        iv.show(st, "Thresholding: ST");
-////        iv.show(vt, "Thresholding: VT");
-//
-//            Mat ht1 = new Mat();
-//            Mat st1 = new Mat();
-//            Mat vt1 = new Mat();
-//            Imgproc.threshold(h, ht1, doublehighThreshold, 255, Imgproc.THRESH_BINARY);
-//            Imgproc.threshold(h, st1, doublehighThreshold, 255, Imgproc.THRESH_BINARY);
-//            Imgproc.threshold(h, vt1, doublehighThreshold, 255, Imgproc.THRESH_BINARY);
-////        iv.show(ht1, "Thresholding: HT1");
-////        iv.show(st1, "Thresholding: ST1");
-////        iv.show(vt1, "Thresholding: VT1");
-            Mat ht2 = MinMaxThreshold(hg, 0.575 * 255, 0.664 * 255);
-            Mat st2 = MinMaxThreshold(sg, 0.308 * 255, 255);
-            Mat vt2 = MinMaxThreshold(vg, 0.29, 0.607 * 255);
-//            iv.show(ht2, "Thresholding: HT2");
+            Mat ht2 = MinMaxThreshold(hg, 0.400 * 255, 0.900 * 255);
+            Mat st2 = MinMaxThreshold(sg, 0.103 * 255, 255);
+            Mat vt2 = MinMaxThreshold(vg, 0.221*255, 0.665 * 255);
+            iv.show(ht2, "Thresholding: HT2");
 //            iv.show(st2, "Thresholding: ST2");
 //            iv.show(vt2, "Thresholding: VT2");
-
             Mat ad1 = new Mat();
             Mat ad2 = new Mat();
-            Core.add(ht2, st2, ad1);
-            Core.add(ad1, vt2, ad2);
-//        iv.show(ad2," Added after threshold");
+            Mat ad3 = new Mat();
+            Core.multiply(ht2, st2, ad1);
+            Core.multiply(ad1, vt2, ad2);
+            Core.multiply(st2, vt2, ad3);
+            
+//            for(int i=0;i<1;i++){
+//            Imgproc.erode(ad2, ad2, );
+//            Imgproc.dilate(ad2, ad2, image);
+//            }
+            iv.show(ad2, "Thresholding: ad2");
+//            iv.show(ad3, "Thresholding: ad3");
             Mat circles = CircleFinder(vt2, denom, cannyThresh_upper,
                     cannyThresh_inner, circle_min, circle_max);
             Mat image1 = DrawCircles(circles, image, color, lineWidth);
-            iv.show(image1, "Resulting Image");
-//        Imgproc.Sobel(BW, gaussFiltered, -1, 1, 1);
-//        Imgproc.Sobel(gaussFiltered, gaussFiltered, -1, 1, 1);
-//        Core.add(BW, gaussFiltered, added);
-//        v.show(added,"added");
-
-//        Imgproc.Canny(thresh, canny, 10, 100, aperture, false);
-//        iv.show(canny, "Canny");
-//        Mat circles = new Mat();
-//        circles = CircleFinder(canny, denom, cannyThresh_upper,
-//                cannyThresh_inner, circle_min, circle_max);
-////        circles = CircleFinder(canny);
-//        Mat image = DrawCircles(circles, originalImage, color, lineWidth);
-//        //Vis bildet
-//
-//        iv.show(image, "FUDGE");
+//            iv.show(image1, "Resulting Image");
             System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
         }
     }
 
+    @Override
+    public synchronized void imageUpdated(BufferedImage bi)
+    {
+        bufferedImage = bi;
+    }
 }
