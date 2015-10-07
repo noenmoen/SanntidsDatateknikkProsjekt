@@ -53,7 +53,7 @@ public class Regulator {
      * @param v
      */
     public void AddNewCoordinate(Mat v) {
-        if (!v.empty() && v.cols() == 1 && v.rows() == 1) {
+        if (v.cols() == 1 && v.rows() == 1) {
             rawCoordinates.add(v);
         }
     }
