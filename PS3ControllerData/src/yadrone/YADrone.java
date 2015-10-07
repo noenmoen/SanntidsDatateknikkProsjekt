@@ -20,12 +20,14 @@ import java.util.logging.Logger;
  *
  * @author vegard
  */
-public class YADrone {
+public class YADrone
+{
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
 //        Timer timer = new Timer();
         Semaphore mySem = new Semaphore(1, true);
         ControllerStateStorage store = new ControllerStateStorage();
@@ -34,32 +36,28 @@ public class YADrone {
         try {
             drone = new ARDrone();
             drone.start();
-        } catch (Exception exc) {
+        }
+        catch (Exception exc) {
             exc.printStackTrace();
         }
         drone.getCommandManager().setVideoBitrateControl(VideoBitRateMode.DISABLED); // Test this        
         drone.getCommandManager().setVideoCodec(VideoCodec.H264_360P); // Test this
 
-//        CircleDetection cd = new CircleDetection(1000, 30, 3, 13, 204, 200, 3, drone, 3);
-//        cd.start();
-        
-        //gui.start(); (runnable, not thread)
-//        long startTime = System.currentTimeMillis();
-//        while(startTime>(System.currentTimeMillis()-20*1000)){}
-//        drone.stop();
-//        System.exit(0);
-        try {
-            reader = new PS3ControllerReader(mySem, store);
-        } catch (IOException ex) {
-            Logger.getLogger(YADrone.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        reader.start();
+//       
+//        try {
+//            reader = new PS3ControllerReader(mySem, store);
+//        } catch (IOException ex) {
+//            Logger.getLogger(YADrone.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        reader.start();
         //timer.scheduleAtFixedRate(reader, 0, 10);
         DroneControl cont = new DroneControl(drone, mySem, store);
         //timer.scheduleAtFixedRate(cont, 5, 10);
         cont.start();
-        DroneGUI gui = new DroneGUI(drone, cont);
-        Thread guiThread = new Thread(gui);
+        DroneGUI gui = new DroneGUI(drone, cont);       
+        Thread guiThread = new Thread(gui);        
         guiThread.start();
+        CircleDetection cd = new CircleDetection(1000, 30, 3, 13, 204, 200, 3, drone, 3, gui);
+        cd.start();
     }
 }
