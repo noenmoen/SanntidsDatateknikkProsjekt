@@ -208,7 +208,8 @@ public class CircleDetection extends Thread implements ImageListener
                 double[] circle = circles.get(0, i);
                 Point p = new Point(circle[0], circle[1]);
                 Imgproc.circle(image, p, (int) circle[2], color, lineWidth);
-                System.out.println((i + 1) + " Radius: " + circle[2]);
+                System.out.println((i + 1) + " Coordinates: "
+                        + circle[0]+"x" + circle[1] + " Radius: " + circle[2]);
             }
         }
         else {
