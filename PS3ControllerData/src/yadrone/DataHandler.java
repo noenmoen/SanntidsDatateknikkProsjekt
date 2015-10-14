@@ -13,66 +13,77 @@ import org.opencv.core.Mat;
  *
  * @author Martin Strøm Pedersen
  */
-public class DataHandler
-{
+public class DataHandler {
 
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
-    private int centroidAndRadiusCapacity = 3;
-    private Deque<Mat> rawCoordinates = new ArrayDeque<>();
+    private final int CAPACITY = 15;
+    private final double dev = 0.1;
+    private Deque<double[]> centroidAndRadius = new ArrayDeque<>();
 
-    public DataHandler()
-    {
+    public DataHandler() {
     }
 
-    public synchronized void addCentroidAndRadius(Double[] centroidAndRadius)
-    {
+    public synchronized void addCentroidAndRadius(Mat centroidAndRadius) {
         try {
-            this.rawCoordinates.add(centroidAndRadius);
-            lastTimeCircleDetected = System.currentTimeMillis();
-            if (this.rawCoordinates.size() > centroidAndRadiusCapacity) {
-                this.rawCoordinates.remove();
+            isCircleDataFresh();
+            double[] circle = circleFilter(centroidAndRadius);
+            if (circle != null) {
+                this.centroidAndRadius.add(centroidAndRadius.get(0, 0));
+                lastTimeCircleDetected = System.currentTimeMillis();
+                if (this.centroidAndRadius.size() > CAPACITY) {
+                    this.centroidAndRadius.remove();
+                }
             }
+        } catch (Exception e) {
         }
-        catch (Exception e) {
+    }
+
+    public synchronized double[] getCentroidAndRadius() {
+
+        return centroidAndRadius.peekLast();
+    }
+
+    private synchronized boolean isCircleDataFresh() {
+
+        if ((lastTimeCircleDetected + CIRCLE_EXPIRATION_TIME)
+                > System.currentTimeMillis()) {
+            return true;
         }
+        centroidAndRadius.clear();
+        return false;
     }
 
-    public synchronized Double[] getCentroidAndRadius()
-    {
-        return rawCoordinates.peekLast();
-    }
-
-    public synchronized boolean isCircleDataFresh()
-    {
-        return (lastTimeCircleDetected + CIRCLE_EXPIRATION_TIME)
-                > System.currentTimeMillis();
-    }
-
-    private boolean circleFilter(Integer[] centroidAndRadius)
-    {
+    private double[] circleFilter(Mat centroidAndRadius) {
+        if (centroidAndRadius.cols() < 0) {
+            return null;
+        }
         double sumX = 0;
         double sumY = 0;
         double sumRadius = 0;
-        double meanX = 0;
-        double meanY = 0;
-        double meanRadius = 0;
-        double devCentroid = 0;
-        double devRadius = 0;
-        for (Mat values : this.rawCoordinates) {
-            sumX += values.get(0, 0)[0];
+        double[] avg = new double[3];
+        for (double[] values : this.centroidAndRadius) {
+            sumX += values[0];
             sumY += values[1];
             sumRadius += values[3];
         }
-        meanX = sumX / this.rawCoordinates.size();
-        meanY = sumY / this.rawCoordinates.size();
-        meanRadius = meanRadius / this.rawCoordinates.size();
-        for (Double[] values : this.rawCoordinates) {
-            devCentroid += Math.pow(values[0] - meanX, 2);
-            devRadius += Math.pow(values[1] - meanRadius, 2);
+        // Average
+        avg[0] = sumX / this.centroidAndRadius.size();
+        avg[1] = sumY / this.centroidAndRadius.size();
+        avg[2] = sumRadius / this.centroidAndRadius.size();
+
+        if (avg[0] == 0 && avg[0] == 0 && avg[0] == 0) {
+            return centroidAndRadius.get(0, 0);
         }
-        devCentroid = Math.sqrt(devCentroid / this.rawCoordinates.size());
-        devRadius   = Math.sqrt(devRadius / this.rawCoordinates.size());
-        return true;
+        // Returns valid circle
+        for (int x = 0; x < centroidAndRadius.cols(); x++) {
+            for (int i = 0; i < 3; i++) {
+                if ((double) centroidAndRadius.get(0, x)[i] < avg[i] * (1 + dev)
+                        || (double) centroidAndRadius.get(0, x)[i] > avg[i] * (1 - dev)) {
+                    return centroidAndRadius.get(0, x);
+                }
+            }
+        }
+        return null;
     }
 }
