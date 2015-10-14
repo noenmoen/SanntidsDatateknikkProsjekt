@@ -14,7 +14,8 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author vegard Class for testing flight of the drone using PS3 dual shock
+ * @author vegard 
+ * Class for testing flight of the drone using PS3 dual shock
  * controller
  */
 public class DroneControl extends Thread {
@@ -29,12 +30,12 @@ public class DroneControl extends Thread {
     private Semaphore sem;
     private ControllerStateStorage storage;
     private GameControllerState state;
-    private NavDataListener navData;
+    private Regulator reg;
     private DroneMode mode;
+    private float[] inputs = new float[4];
 
     public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage) {
         sem = s;
-        navData = new NavDataListener(drone);
         this.storage = storage;
         this.drone = drone;
         freeroam = false;
@@ -63,7 +64,7 @@ public class DroneControl extends Thread {
                         break;
                     }
                 case AUTO_MODE:
-                    drone.getCommandManager().landing().doFor(2000); // Automatic mode not implemented yet
+                    inputs = reg.getDroneInputs();
                     
             }
         }
@@ -108,7 +109,7 @@ public class DroneControl extends Thread {
         // If free roam is enabled and the drone is hovering, it can be controlled by the DS3
         if (freeroam) {
             //System.out.println("Coord: left x = " + getLeftJoystickX()+"left y = " + -getLeftJoystickY()+"right y = " + -getRightJoystickY()+"right x = " + getRightJoystickX());
-            drone.move3D(getLeftJoystickX(), -getLeftJoystickY(), -getRightJoystickY(), getRightJoystickX());
+            drone.getCommandManager().move(getLeftJoystickX(), -getLeftJoystickY(), -getRightJoystickY(), getRightJoystickX());
 
         }
         // Pressing cross on the DS3 will make the drone land
@@ -124,5 +125,12 @@ public class DroneControl extends Thread {
 
     public void setMode(DroneMode mode) {
         this.mode = mode;
+    }
+    public void setRegulator(Regulator reg) {
+        this.reg = reg;
+    }
+    
+    public void moveAuto() {
+        
     }
 }

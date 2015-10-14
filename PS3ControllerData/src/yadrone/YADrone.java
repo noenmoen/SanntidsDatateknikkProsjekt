@@ -52,9 +52,7 @@ public class YADrone
 //            Logger.getLogger(YADrone.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //        reader.start();
-        //timer.scheduleAtFixedRate(reader, 0, 10);
         DroneControl cont = new DroneControl(drone, mySem, store);
-        //timer.scheduleAtFixedRate(cont, 5, 10);
         cont.start();
         DroneGUI gui = new DroneGUI(drone, cont, pip);
         Thread guiThread = new Thread(gui);
