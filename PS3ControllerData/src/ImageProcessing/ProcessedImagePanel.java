@@ -28,7 +28,6 @@ public class ProcessedImagePanel extends JPanel
     public void paint(Graphics g) {
         
         if (bufferedImage != null) {
-            System.out.println("ProcessedImagePanel");
             g.drawImage(bufferedImage, 0, 0, bufferedImage.getWidth(),
                     bufferedImage.getHeight(), null);
         }
