@@ -12,15 +12,14 @@ import org.opencv.core.Mat;
  *
  * @author Morten
  */
-public class Regulator
-{
+public class Regulator {
 
     private ArrayList<Mat> rawCoordinates;
     private ArrayList<double[]> filteredCoordinates;
     private final double CIRCLE_DIAMETER = 83;
+    private final double dev = 1.1;
 
-    public Regulator()
-    {
+    public Regulator() {
         rawCoordinates = new ArrayList<>();
         filteredCoordinates = new ArrayList<>();
     }
@@ -30,11 +29,11 @@ public class Regulator
      * Returns the average from the 6 last coordinates
      *
      */
-    public void CoordinateFilter()
-    {
+    public void CoordinateFilter() {
 
         int elements = 9;
         double[] avg = new double[3];
+        double[] stdD = new double[3];
         double sumX = 0;
         double sumY = 0;
         double sumR = 0;
@@ -49,10 +48,21 @@ public class Regulator
         avg[0] = sumX / elements;
         avg[1] = sumY / elements;
         avg[2] = sumR / elements;
+
         filteredCoordinates.add(avg);
+        for (int x = 0; x < (elements - 1); x++) {
+            for (int i = 0; i < 3; i++) {
+                if ((double) rawCoordinates.get(x).get(0, 0)[i] > avg[i] * dev
+                        || (double) rawCoordinates.get(x).get(0, 0)[i] < avg[i] / dev) {
+                    rawCoordinates.remove(x);
+                }
+            }
+        }
+
         if (rawCoordinates.size() > elements) {
             rawCoordinates.remove(0);
         }
+
     }
 
     /**
@@ -60,23 +70,20 @@ public class Regulator
      *
      * @param v
      */
-    public synchronized void AddNewCoordinate(Mat v)
-    {
+    public synchronized void AddNewCoordinate(Mat v) {
         if (v.cols() == 1 && v.rows() == 1) {
             rawCoordinates.add(v);
-        }        
+        }
         CoordinateFilter();
     }
 
-    public synchronized Mat getLatestCoordinate()
-    {
+    public synchronized Mat getLatestCoordinate() {
         Mat mat = new Mat();
         mat.put(0, 0, filteredCoordinates.get(filteredCoordinates.size() - 1));
         return mat;
     }
 
-    public void DistanceEstimate(double[] circleinfo)
-    {
+    public void DistanceEstimate(double[] circleinfo) {
         double realRad = CIRCLE_DIAMETER / 2;
         double virtualRadius = circleinfo[3];
 
