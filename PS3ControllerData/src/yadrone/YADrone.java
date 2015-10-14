@@ -34,6 +34,7 @@ public class YADrone
         ControllerStateStorage store = new ControllerStateStorage();
         PS3ControllerReader reader = null;
         ProcessedImagePanel pip = new ProcessedImagePanel();
+        Regulator reg = new Regulator();
         IARDrone drone = null;
         try {
             drone = new ARDrone();
@@ -44,8 +45,6 @@ public class YADrone
         }
         drone.getCommandManager().setVideoBitrateControl(VideoBitRateMode.DISABLED); // Test this        
         drone.getCommandManager().setVideoCodec(VideoCodec.H264_360P); // Test this
-
-//       
 //        try {
 //            reader = new PS3ControllerReader(mySem, store);
 //        } catch (IOException ex) {
@@ -58,7 +57,7 @@ public class YADrone
         Thread guiThread = new Thread(gui);
         guiThread.start();
         CircleDetection cd = new CircleDetection(
-                1000, 30, 3, 13, 204, 200, 3, drone, 3, gui, pip);
+                1000, 30, 3, 13, 204, 200, 3, drone, 3, gui, pip, reg);
         cd.start();
     }
 }
