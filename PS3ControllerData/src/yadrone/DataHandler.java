@@ -7,7 +7,7 @@ package yadrone;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Iterator;
+import org.opencv.core.Mat;
 
 /**
  *
@@ -19,28 +19,28 @@ public class DataHandler
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
     private int centroidAndRadiusCapacity = 3;
-    private Deque<Integer[]> centroidAndRadius = new ArrayDeque<>();
+    private Deque<Mat> rawCoordinates = new ArrayDeque<>();
 
     public DataHandler()
     {
     }
 
-    public synchronized void addCentroidAndRadius(Integer[] centroidAndRadius)
+    public synchronized void addCentroidAndRadius(Double[] centroidAndRadius)
     {
         try {
-            this.centroidAndRadius.add(centroidAndRadius);
+            this.rawCoordinates.add(centroidAndRadius);
             lastTimeCircleDetected = System.currentTimeMillis();
-            if (this.centroidAndRadius.size() > centroidAndRadiusCapacity) {
-                this.centroidAndRadius.remove();
+            if (this.rawCoordinates.size() > centroidAndRadiusCapacity) {
+                this.rawCoordinates.remove();
             }
         }
         catch (Exception e) {
         }
     }
 
-    public synchronized Integer[] getCentroidAndRadius()
+    public synchronized Double[] getCentroidAndRadius()
     {
-        return centroidAndRadius.peekLast();
+        return rawCoordinates.peekLast();
     }
 
     public synchronized boolean isCircleDataFresh()
@@ -51,24 +51,28 @@ public class DataHandler
 
     private boolean circleFilter(Integer[] centroidAndRadius)
     {
-        double sumCentroid = 0;
+        double sumX = 0;
+        double sumY = 0;
         double sumRadius = 0;
-        double meanCentroid = 0;
+        double meanX = 0;
+        double meanY = 0;
         double meanRadius = 0;
         double devCentroid = 0;
         double devRadius = 0;
-        for (Integer[] ints : this.centroidAndRadius) {
-            sumCentroid += ints[0];
-            sumRadius += ints[1];
+        for (Mat values : this.rawCoordinates) {
+            sumX += values.get(0, 0)[0];
+            sumY += values[1];
+            sumRadius += values[3];
         }
-        meanCentroid = sumCentroid / this.centroidAndRadius.size();
-        meanRadius = sumRadius / this.centroidAndRadius.size();
-        for (Integer[] ints : this.centroidAndRadius) {
-            devCentroid += Math.pow(ints[0] - meanCentroid, 2);
-            devRadius += Math.pow(ints[1] - meanRadius, 2);
+        meanX = sumX / this.rawCoordinates.size();
+        meanY = sumY / this.rawCoordinates.size();
+        meanRadius = meanRadius / this.rawCoordinates.size();
+        for (Double[] values : this.rawCoordinates) {
+            devCentroid += Math.pow(values[0] - meanX, 2);
+            devRadius += Math.pow(values[1] - meanRadius, 2);
         }
-        devCentroid = Math.sqrt(devCentroid / this.centroidAndRadius.size());
-        devRadius   = Math.sqrt(devRadius / this.centroidAndRadius.size());
+        devCentroid = Math.sqrt(devCentroid / this.rawCoordinates.size());
+        devRadius   = Math.sqrt(devRadius / this.rawCoordinates.size());
         return true;
     }
 }
