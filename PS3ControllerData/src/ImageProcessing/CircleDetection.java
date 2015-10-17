@@ -15,6 +15,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import yadrone.DataHandler;
 import yadrone.DroneGUI;
 import yadrone.Regulator;
 
@@ -22,8 +23,7 @@ import yadrone.Regulator;
  *
  * @author Morten
  */
-public class CircleDetection extends Thread implements ImageListener
-{
+public class CircleDetection extends Thread implements ImageListener {
 
     private int highThreshold;
     private double doublehighThreshold;
@@ -43,13 +43,9 @@ public class CircleDetection extends Thread implements ImageListener
     private BufferedImage bufferedImage;
     private DroneGUI droneGUI;
     private final ProcessedImagePanel pil;
-    private final Regulator reg;
+    private DataHandler dh;
 
     /**
-     * clean constructor
-     */
-    /**
-     * test Constructor.........
      *
      * @param drone
      * @param mat
@@ -74,8 +70,7 @@ public class CircleDetection extends Thread implements ImageListener
             int bufferSize,
             DroneGUI droneGUI,
             ProcessedImagePanel pil,
-            Regulator reg)
-    {
+            DataHandler dh) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         this.cannyThresh_upper = cannyThresh_upper;
         this.cannyThresh_inner = cannyThresh_inner;
@@ -88,11 +83,12 @@ public class CircleDetection extends Thread implements ImageListener
         drone.getVideoManager().addImageListener(this);
         this.droneGUI = droneGUI;
         this.pil = pil;
-        this.reg = reg;
+        this.dh = dh;
     }
 
-    private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh)
-    {
+    private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh) {
+        
+
         Mat newMat = new Mat(mat.size(), mat.type());
 
         double[] data0 = new double[3];
@@ -112,8 +108,7 @@ public class CircleDetection extends Thread implements ImageListener
                 if (x > minThresh && x < maxThresh) {
                     newMat.put(r, c, data1);
 
-                }
-                else {
+                } else {
                     newMat.put(r, c, data0);
                 }
             }
@@ -122,6 +117,7 @@ public class CircleDetection extends Thread implements ImageListener
         return newMat;
     }
 
+  
     /**
      * src_gray: Input image (grayscale) circles: A vector that stores sets of 3
      * values: x_{c}, y_{c}, r for each detected circle. CV_HOUGH_GRADIENT:
@@ -136,8 +132,7 @@ public class CircleDetection extends Thread implements ImageListener
      * @param image
      * @return Mat: the points where circles can be found
      */
-    private Mat CircleFinder(Mat image)
-    {
+    private Mat CircleFinder(Mat image) {
         Mat circles = new Mat();
         Imgproc.HoughCircles(image, circles, Imgproc.CV_HOUGH_GRADIENT, 1, image.height() / 10, 500, 50, 0, 500);
 
@@ -157,8 +152,7 @@ public class CircleDetection extends Thread implements ImageListener
      * @param maxRatio max_radius = 0: Maximum radius to be detected.
      * @return Mat Circles in 3-layered vector
      */
-    private Mat CircleFinder(Mat image, int denominator, int cannyThresh, int centerThresh, int minRatio, int maxRatio)
-    {
+    private Mat CircleFinder(Mat image, int denominator, int cannyThresh, int centerThresh, int minRatio, int maxRatio) {
         Mat circles = new Mat();
         Imgproc.HoughCircles(image, circles, Imgproc.CV_HOUGH_GRADIENT, 1,
                 ((image.height() + image.width()) / 2) / denominator,
@@ -174,8 +168,7 @@ public class CircleDetection extends Thread implements ImageListener
      * @param image: The image you draw cirles on
      * @return
      */
-    private Mat DrawCircles(Mat circles, Mat image)
-    {
+    private Mat DrawCircles(Mat circles, Mat image) {
         System.out.println("---------------------------------------------------");
         System.out.println("Number of circles found: " + circles.cols());
         if (circles.cols() > 0) {
@@ -184,8 +177,7 @@ public class CircleDetection extends Thread implements ImageListener
                 Point p = new Point(circle[0], circle[1]);
                 Imgproc.circle(image, p, (int) circle[2], new Scalar(0, 0, 255), 2);
             }
-        }
-        else {
+        } else {
             System.out.println("could not find any circles!!");
         }
         return image;
@@ -199,8 +191,7 @@ public class CircleDetection extends Thread implements ImageListener
      * @param lineWidth- 1,2,3,4....
      * @return Mat- the image drawn
      */
-    private Mat DrawCircles(Mat circles, Mat image, Scalar color, int lineWidth)
-    {
+    private Mat DrawCircles(Mat circles, Mat image, Scalar color, int lineWidth) {
         System.out.println("---------------------------------------------------");
         System.out.println("Number of circles found: " + circles.cols());
         if (circles.cols() > 0) {
@@ -209,10 +200,9 @@ public class CircleDetection extends Thread implements ImageListener
                 Point p = new Point(circle[0], circle[1]);
                 Imgproc.circle(image, p, (int) circle[2], color, lineWidth);
                 System.out.println((i + 1) + " Coordinates: "
-                        + circle[0]+"x" + circle[1] + " Radius: " + circle[2]);
+                        + circle[0] + "x" + circle[1] + " Radius: " + circle[2]);
             }
-        }
-        else {
+        } else {
             System.out.println("could not find any circles!!");
         }
         return image;
@@ -225,8 +215,7 @@ public class CircleDetection extends Thread implements ImageListener
      * @param thresholdvalue
      * @return
      */
-    private Mat Threshold(Mat mat, int thresholdvalue)
-    {
+    private Mat Threshold(Mat mat, int thresholdvalue) {
         Mat thresh = new Mat();
         Imgproc.threshold(mat, thresh, thresholdvalue, 255, Imgproc.THRESH_BINARY);
         return thresh;
@@ -239,8 +228,7 @@ public class CircleDetection extends Thread implements ImageListener
      * @param mat
      * @return
      */
-    private Mat adaptThresholdGaussian(Mat mat)
-    {
+    private Mat adaptThresholdGaussian(Mat mat) {
         Mat thresh = new Mat();
         Imgproc.adaptiveThreshold(mat, thresh, 255,
                 Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY_INV, 35, -1);
@@ -249,8 +237,7 @@ public class CircleDetection extends Thread implements ImageListener
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
 
         while (true) {
             long start = System.currentTimeMillis();
@@ -258,11 +245,11 @@ public class CircleDetection extends Thread implements ImageListener
             while (image == null) {
                 try {
                     image = ic.BufferedImageToMat(bufferedImage);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                 }
 
             }
+            
             Mat originalImage = image.clone();
             Vector<Mat> HSV = new Vector<>();
 
@@ -306,7 +293,7 @@ public class CircleDetection extends Thread implements ImageListener
             Core.multiply(channels.get(0), ad2, channels.get(0));
             Core.multiply(channels.get(1), ad2, channels.get(1));
             Core.multiply(channels.get(2), ad2, channels.get(2));
-            Core.merge(channels, originalImage);            
+            Core.merge(channels, originalImage);
 //            try {
 //                System.out.println(circles.cols() + " " + circles.rows());
 //                reg.AddNewCoordinate(circles);
@@ -320,13 +307,13 @@ public class CircleDetection extends Thread implements ImageListener
             out = DrawCircles(circles, originalImage, color, lineWidth);
 //            iv.show(image1, "Resulting Image");
             pil.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
+            dh.addCentroidAndRadius(circles);
             System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
         }
     }
 
     @Override
-    public synchronized void imageUpdated(BufferedImage bi)
-    {
+    public synchronized void imageUpdated(BufferedImage bi) {
         bufferedImage = bi;
     }
 }

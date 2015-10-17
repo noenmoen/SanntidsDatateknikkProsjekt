@@ -13,15 +13,34 @@ import org.opencv.core.Mat;
  *
  * @author Martin Strøm Pedersen
  */
-public class DataHandler {
+public class DataHandler extends Thread {
 
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
     private final int CAPACITY = 15;
     private final double dev = 0.1;
     private Deque<double[]> centroidAndRadius = new ArrayDeque<>();
+    private int imageWidth;
+    private int imageHeight;
+    
 
     public DataHandler() {
+    }
+    
+    public synchronized void setImageWidthAndHight(Mat image){
+        this.imageWidth = image.width();
+        this.imageHeight = image.height();
+    }
+    
+    public synchronized float[] GetDiff() {
+        float[] diff = new float[4];
+        diff[0] = (((float) getCentroidAndRadius()[0] - imageWidth / 2) 
+                / imageWidth) * 93;
+        diff[1] = (((float) getCentroidAndRadius()[1] - imageHeight / 2) 
+                / imageHeight) * (imageHeight * 93 / imageWidth);
+
+        return diff;
+         
     }
 
     public synchronized void addCentroidAndRadius(Mat centroidAndRadius) {
@@ -42,6 +61,7 @@ public class DataHandler {
     public synchronized double[] getCentroidAndRadius() {
 
         return centroidAndRadius.peekLast();
+        
     }
 
     private synchronized boolean isCircleDataFresh() {

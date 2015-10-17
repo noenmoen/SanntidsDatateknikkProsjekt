@@ -34,6 +34,7 @@ public class YADrone
         ControllerStateStorage store = new ControllerStateStorage();
         PS3ControllerReader reader = null;
         ProcessedImagePanel pip = new ProcessedImagePanel();
+        DataHandler dh = new DataHandler();
 
         IARDrone drone = null;
         try {
@@ -52,13 +53,13 @@ public class YADrone
 //        }
 //        reader.start();
         DroneControl cont = new DroneControl(drone, mySem, store);
-        Regulator reg = new Regulator(cont);
+        Regulator reg = new Regulator(cont,dh);
         cont.start();
         DroneGUI gui = new DroneGUI(drone, cont, pip);
         Thread guiThread = new Thread(gui);
         guiThread.start();
         CircleDetection cd = new CircleDetection(
-                1000, 30, 3, 13, 204, 200, 3, drone, 3, gui, pip, reg);
+                1000, 30, 3, 13, 204, 200, 3, drone, 3, gui, pip,dh);
         cd.start();
     }
 }

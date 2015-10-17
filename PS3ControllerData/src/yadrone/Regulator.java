@@ -47,10 +47,12 @@ public class Regulator extends TimerTask {
     private final float TIME_SHIFT;
     private NavDataListener navData;
     private DroneControl dc;
+    private DataHandler dh;
 
-    public Regulator(DroneControl dc) {
+    public Regulator(DroneControl dc,DataHandler dh) {
         TIME_SHIFT = 0.1f;
         navData = new NavDataListener(dc.getDrone());
+        this.dh = dh;
     }
 
     public boolean isAutoMode() {
@@ -124,8 +126,8 @@ public class Regulator extends TimerTask {
      Param: roll, pitch, z (altitude), yaw
      */
 
-    public synchronized void setDesValues(float[] desValues) {
-        this.desValues = desValues;
+    public synchronized void setDesValues() {
+        this.desValues = dh.GetDiff();
     }
 
     private synchronized float[] getDesValues() {
