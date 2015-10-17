@@ -34,7 +34,7 @@ public class YADrone
         ControllerStateStorage store = new ControllerStateStorage();
         PS3ControllerReader reader = null;
         ProcessedImagePanel pip = new ProcessedImagePanel();
-        Regulator reg = new Regulator();
+
         IARDrone drone = null;
         try {
             drone = new ARDrone();
@@ -52,6 +52,7 @@ public class YADrone
 //        }
 //        reader.start();
         DroneControl cont = new DroneControl(drone, mySem, store);
+        Regulator reg = new Regulator(cont);
         cont.start();
         DroneGUI gui = new DroneGUI(drone, cont, pip);
         Thread guiThread = new Thread(gui);

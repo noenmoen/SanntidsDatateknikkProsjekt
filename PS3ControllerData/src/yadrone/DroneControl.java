@@ -32,7 +32,7 @@ public class DroneControl extends Thread {
     private GameControllerState state;
     private Regulator reg;
     private DroneMode mode;
-    private float[] inputs = new float[4];
+    
 
     public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage) {
         sem = s;
@@ -49,6 +49,7 @@ public class DroneControl extends Thread {
         while (true) {
             switch (mode) {
                 case MAN_MODE:
+                    //if(reg.isAutoMode()) reg.setAutoMode(false);
                     while (storage.getAvailable()) { // If the controller has produced new data
 
                         try {
@@ -64,7 +65,7 @@ public class DroneControl extends Thread {
                         break;
                     }
                 case AUTO_MODE:
-                    inputs = reg.getDroneInputs();
+                    //if (!reg.isAutoMode()) reg.setAutoMode(true);
                     
             }
         }

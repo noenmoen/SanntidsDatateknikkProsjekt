@@ -15,7 +15,6 @@ public class Regulator extends TimerTask {
 
     private float[] droneInputs = new float[4];
     private float[] desValues = new float[4];
-    private float[] actValues = new float[4];
     private float yawAct;
     private float pitchAct;
     private float rollAct;
@@ -44,6 +43,7 @@ public class Regulator extends TimerTask {
     private float kdPitch;
     private float pitchSpeedOut;
     private float zSpeedOut;
+    private boolean autoMode;
     private final float TIME_SHIFT;
     private NavDataListener navData;
     private DroneControl dc;
@@ -51,6 +51,14 @@ public class Regulator extends TimerTask {
     public Regulator(DroneControl dc) {
         TIME_SHIFT = 0.1f;
         navData = new NavDataListener(dc.getDrone());
+    }
+
+    public boolean isAutoMode() {
+        return autoMode;
+    }
+
+    public void setAutoMode(boolean autoMode) {
+        this.autoMode = autoMode;
     }
 
     public float[] getDroneInputs() {
@@ -65,7 +73,7 @@ public class Regulator extends TimerTask {
         prevPitchErr = pitchErr;
         return pitchSpeedOut;
     }
-    
+
     public void setPitchTuning(float Kp, float Ki, float Kd) {
         kpPitch = Kp;
         kiPitch = Ki;
@@ -112,6 +120,7 @@ public class Regulator extends TimerTask {
         kdZ = Kd;
     }
     /*
+     Set the desired values for the drone
      Param: roll, pitch, z (altitude), yaw
      */
 
@@ -124,21 +133,25 @@ public class Regulator extends TimerTask {
     }
 
     public void run() {
-        yawAct = navData.getYaw() / 1000f; // angles from the drone is in thousands of degrees
-        pitchAct = navData.getPitch() / 1000f;
-        rollAct = navData.getRoll() / 1000f;
-        zAct = navData.getAltitude() / 100f; // altitude from the drone is in cm
+        while (true) {
+            while (autoMode) {
+                yawAct = navData.getYaw() / 1000f; // angles from the drone is in thousands of degrees
+                pitchAct = navData.getPitch() / 1000f;
+                rollAct = navData.getRoll() / 1000f;
+                zAct = navData.getAltitude() / 100f; // altitude from the drone is in cm
 
-        float yaw = getDesValues()[3];
-        float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
-        droneInputs[3] = yawPID(yawDes, yawAct);
+                float yaw = getDesValues()[3];
+                float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
+                droneInputs[3] = yawPID(yawDes, yawAct);
 
-        float z = getDesValues()[2];
-        float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
-        droneInputs[2] = zPID(zDes, zAct);
+                float z = getDesValues()[2];
+                float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
+                droneInputs[2] = zPID(zDes, zAct);
 
-        // TODO: control algorithms for roll and pitch
-        dc.moveAuto(droneInputs);
-
+                // TODO: control algorithms for roll and pitch
+                droneInputs[1] = droneInputs[0] = 0f;
+                dc.moveAuto(droneInputs);
+            }
+        }
     }
 }
