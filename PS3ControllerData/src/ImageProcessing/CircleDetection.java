@@ -279,9 +279,9 @@ public class CircleDetection extends Thread implements ImageListener
             Imgproc.GaussianBlur(s, sg, gaussKernel, sigmaX);
             Imgproc.GaussianBlur(v, vg, gaussKernel, sigmaX);
 
-            Mat ht2 = MinMaxThreshold(hg, 0.400 * 255, 0.900 * 255);
-            Mat st2 = MinMaxThreshold(sg, 0.103 * 255, 255);
-            Mat vt2 = MinMaxThreshold(vg, 0.221 * 255, 0.665 * 255);
+            Mat ht2 = MinMaxThreshold(hg, 0.149 * 255, 0.567 * 255);
+            Mat st2 = MinMaxThreshold(sg, 0.071 * 255, 255);
+            Mat vt2 = MinMaxThreshold(vg, 0.000 * 255, 0.691 * 255);
 //            iv.show(ht2, "Thresholding: HT2");
 //            iv.show(st2, "Thresholding: ST2");
 //            iv.show(vt2, "Thresholding: VT2");
