@@ -14,15 +14,14 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author vegard 
- * Class for testing flight of the drone using PS3 dual shock
+ * @author vegard Class for testing flight of the drone using PS3 dual shock
  * controller
  */
 public class DroneControl extends Thread {
 
     public enum DroneMode {
 
-        MAN_MODE, AUTO_MODE
+        MAN_MODE, AUTO_MODE, LANDING;
     };
 
     private final IARDrone drone;
@@ -32,7 +31,6 @@ public class DroneControl extends Thread {
     private GameControllerState state;
     private Regulator reg;
     private DroneMode mode;
-    
 
     public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage) {
         sem = s;
@@ -40,9 +38,8 @@ public class DroneControl extends Thread {
         this.drone = drone;
         freeroam = false;
         mode = DroneMode.MAN_MODE;
-       
-    }
 
+    }
 
     @Override
     public void run() {
@@ -66,7 +63,10 @@ public class DroneControl extends Thread {
                     }
                 case AUTO_MODE:
                     //if (!reg.isAutoMode()) reg.setAutoMode(true);
+                    break;
                     
+                case LANDING:
+                    drone.getCommandManager().landing().doFor(3000);
             }
         }
     }
@@ -127,13 +127,15 @@ public class DroneControl extends Thread {
     public void setMode(DroneMode mode) {
         this.mode = mode;
     }
+
     public void setRegulator(Regulator reg) {
         this.reg = reg;
     }
-    
+
     public void moveAuto(float inputs[]) {
         drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
     }
+
     public IARDrone getDrone() {
         return drone;
     }

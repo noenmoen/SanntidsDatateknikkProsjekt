@@ -17,6 +17,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JButton;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -65,10 +66,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
     public void run() {
         while (true) {
             rollTextField.setText("Roll: " + navData.getRoll());
-            System.out.println("Roll: " + navData.getRoll());
             pitchTextField.setText("Pitch: " + navData.getPitch());
             yawTextField.setText("Yaw: " + navData.getYaw());
-            altitudeTextField.setText("Altitude: " + navData.getAltitude());
+            altitudeTextField.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
             batTextField.setText("Battery status : " + navData.getPercentage() + "%");
             repaintTextFields();
         }
@@ -97,6 +97,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         yawTextField = new javax.swing.JTextField();
         altitudeTextField = new javax.swing.JTextField();
         batTextField = new javax.swing.JTextField();
+        landButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -141,6 +142,12 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
                 autoButtonActionPerformed(evt);
             }
         });
+        landButton.setText("Land");
+        landButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                landButtonActionPerformed(evt);
+            }
+        });
 
         modeTextField.setText("Mode: Manual mode");
 
@@ -159,10 +166,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         ButtonPanel1Layout.setHorizontalGroup(
                 ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(ButtonPanel1Layout.createSequentialGroup()
-                        .addGap(103, 103, 103)
-                        .addComponent(modeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGroup(ButtonPanel1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(yawTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
@@ -170,17 +173,25 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
                                 .addComponent(rollTextField))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGroup(ButtonPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(altitudeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(batTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                .addGroup(ButtonPanel1Layout.createSequentialGroup()
                         .addGap(35, 35, 35)
-                        .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(ButtonPanel1Layout.createSequentialGroup()
-                                        .addComponent(altitudeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(batTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(ButtonPanel1Layout.createSequentialGroup()
-                                        .addComponent(manButton, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
-                                        .addComponent(autoButton)))
+                        .addComponent(manButton, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(autoButton, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
                         .addGap(33, 33, 33))
+                .addGroup(ButtonPanel1Layout.createSequentialGroup()
+                        .addGap(134, 134, 134)
+                        .addComponent(landButton)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ButtonPanel1Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(modeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(89, 89, 89))
         );
         ButtonPanel1Layout.setVerticalGroup(
                 ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -197,7 +208,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
                                 .addComponent(batTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(modeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(30, 30, 30)
+                        .addGap(18, 18, 18)
+                        .addComponent(landButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(manButton)
                                 .addComponent(autoButton))
@@ -261,6 +274,12 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         cont.setMode(DroneControl.DroneMode.AUTO_MODE);
     }
 
+    private void landButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        modeTextField.setText("Mode: Landing");
+        modeTextField.repaint();
+        cont.setMode(DroneControl.DroneMode.LANDING);
+    }
+
     // Variables declaration - do not modify                     
     private javax.swing.JPanel ButtonPanel1;
     private javax.swing.JPanel ImageProcessViewer;
@@ -274,6 +293,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
     private javax.swing.JTextField batTextField;
     private javax.swing.JButton manButton;
     private javax.swing.JTextField modeTextField;
+    private JButton landButton;
     // End of variables declaration                   
 
     private void repaintTextFields() {

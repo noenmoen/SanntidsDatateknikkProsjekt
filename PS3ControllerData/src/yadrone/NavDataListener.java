@@ -19,9 +19,20 @@ public class NavDataListener {
 
     private float pitch;
     private float roll;
+
     private float yaw;
     private int percentage;
     private int altitude;
+    private Altitude extAltitude;
+    
+    
+    public synchronized Altitude getExtAltitude() {
+        return extAltitude;
+    }
+
+    public synchronized void setExtAltitude(Altitude extAltitude) {
+        this.extAltitude = extAltitude;
+    }
 
     public synchronized void setRollPitchYaw(float roll, float pitch, float yaw) {
         this.roll = roll;
@@ -30,15 +41,15 @@ public class NavDataListener {
     }
 
     public synchronized float getPitch() {
-        return pitch;
+        return pitch/1000f;
     }
 
     public synchronized float getRoll() {
-        return roll;
+        return roll/1000f;
     }
 
     public synchronized float getYaw() {
-        return yaw;
+        return yaw/1000f;
     }
 
     public synchronized int getPercentage() {
@@ -50,7 +61,7 @@ public class NavDataListener {
     }
 
     public synchronized int getAltitude() {
-        return altitude;
+        return altitude/100;
     }
 
     public synchronized void setAltitude(int altitude) {
@@ -62,8 +73,8 @@ public class NavDataListener {
         drone.getNavDataManager().addAttitudeListener(new AttitudeListener() {
             
             public void attitudeUpdated(float pitch, float roll, float yaw) {
-                System.out.println("Received new navdata: ");
-                System.out.println("Pitch: " + pitch + " Roll: " + roll + " Yaw: " + yaw);
+//                System.out.println("Received new navdata: ");
+//                System.out.println("Pitch: " + pitch + " Roll: " + roll + " Yaw: " + yaw);
                 setRollPitchYaw(roll, pitch, yaw);
 
             }
@@ -78,7 +89,7 @@ public class NavDataListener {
         drone.getNavDataManager().addBatteryListener(new BatteryListener() {
 
             public void batteryLevelChanged(int percentage) {
-                System.out.println("Battery: " + percentage + " %");
+//                System.out.println("Battery: " + percentage + " %");
                 setPercentage(percentage);
             }
 
@@ -88,11 +99,12 @@ public class NavDataListener {
 
         drone.getNavDataManager().addAltitudeListener(new AltitudeListener() {
             public void receivedAltitude(int altitude) {
-                System.out.println("Altitude: " + altitude);
+//                System.out.println("Altitude: " + altitude);
                 setAltitude(altitude);
             }
 
             public void receivedExtendedAltitude(Altitude a) {
+                setExtAltitude(a);
             }
         });
     }

@@ -138,7 +138,7 @@ public class Regulator extends TimerTask {
                 yawAct = navData.getYaw() / 1000f; // angles from the drone is in thousands of degrees
                 pitchAct = navData.getPitch() / 1000f;
                 rollAct = navData.getRoll() / 1000f;
-                zAct = navData.getAltitude() / 100f; // altitude from the drone is in cm
+                zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in cm
 
                 float yaw = getDesValues()[3];
                 float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
