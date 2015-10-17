@@ -64,10 +64,10 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
     @Override
     public void run() {
         while (true) {
-            rollTextField.setText("Roll: " + navData.getRoll());
-            pitchTextField.setText("Pitch: " + navData.getPitch());
-            yawTextField.setText("Yaw: " + navData.getYaw());
-            altitudeTextField.setText("Altitude: " + navData.getAltitude());
+            rollTextField.setText("Roll: " + navData.getRoll()/1000f);
+            pitchTextField.setText("Pitch: " + navData.getPitch()/1000f);
+            yawTextField.setText("Yaw: " + navData.getYaw()/1000f);
+            altitudeTextField.setText("Altitude: " + navData.getAltitude()/100f);
             batTextField.setText("Battery status : " + navData.getPercentage() + "%");
             repaintTextFields();
         }

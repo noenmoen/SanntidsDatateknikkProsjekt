@@ -130,7 +130,10 @@ public class DroneControl extends Thread {
         this.reg = reg;
     }
     
-    public void moveAuto() {
-        
+    public void moveAuto(float inputs[]) {
+        drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
+    }
+    public IARDrone getDrone() {
+        return drone;
     }
 }
