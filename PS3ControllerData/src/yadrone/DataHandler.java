@@ -13,7 +13,7 @@ import org.opencv.core.Mat;
  *
  * @author Martin Strøm Pedersen
  */
-public class DataHandler extends Thread {
+public class DataHandler{
 
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
