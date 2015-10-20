@@ -55,16 +55,12 @@ public class Regulator extends TimerTask {
         this.dh = dh;
     }
 
-    public boolean isAutoMode() {
+    public synchronized boolean isAutoMode() {
         return autoMode;
     }
 
-    public void setAutoMode(boolean autoMode) {
+    public synchronized void setAutoMode(boolean autoMode) {
         this.autoMode = autoMode;
-    }
-
-    public float[] getDroneInputs() {
-        return droneInputs;
     }
 
     private float pitchPID(float pitchDes, float pitchAct) {
@@ -76,7 +72,7 @@ public class Regulator extends TimerTask {
         return pitchSpeedOut;
     }
 
-    public void setPitchTuning(float Kp, float Ki, float Kd) {
+    public synchronized void setPitchTuning(float Kp, float Ki, float Kd) {
         kpPitch = Kp;
         kiPitch = Ki;
         kdPitch = Kd;
@@ -97,7 +93,7 @@ public class Regulator extends TimerTask {
     
      */
 
-    public void setYawTuning(float Kp, float Ki, float Kd) {
+    public synchronized void setYawTuning(float Kp, float Ki, float Kd) {
         kpYaw = Kp;
         kiYaw = Ki;
         kdYaw = Kd;
@@ -117,7 +113,7 @@ public class Regulator extends TimerTask {
     
      */
 
-    public void setZtuning(float Kp, float Ki, float Kd) {
+    public synchronized void setZtuning(float Kp, float Ki, float Kd) {
         kpZ = Kp;
         kiZ = Ki;
         kdZ = Kd;
@@ -135,6 +131,7 @@ public class Regulator extends TimerTask {
 //        return desValues;
 //    }
 
+    @Override
     public void run() {
         while (true) {
             while (autoMode) {

@@ -44,7 +44,8 @@ public class DroneControl extends Thread {
     @Override
     public void run() {
         while (true) {
-            switch (mode) {
+            DroneMode m = getDroneMode();
+            switch (m) {
                 case MAN_MODE:
                     //if(reg.isAutoMode()) reg.setAutoMode(false);
                     while (storage.getAvailable()) { // If the controller has produced new data
@@ -124,8 +125,11 @@ public class DroneControl extends Thread {
         }
     }
 
-    public void setMode(DroneMode mode) {
+    public synchronized void setMode(DroneMode mode) {
         this.mode = mode;
+    }
+    private synchronized DroneMode getDroneMode() {
+        return mode;
     }
 
     public void setRegulator(Regulator reg) {
