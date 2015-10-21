@@ -11,12 +11,9 @@ import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoBitRateMode;
 import de.yadrone.base.command.VideoCodec;
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -54,14 +51,14 @@ public class YADrone
 //        }
 //        reader.start();
         DroneControl cont = new DroneControl(drone, mySem, store);
-        TimerTask reg = new Regulator(cont,dh);
+        TimerTask reg = new Regulator(cont, dh);
         cont.start();
         timer.scheduleAtFixedRate(reg, 0, 100);
-        DroneGUI gui = new DroneGUI(drone, cont, pip);
+        CircleDetection cd = new CircleDetection(
+                1000, 30, 4, 3, 204, 200, 2, drone, 3, pip, dh);
+        cd.start();
+        DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd);
         Thread guiThread = new Thread(gui);
         guiThread.start();
-        CircleDetection cd = new CircleDetection(
-                1000, 30, 3, 13, 204, 200, 3, drone, 3, gui, pip,dh);
-        cd.start();
     }
 }
