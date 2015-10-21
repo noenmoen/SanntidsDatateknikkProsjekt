@@ -19,8 +19,7 @@ import javax.swing.UIManager;
  *
  * @author Morten
  */
-public class DroneGUI extends javax.swing.JFrame implements Runnable
-{
+public class DroneGUI extends javax.swing.JFrame implements Runnable {
 
     private VideoListener v1;
     private NavDataListener navData;
@@ -38,8 +37,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             DroneControl cont,
             ProcessedImagePanel pil,
             TimerTask regulator,
-            CircleDetection cd)
-    {
+            CircleDetection cd) {
         this.drone = drone;
         this.cont = cont;
         this.pil = pil;
@@ -54,12 +52,10 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                     break;
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
             }
 
         }
@@ -617,8 +613,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     {//GEN-HEADEREND:event_yawPropotionalTextFieldActionPerformed
         try {
             regulator.setKpYaw(Float.valueOf(yawPropotionalTextField.getText()));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
 
     }//GEN-LAST:event_yawPropotionalTextFieldActionPerformed
@@ -627,16 +622,14 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     {//GEN-HEADEREND:event_yawDerivateTextFieldActionPerformed
         try {
             regulator.setKdYaw(Float.valueOf(yawDerivateTextField.getText()));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }    }//GEN-LAST:event_yawDerivateTextFieldActionPerformed
 
     private void yawIntegralTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawIntegralTextFieldActionPerformed
     {//GEN-HEADEREND:event_yawIntegralTextFieldActionPerformed
         try {
             regulator.setKiYaw(Float.valueOf(yawIntegralTextField.getText()));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }    }//GEN-LAST:event_yawIntegralTextFieldActionPerformed
 
     private void yawDerivateTextFieldFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawDerivateTextFieldFocusGained
@@ -674,8 +667,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         try {
             File outputfile = new File("saved.png");
             ImageIO.write(v1.getImage(), "png", outputfile);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
         }
     }//GEN-LAST:event_snapshotButtonActionPerformed
 
@@ -800,8 +792,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     // End of variables declaration//GEN-END:variables
 
     // Ikke-autogenererte metoder
-    private void repaintTextFields()
-    {
+    private void repaintTextFields() {
         rollTextField.repaint();
         pitchTextField.repaint();
         yawTextField.repaint();
@@ -809,15 +800,20 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         batTextField.repaint();
     }
 
-    public void run()
-    {
+    public void run() {
 
         while (true) {
-            rollTextField.setText("Roll: " + navData.getRoll());
-            pitchTextField.setText("Pitch: " + navData.getPitch());
-            yawTextField.setText("Yaw: " + navData.getYaw());
-            altitudeTextField.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
-            batTextField.setText("Battery status : " + navData.getPercentage() + "%");
+            try {
+                rollTextField.setText("Roll: " + navData.getRoll());
+                pitchTextField.setText("Pitch: " + navData.getPitch());
+                yawTextField.setText("Yaw: " + navData.getYaw());
+                altitudeTextField.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
+                batTextField.setText("Battery status : " + navData.getPercentage() + "%");
+                System.out.println("Navdata updated--------------------------------------------------------------------+");
+            } catch (Exception e) {
+                System.out.println("NavData Fail -----------------------------------------*");
+            }
+
             repaintTextFields();
         }
 

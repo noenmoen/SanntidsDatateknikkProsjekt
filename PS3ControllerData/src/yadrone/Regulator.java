@@ -45,7 +45,7 @@ public class Regulator extends TimerTask {
         pitchPID = new PIDController(0, 0, 0, TIME_SHIFT);
         pitchPID.setContinuous(false);
         pitchPID.setOutputRange(-0.5f, 0.5f);
-        //autoMode = false;
+//        autoMode = false;
         autoMode = true; // for testing purposes, remove before flight!
     }
 

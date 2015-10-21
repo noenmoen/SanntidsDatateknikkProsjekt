@@ -21,6 +21,7 @@ import java.util.concurrent.Semaphore;
  */
 public class YADrone
 {
+    static final float PERIOD = 0.5f;
 
     /**
      * @param args the command line arguments
@@ -51,14 +52,14 @@ public class YADrone
 //        }
 //        reader.start();
         DroneControl cont = new DroneControl(drone, mySem, store);
-        TimerTask reg = new Regulator(cont, dh);
+        TimerTask reg = new Regulator(cont, dh, PERIOD);
         cont.start();
-        timer.scheduleAtFixedRate(reg, 0, 100);
+        timer.scheduleAtFixedRate(reg, 0, (int)(1000*PERIOD));
         CircleDetection cd = new CircleDetection(
                 1000, 30, 4, 3, 204, 200, 2, drone, 3, pip, dh);
-        cd.start();
         DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd);
         Thread guiThread = new Thread(gui);
+        cd.start();
         guiThread.start();
     }
 }
