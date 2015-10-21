@@ -49,11 +49,12 @@ public class Regulator extends TimerTask {
     private DroneControl dc;
     private DataHandler dh;
 
-    public Regulator(DroneControl dc,DataHandler dh) {
+    public Regulator(DroneControl dc, DataHandler dh) {
         TIME_SHIFT = 0.1f;
         navData = new NavDataListener(dc.getDrone());
         this.dh = dh;
-        autoMode = false;
+        //autoMode = false;
+        autoMode = true; // for testing purposes, remove before flight!
     }
 
     public synchronized boolean isAutoMode() {
@@ -72,33 +73,98 @@ public class Regulator extends TimerTask {
         prevPitchErr = pitchErr;
         return pitchSpeedOut;
     }
+    /* Drone dynamics are unknown, these methods are for tuning the gain
+     parameters in order to achieve acceptable performance
+     @param: Kp = proportional gain, Ki = integral gain, Kd = derivative gain
+     */
 
-    public synchronized void setPitchTuning(float Kp, float Ki, float Kd) {
-        kpPitch = Kp;
-        kiPitch = Ki;
-        kdPitch = Kd;
+    public synchronized void setKpYaw(float kpYaw) {
+        this.kpYaw = kpYaw;
+    }
+
+    public synchronized void setKiYaw(float kiYaw) {
+        this.kiYaw = kiYaw;
+    }
+
+    public synchronized void setKdYaw(float kdYaw) {
+        this.kdYaw = kdYaw;
+    }
+
+    public synchronized void setKpZ(float kpZ) {
+        this.kpZ = kpZ;
+    }
+
+    public synchronized void setKiZ(float kiZ) {
+        this.kiZ = kiZ;
+    }
+
+    public synchronized void setKdZ(float kdZ) {
+        this.kdZ = kdZ;
+    }
+
+    public synchronized void setKpPitch(float kpPitch) {
+        this.kpPitch = kpPitch;
+    }
+
+    public synchronized void setKiPitch(float kiPitch) {
+        this.kiPitch = kiPitch;
+    }
+
+    public synchronized void setKdPitch(float kdPitch) {
+        this.kdPitch = kdPitch;
+    }
+
+
+    public synchronized float getKpYaw() {
+        return kpYaw;
+    }
+
+    public synchronized float getKiYaw() {
+        return kiYaw;
+    }
+
+    public synchronized float getKdYaw() {
+        return kdYaw;
+    }
+
+    public synchronized float getKpZ() {
+        return kpZ;
+    }
+
+    public synchronized float getKiZ() {
+        return kiZ;
+    }
+
+    public synchronized float getKdZ() {
+        return kdZ;
+    }
+
+    public synchronized float getKpPitch() {
+        return kpPitch;
+    }
+
+    public synchronized float getKiPitch() {
+        return kiPitch;
+    }
+
+    public synchronized float getKdPitch() {
+        return kdPitch;
     }
 
     // PID algorithm for controlling the yaw angle of the drone
     private float yawPID(float yawDes, float yawAct) {
         yawErr = yawDes - yawAct;
-        if(yawErr >= 180f) yawErr -= 360f; // Compensate for errors that cross 0 deg.
+        if (yawErr >= 180f) {
+            yawErr -= 360f; // Compensate for errors that cross 0 deg.
+        }
         yawErrSum += yawErr * TIME_SHIFT;
         yawDerr = (yawErr - prevYawErr) / TIME_SHIFT;
         yawSpeedOut = kpYaw * yawErr + kiYaw * yawErrSum + kdYaw * yawDerr;
         prevYawErr = yawErr;
         return yawSpeedOut;
     }
-    /* Drone dynamics are unknown, this method is for tuning the gain
-     parameters in order to achieve acceptable performance
     
-     */
 
-    public synchronized void setYawTuning(float Kp, float Ki, float Kd) {
-        kpYaw = Kp;
-        kiYaw = Ki;
-        kdYaw = Kd;
-    }
 
     // PID algorithm for controlling the altitude of the drone (relative to ground)
     private float zPID(float zDes, float zAct) {
@@ -109,32 +175,12 @@ public class Regulator extends TimerTask {
         prevZerr = zErr;
         return zSpeedOut;
     }
-    /* Drone dynamics are unknown, this method is for tuning the gain
-     parameters in order to achieve acceptable performance
-    
-     */
-
-    public synchronized void setZtuning(float Kp, float Ki, float Kd) {
-        kpZ = Kp;
-        kiZ = Ki;
-        kdZ = Kd;
-    }
-    /*
-     Set the desired values for the drone
-     Param: roll, pitch, z (altitude), yaw
-     */
-
-//    public synchronized void setDesValues() {
-//        this.desValues = dh.GetDiff();
-//    }
-//
-//    private synchronized float[] getDesValues() {
-//        return desValues;
-//    }
+  
 
     @Override
     public void run() {
         while (true) {
+            // Only run while drone is in autonomous mode
             while (autoMode) {
                 yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
                 pitchAct = navData.getPitch() / 1000f;
@@ -143,17 +189,24 @@ public class Regulator extends TimerTask {
 
                 float yaw = dh.GetDiff()[0];
                 float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
-                if(yawDes >= 360f) yawDes = (yawAct - 360f) + yaw; // Compensate for illegal desired angles (0<yaw<360)
-                else if(yawDes < 0) yawDes = (360f + yawAct) + yaw;
+                if (yawDes >= 360f) {
+                    yawDes = (yawAct - 360f) + yaw; // Compensate for illegal desired angles (0<yaw<360)
+                } else if (yawDes < 0) {
+                    yawDes = (360f + yawAct) + yaw;
+                }
                 droneInputs[3] = yawPID(yawDes, yawAct);
+//                System.out.println("Desired yaw angle: " + yawDes + " - actual yaw angle: " + yawAct);
+//                System.out.println("-----------------------------------------------------------");
 
                 float z = dh.GetDiff()[1];
                 float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
                 droneInputs[2] = zPID(zDes, zAct);
+//                System.out.println("Desired altitude: " + zDes + " - actual altitude: " + zAct);
+//                System.out.println("-----------------------------------------------------------");
 
                 // TODO: control algorithms for roll and pitch
                 droneInputs[1] = droneInputs[0] = 0f;
-                dc.moveAuto(droneInputs);
+                //dc.moveAuto(droneInputs); || testing
             }
         }
     }
