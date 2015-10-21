@@ -53,18 +53,15 @@ public class Regulator extends TimerTask {
         TIME_SHIFT = 0.1f;
         navData = new NavDataListener(dc.getDrone());
         this.dh = dh;
+        autoMode = false;
     }
 
-    public boolean isAutoMode() {
+    public synchronized boolean isAutoMode() {
         return autoMode;
     }
 
-    public void setAutoMode(boolean autoMode) {
+    public synchronized void setAutoMode(boolean autoMode) {
         this.autoMode = autoMode;
-    }
-
-    public float[] getDroneInputs() {
-        return droneInputs;
     }
 
     private float pitchPID(float pitchDes, float pitchAct) {
@@ -76,7 +73,7 @@ public class Regulator extends TimerTask {
         return pitchSpeedOut;
     }
 
-    public void setPitchTuning(float Kp, float Ki, float Kd) {
+    public synchronized void setPitchTuning(float Kp, float Ki, float Kd) {
         kpPitch = Kp;
         kiPitch = Ki;
         kdPitch = Kd;
@@ -85,6 +82,7 @@ public class Regulator extends TimerTask {
     // PID algorithm for controlling the yaw angle of the drone
     private float yawPID(float yawDes, float yawAct) {
         yawErr = yawDes - yawAct;
+        if(yawErr >= 180f) yawErr -= 360f; // Compensate for errors that cross 0 deg.
         yawErrSum += yawErr * TIME_SHIFT;
         yawDerr = (yawErr - prevYawErr) / TIME_SHIFT;
         yawSpeedOut = kpYaw * yawErr + kiYaw * yawErrSum + kdYaw * yawDerr;
@@ -96,7 +94,7 @@ public class Regulator extends TimerTask {
     
      */
 
-    public void setYawTuning(float Kp, float Ki, float Kd) {
+    public synchronized void setYawTuning(float Kp, float Ki, float Kd) {
         kpYaw = Kp;
         kiYaw = Ki;
         kdYaw = Kd;
@@ -116,7 +114,7 @@ public class Regulator extends TimerTask {
     
      */
 
-    public void setZtuning(float Kp, float Ki, float Kd) {
+    public synchronized void setZtuning(float Kp, float Ki, float Kd) {
         kpZ = Kp;
         kiZ = Ki;
         kdZ = Kd;
@@ -126,27 +124,30 @@ public class Regulator extends TimerTask {
      Param: roll, pitch, z (altitude), yaw
      */
 
-    public synchronized void setDesValues() {
-        this.desValues = dh.GetDiff();
-    }
+//    public synchronized void setDesValues() {
+//        this.desValues = dh.GetDiff();
+//    }
+//
+//    private synchronized float[] getDesValues() {
+//        return desValues;
+//    }
 
-    private synchronized float[] getDesValues() {
-        return desValues;
-    }
-
+    @Override
     public void run() {
         while (true) {
             while (autoMode) {
-                yawAct = navData.getYaw() / 1000f; // angles from the drone is in thousands of degrees
+                yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
                 pitchAct = navData.getPitch() / 1000f;
                 rollAct = navData.getRoll() / 1000f;
-                zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in cm
+                zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
 
-                float yaw = getDesValues()[3];
+                float yaw = dh.GetDiff()[0];
                 float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
+                if(yawDes >= 360f) yawDes = (yawAct - 360f) + yaw; // Compensate for illegal desired angles (0<yaw<360)
+                else if(yawDes < 0) yawDes = (360f + yawAct) + yaw;
                 droneInputs[3] = yawPID(yawDes, yawAct);
 
-                float z = getDesValues()[2];
+                float z = dh.GetDiff()[1];
                 float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
                 droneInputs[2] = zPID(zDes, zAct);
 

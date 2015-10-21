@@ -42,7 +42,7 @@ public class CircleDetection extends Thread implements ImageListener {
     private ImageConverter ic = new ImageConverter();
     private BufferedImage bufferedImage;
     private DroneGUI droneGUI;
-    private final ProcessedImagePanel pil;
+    private final ProcessedImagePanel pip;
     private DataHandler dh;
 
     /**
@@ -69,7 +69,7 @@ public class CircleDetection extends Thread implements ImageListener {
             IARDrone drone,
             int bufferSize,
             DroneGUI droneGUI,
-            ProcessedImagePanel pil,
+            ProcessedImagePanel pip,
             DataHandler dh) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         this.cannyThresh_upper = cannyThresh_upper;
@@ -82,12 +82,21 @@ public class CircleDetection extends Thread implements ImageListener {
         this.sigmaX = sigmaX;
         drone.getVideoManager().addImageListener(this);
         this.droneGUI = droneGUI;
-        this.pil = pil;
+        this.pip = pip;
         this.dh = dh;
     }
 
+    /**
+     * Anything between the min and max, is registered as 1, or 255, everyting
+     * else is registered as 0.
+     * 
+     * @param mat
+     * @param minThresh
+     * @param maxThresh
+     * @return 
+     */
     private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh) {
-        
+        long a = System.currentTimeMillis();
 
         Mat newMat = new Mat(mat.size(), mat.type());
 
@@ -113,6 +122,8 @@ public class CircleDetection extends Thread implements ImageListener {
                 }
             }
         }
+        long b = System.currentTimeMillis();
+        System.out.println("Threshold timed: " + (b-a));
 
         return newMat;
     }
@@ -135,12 +146,14 @@ public class CircleDetection extends Thread implements ImageListener {
     private Mat CircleFinder(Mat image) {
         Mat circles = new Mat();
         Imgproc.HoughCircles(image, circles, Imgproc.CV_HOUGH_GRADIENT, 1, image.height() / 10, 500, 50, 0, 500);
-
         return circles;
     }
 
     /**
      *
+     * detects circles, returned as MAT type, every colon in the Mat has a
+     * double[] with {x,y,R} (R = Radius)
+     * 
      * @param image
      * @param dp dp = 1: The inverse ratio of resolution
      * @param denominator((image.height()+image.width())/2)/denominator: minimum
@@ -153,10 +166,14 @@ public class CircleDetection extends Thread implements ImageListener {
      * @return Mat Circles in 3-layered vector
      */
     private Mat CircleFinder(Mat image, int denominator, int cannyThresh, int centerThresh, int minRatio, int maxRatio) {
+        long a = System.currentTimeMillis();
         Mat circles = new Mat();
         Imgproc.HoughCircles(image, circles, Imgproc.CV_HOUGH_GRADIENT, 1,
                 ((image.height() + image.width()) / 2) / denominator,
                 cannyThresh, centerThresh, minRatio, maxRatio);
+        
+        long b = System.currentTimeMillis();
+        System.out.println("circlefinder timed: " + (b-a));
         return circles;
     }
 
@@ -192,6 +209,7 @@ public class CircleDetection extends Thread implements ImageListener {
      * @return Mat- the image drawn
      */
     private Mat DrawCircles(Mat circles, Mat image, Scalar color, int lineWidth) {
+        long a = System.currentTimeMillis();
         System.out.println("---------------------------------------------------");
         System.out.println("Number of circles found: " + circles.cols());
         if (circles.cols() > 0) {
@@ -205,6 +223,10 @@ public class CircleDetection extends Thread implements ImageListener {
         } else {
             System.out.println("could not find any circles!!");
         }
+        
+        
+        long b = System.currentTimeMillis();
+        System.out.println("DrawCircles timed: " + (b-a));
         return image;
     }
 
@@ -306,7 +328,7 @@ public class CircleDetection extends Thread implements ImageListener {
 //            }
             out = DrawCircles(circles, originalImage, color, lineWidth);
 //            iv.show(image1, "Resulting Image");
-            pil.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
+            pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
             dh.addCentroidAndRadius(circles);
             System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
         }
