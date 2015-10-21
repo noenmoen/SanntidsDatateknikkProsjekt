@@ -15,8 +15,8 @@ public class DataHandler {
 
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
-    private final int CAPACITY = 15;
-    private final double dev = 0.1;
+    private final int CAPACITY = 10;
+    private final double dev = 0.5;
     private Deque<double[]> centroidAndRadius = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
@@ -61,17 +61,18 @@ public class DataHandler {
      */
     public synchronized void addCentroidAndRadius(Mat centroidAndRadius) {
         try {
-            isCircleDataFresh();
+            // isCircleDataFresh();
             double[] circle = circleFilter(centroidAndRadius);
             if (circle != null) {
                 System.out.println("Batman!");
-                this.centroidAndRadius.add(centroidAndRadius.get(0, 0));
+                this.centroidAndRadius.add(circle);
                 lastTimeCircleDetected = System.currentTimeMillis();
                 if (this.centroidAndRadius.size() > CAPACITY) {
                     this.centroidAndRadius.remove();
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -124,17 +125,25 @@ public class DataHandler {
         double sumY = 0;
         double sumRadius = 0;
         double[] avg = new double[3];
+        avg[0] = 0;
+        avg[1] = 0;
+        avg[2] = 0;
+
         for (double[] values : this.centroidAndRadius) {
             sumX += values[0];
             sumY += values[1];
-            sumRadius += values[3];
+            sumRadius += values[2];
         }
         // Average
-        avg[0] = sumX / this.centroidAndRadius.size();
-        avg[1] = sumY / this.centroidAndRadius.size();
-        avg[2] = sumRadius / this.centroidAndRadius.size();
+        if (this.centroidAndRadius.size() > 0) {
+            avg[0] = sumX / this.centroidAndRadius.size();
+            avg[1] = sumY / this.centroidAndRadius.size();
+            avg[2] = sumRadius / this.centroidAndRadius.size();
+        }
+        System.out.println("average " + avg[0] + " " + avg[1]);
 
         if (avg[0] == 0 && avg[0] == 0 && avg[0] == 0) {
+            System.out.println("IRONMAN");
             return centroidAndRadius.get(0, 0);
         }
         // Returns valid circle
