@@ -67,4 +67,9 @@ public class VideoListener extends JPanel implements ImageListener {
         return image != null;
     }
 
+    public BufferedImage getImage()
+    {
+        return image;
+    }
+
 }

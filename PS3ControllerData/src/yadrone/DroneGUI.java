@@ -5,15 +5,13 @@ package yadrone;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-
 import ImageProcessing.CircleDetection;
 import ImageProcessing.ProcessedImagePanel;
 import de.yadrone.base.IARDrone;
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import javax.swing.UIManager;
 
@@ -31,22 +29,21 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private IARDrone drone;
     private Regulator regulator;
     private final ProcessedImagePanel pil;
-    private String[] yawDropDownStrings = {"Propotional", "Integral", "Derivate"};
     private final CircleDetection cd;
 
     /**
      * Creates new form Test2DoneGUI
      */
-    public DroneGUI(IARDrone drone, 
-            DroneControl cont, 
-            ProcessedImagePanel pil, 
-            Regulator regulator, 
+    public DroneGUI(IARDrone drone,
+            DroneControl cont,
+            ProcessedImagePanel pil,
+            TimerTask regulator,
             CircleDetection cd)
     {
         this.drone = drone;
         this.cont = cont;
         this.pil = pil;
-        this.regulator = regulator;
+        this.regulator = (Regulator) regulator;
         this.cd = cd;
         v1 = new VideoListener(drone);
         navData = new NavDataListener(drone);
@@ -68,10 +65,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         }
         initComponents();
         this.setVisible(true);
-        
-    }
 
-    
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
