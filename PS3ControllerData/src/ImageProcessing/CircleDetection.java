@@ -98,14 +98,13 @@ public class CircleDetection extends Thread implements ImageListener {
     /**
      * Anything between the min and max, is registered as 1, or 255, everyting
      * else is registered as 0.
-     * 
+     *
      * @param mat
      * @param minThresh
      * @param maxThresh
-     * @return 
+     * @return
      */
     private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh) {
-
 
         Mat newMat = new Mat(mat.size(), mat.type());
 
@@ -135,7 +134,6 @@ public class CircleDetection extends Thread implements ImageListener {
         return newMat;
     }
 
-  
     /**
      * src_gray: Input image (grayscale) circles: A vector that stores sets of 3
      * values: x_{c}, y_{c}, r for each detected circle. CV_HOUGH_GRADIENT:
@@ -160,7 +158,7 @@ public class CircleDetection extends Thread implements ImageListener {
      *
      * detects circles, returned as MAT type, every colon in the Mat has a
      * double[] with {x,y,R} (R = Radius)
-     * 
+     *
      * @param image
      * @param dp dp = 1: The inverse ratio of resolution
      * @param denominator((image.height()+image.width())/2)/denominator: minimum
@@ -205,33 +203,33 @@ public class CircleDetection extends Thread implements ImageListener {
         } else {
             System.out.println("could not find any circles!");
         }
-        
+
         return image;
     }
 
-
     @Override
     public void run() {
-
+        Mat oldImage = null;
+        Mat image = null;
         while (true) {
-            long start = System.currentTimeMillis();
-            Mat image = null;
-            while (image == null) {
+            long start = System.currentTimeMillis();            
+            while (oldImage == image) {
                 try {
+                    System.out.println("---------------------------------------" + (oldImage == image));
                     image = ic.BufferedImageToMat(bufferedImage);
                 } catch (Exception e) {
                 }
-
             }
+            oldImage = image;
             Imgproc.GaussianBlur(image, image, getGaussKernel(), getSigmaX());
             Mat originalImage = image.clone();
             Vector<Mat> HSV = new Vector<>();
 
             Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
-            
+
             Core.inRange(image, new Scalar(getHl() * 255, getSl() * 255, getVl() * 255),
                     new Scalar(getHu() * 255, getSu() * 255, getVu() * 255), image);
-            
+
             Core.split(originalImage, HSV);
             Mat h = HSV.get(0);
             Mat s = HSV.get(1);
@@ -243,7 +241,6 @@ public class CircleDetection extends Thread implements ImageListener {
 //            Imgproc.GaussianBlur(h, hg, gaussKernel, sigmaX);
 //            Imgproc.GaussianBlur(s, sg, gaussKernel, sigmaX);
 //            Imgproc.GaussianBlur(v, vg, gaussKernel, sigmaX);
-
 //            Mat ht2 = MinMaxThreshold(hg, 0.149 * 255, 0.567 * 255);
 //            Mat st2 = MinMaxThreshold(sg, 0.071 * 255, 255);
 //            Mat vt2 = MinMaxThreshold(vg, 0.000 * 255, 0.691 * 255);
@@ -268,7 +265,7 @@ public class CircleDetection extends Thread implements ImageListener {
 //            iv.show(ad2, "Thresholding: ad2");
 //            iv.show(ad3, "Thresholding: ad3");
             Mat circles = CircleFinder(image, getDenom(), getCannyThresh_upper(), getCannyThresh_inner(), getCircle_min(), getCircle_max());
-            
+
             Vector<Mat> channels = new Vector<>();
             Core.split(originalImage, channels);
             Core.multiply(channels.get(0), image, channels.get(0));
@@ -288,7 +285,8 @@ public class CircleDetection extends Thread implements ImageListener {
             out = DrawCircles(circles, originalImage, getColor(), lineWidth);
 //            iv.show(out, "Resulting Image");
             pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
-            dh.addCentroidAndRadius(circles);
+            dh.setImageWidthAndHight(image);
+            dh.addCentroidAndRadius(circles);            
             System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
         }
     }
