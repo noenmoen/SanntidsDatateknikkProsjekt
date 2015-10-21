@@ -61,7 +61,7 @@ public class YADrone
         Thread guiThread = new Thread(gui);
         guiThread.start();
         CircleDetection cd = new CircleDetection(
-                1000, 30, 3, 13, 204, 200, 3, drone, 3, gui, pip,dh);
+                1000, 30, 4, 3, 204, 200, 2, drone, 3, gui, pip,dh);
         cd.start();
     }
 }
