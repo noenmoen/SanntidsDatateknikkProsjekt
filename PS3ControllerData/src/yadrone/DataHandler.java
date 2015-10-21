@@ -11,7 +11,7 @@ import org.opencv.core.Mat;
  *
  * @author Martin Strøm Pedersen
  */
-public class DataHandler{
+public class DataHandler {
 
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
@@ -20,46 +20,44 @@ public class DataHandler{
     private Deque<double[]> centroidAndRadius = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
-    
 
     public DataHandler() {
     }
-    
+
     /**
      * must be called first to get the correct values
-     * @param image 
+     *
+     * @param image
      */
-    public synchronized void setImageWidthAndHight(Mat image){
+    public synchronized void setImageWidthAndHight(Mat image) {
         this.imageWidth = image.width();
         this.imageHeight = image.height();
     }
-    
+
     /**
-     * Gets the mean values from the filtered array, converts it into degrees 
-     * and returns the values as a float[] array
-     * float[0] = YAW
-     * float[1] = altitude difference from center image to center ring
-     * float[2] = null
+     * Gets the mean values from the filtered array, converts it into degrees
+     * and returns the values as a float[] array float[0] = YAW float[1] =
+     * altitude difference from center image to center ring float[2] = null
      * float[3] = null
-     * 
+     *
      * @return float[]
      */
     public synchronized float[] GetDiff() {
         float[] diff = new float[4];
-        diff[0] = (((float) getCentroidAndRadius()[0] - imageWidth / 2) 
+        diff[0] = (((float) getCentroidAndRadius()[0] - imageWidth / 2)
                 / imageWidth) * 93;
         diff[1] = ((float) getCentroidAndRadius()[1] - imageHeight / 2);
 
-        System.out.println("Filtered values: YAW diff: " + diff[0] + 
-                " Altitude Diff: " + diff[1]);
+        System.out.println("Filtered values: YAW diff: " + diff[0]
+                + " Altitude Diff: " + diff[1]);
         return diff;
-         
+
     }
 
     /**
-     *  Called by Circle detection, adds a new raw value to calculate the mean
-     * 
-     * @param centroidAndRadius 
+     * Called by Circle detection, adds a new raw value to calculate the mean
+     *
+     * @param centroidAndRadius
      */
     public synchronized void addCentroidAndRadius(Mat centroidAndRadius) {
         try {
@@ -75,23 +73,31 @@ public class DataHandler{
         } catch (Exception e) {
         }
     }
-    
+
     /**
-     *  returns the latest value from the filtered data
+     * returns the latest value from the filtered data
+     *
      * @return double[]
      */
-
     public synchronized double[] getCentroidAndRadius() {
 
         return centroidAndRadius.peekLast();
-        
+
+    }
+
+    public synchronized boolean HasCircle() {
+        if (centroidAndRadius.isEmpty()) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
      * Check if the data from circledetection is fresh
-     * @return 
+     *
+     * @return
      */
-    
     private synchronized boolean isCircleDataFresh() {
 
         if ((lastTimeCircleDetected + CIRCLE_EXPIRATION_TIME)
@@ -101,16 +107,14 @@ public class DataHandler{
         centroidAndRadius.clear();
         return false;
     }
-    
+
     /**
-     * takes the mean value of N- elements from raw circle data.
-     * It removes unvalid circles, and chooses the right circle if there are 
-     * more than one.
-     * 
+     * takes the mean value of N- elements from raw circle data. It removes
+     * unvalid circles, and chooses the right circle if there are more than one.
+     *
      * @param centroidAndRadius
      * @return double[]
      */
-
     private double[] circleFilter(Mat centroidAndRadius) {
         if (centroidAndRadius.cols() < 0) {
             return null;
