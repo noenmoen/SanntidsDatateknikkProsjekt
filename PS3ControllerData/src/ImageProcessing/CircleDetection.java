@@ -38,6 +38,12 @@ public class CircleDetection extends Thread implements ImageListener {
     private int cannyThresh_upper;
     private int cannyThresh_inner;
     private int denom;
+    private double hl;
+    private double hu;
+    private double sl;
+    private double su;
+    private double vl;
+    private double vu;
     private ImageViewer iv = new ImageViewer();
     private ImageConverter ic = new ImageConverter();
     private BufferedImage bufferedImage;
@@ -84,6 +90,12 @@ public class CircleDetection extends Thread implements ImageListener {
         this.droneGUI = droneGUI;
         this.pip = pip;
         this.dh = dh;
+        this.hl = 0.149;
+        this.sl = 0.071;
+        this.vl = 0.000;
+        this.hu = 0.567;
+        this.su = 1.000;
+        this.vu = 0.691;
     }
 
     /**
@@ -214,18 +226,19 @@ public class CircleDetection extends Thread implements ImageListener {
                 }
 
             }
-            Imgproc.GaussianBlur(image, image, gaussKernel, sigmaX);
+            Imgproc.GaussianBlur(image, image, getGaussKernel(), getSigmaX());
             Mat originalImage = image.clone();
             Vector<Mat> HSV = new Vector<>();
 
             Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
             
-            Core.inRange(image, new Scalar(0.149 * 255, 0.071 * 255, 0.000 * 255), new Scalar(0.567 * 255, 255,0.691 * 255), image);
+            Core.inRange(image, new Scalar(getHl() * 255, getSl() * 255, getVl() * 255),
+                    new Scalar(getHu() * 255, getSu() * 255, getVu() * 255), image);
             
-//            Core.split(image, HSV);
-//            Mat h = HSV.get(0);
-//            Mat s = HSV.get(1);
-//            Mat v = HSV.get(2);
+            Core.split(originalImage, HSV);
+            Mat h = HSV.get(0);
+            Mat s = HSV.get(1);
+            Mat v = HSV.get(2);
 
 //            Mat hg = new Mat();
 //            Mat sg = new Mat();
@@ -241,12 +254,15 @@ public class CircleDetection extends Thread implements ImageListener {
 //            iv.show(st2, "Thresholding: ST2");
 //            iv.show(vt2, "Thresholding: VT2");
 //            Mat ad1 = new Mat();
+//            System.out.println(image.channels());
+//            System.out.println(originalImage.channels());
+//            Mat ad1 = new Mat();
 //            Mat ad2 = new Mat();
 //            Mat ad3 = new Mat();
             Mat out = new Mat();
-//            Core.multiply(originalImage,image,out);
-//            Core.multiply(ad1, vt2, ad2);
-//            Core.multiply(st2, vt2, ad3);
+//            Core.multiply(h,s,ad1);
+//            Core.multiply(ad1, v, ad2);
+//            Core.multiply(ad2, image, ad3);
 
 //            for(int i=0;i<1;i++){
 //            Imgproc.erode(ad2, ad2, );
@@ -254,15 +270,14 @@ public class CircleDetection extends Thread implements ImageListener {
 //            }
 //            iv.show(ad2, "Thresholding: ad2");
 //            iv.show(ad3, "Thresholding: ad3");
-            Mat circles = CircleFinder(image, denom, cannyThresh_upper,
-                    cannyThresh_inner, circle_min, circle_max);
+            Mat circles = CircleFinder(image, getDenom(), getCannyThresh_upper(), getCannyThresh_inner(), getCircle_min(), getCircle_max());
             
-//            Vector<Mat> channels = new Vector<>();
-//            Core.split(originalImage, channels);
-//            Core.multiply(channels.get(0), ad2, channels.get(0));
-//            Core.multiply(channels.get(1), ad2, channels.get(1));
-//            Core.multiply(channels.get(2), ad2, channels.get(2));
-//            Core.merge(channels, originalImage);
+            Vector<Mat> channels = new Vector<>();
+            Core.split(originalImage, channels);
+            Core.multiply(channels.get(0), image, channels.get(0));
+            Core.multiply(channels.get(1), image, channels.get(1));
+            Core.multiply(channels.get(2), image, channels.get(2));
+            Core.merge(channels, originalImage);
 //            try {
 //                System.out.println(circles.cols() + " " + circles.rows());
 //                reg.AddNewCoordinate(circles);
@@ -273,7 +288,7 @@ public class CircleDetection extends Thread implements ImageListener {
 //                System.out.println(e.getMessage());
 //                out = DrawCircles(circles, originalImage, color, lineWidth);
 //            }
-            out = DrawCircles(circles, originalImage, color, lineWidth);
+            out = DrawCircles(circles, originalImage, getColor(), lineWidth);
 //            iv.show(out, "Resulting Image");
             pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
             dh.addCentroidAndRadius(circles);
@@ -284,5 +299,201 @@ public class CircleDetection extends Thread implements ImageListener {
     @Override
     public synchronized void imageUpdated(BufferedImage bi) {
         bufferedImage = bi;
+    }
+
+    /**
+     * @return the gaussKernel
+     */
+    public synchronized Size getGaussKernel() {
+        return gaussKernel;
+    }
+
+    /**
+     * @param gaussKernel the gaussKernel to set
+     */
+    public synchronized void setGaussKernel(Size gaussKernel) {
+        this.gaussKernel = gaussKernel;
+    }
+
+    /**
+     * @return the sigmaX
+     */
+    public synchronized double getSigmaX() {
+        return sigmaX;
+    }
+
+    /**
+     * @param sigmaX the sigmaX to set
+     */
+    public synchronized void setSigmaX(double sigmaX) {
+        this.sigmaX = sigmaX;
+    }
+
+    /**
+     * @return the color
+     */
+    public synchronized Scalar getColor() {
+        return color;
+    }
+
+    /**
+     * @param color the color to set
+     */
+    public synchronized void setColor(Scalar color) {
+        this.color = color;
+    }
+
+    /**
+     * @return the circle_max
+     */
+    public synchronized int getCircle_max() {
+        return circle_max;
+    }
+
+    /**
+     * @param circle_max the circle_max to set
+     */
+    public synchronized void setCircle_max(int circle_max) {
+        this.circle_max = circle_max;
+    }
+
+    /**
+     * @return the circle_min
+     */
+    public synchronized int getCircle_min() {
+        return circle_min;
+    }
+
+    /**
+     * @param circle_min the circle_min to set
+     */
+    public synchronized void setCircle_min(int circle_min) {
+        this.circle_min = circle_min;
+    }
+
+    /**
+     * @return the cannyThresh_upper
+     */
+    public synchronized int getCannyThresh_upper() {
+        return cannyThresh_upper;
+    }
+
+    /**
+     * @param cannyThresh_upper the cannyThresh_upper to set
+     */
+    public synchronized void setCannyThresh_upper(int cannyThresh_upper) {
+        this.cannyThresh_upper = cannyThresh_upper;
+    }
+
+    /**
+     * @return the cannyThresh_inner
+     */
+    public synchronized int getCannyThresh_inner() {
+        return cannyThresh_inner;
+    }
+
+    /**
+     * @param cannyThresh_inner the cannyThresh_inner to set
+     */
+    public synchronized void setCannyThresh_inner(int cannyThresh_inner) {
+        this.cannyThresh_inner = cannyThresh_inner;
+    }
+
+    /**
+     * @return the denom
+     */
+    public synchronized int getDenom() {
+        return denom;
+    }
+
+    /**
+     * @param denom the denom to set
+     */
+    public synchronized void setDenom(int denom) {
+        this.denom = denom;
+    }
+
+    /**
+     * @return the hl
+     */
+    public synchronized double getHl() {
+        return hl;
+    }
+
+    /**
+     * @param hl the hl to set
+     */
+    public synchronized void setHl(double hl) {
+        this.hl = hl;
+    }
+
+    /**
+     * @return the hu
+     */
+    public synchronized double getHu() {
+        return hu;
+    }
+
+    /**
+     * @param hu the hu to set
+     */
+    public synchronized void setHu(double hu) {
+        this.hu = hu;
+    }
+
+    /**
+     * @return the sl
+     */
+    public synchronized double getSl() {
+        return sl;
+    }
+
+    /**
+     * @param sl the sl to set
+     */
+    public synchronized void setSl(double sl) {
+        this.sl = sl;
+    }
+
+    /**
+     * @return the su
+     */
+    public synchronized double getSu() {
+        return su;
+    }
+
+    /**
+     * @param su the su to set
+     */
+    public synchronized void setSu(double su) {
+        this.su = su;
+    }
+
+    /**
+     * @return the vl
+     */
+    public synchronized double getVl() {
+        return vl;
+    }
+
+    /**
+     * @param vl the vl to set
+     */
+    public synchronized void setVl(double vl) {
+        this.vl = vl;
+    }
+
+    /**
+     * @return the vu
+     */
+    public synchronized double getVu() {
+        return vu;
+    }
+
+    /**
+     * @param vu the vu to set
+     */
+    public synchronized void setVu(double vu) {
+        this.vu = vu;
     }
 }
