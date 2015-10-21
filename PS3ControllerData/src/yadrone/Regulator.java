@@ -53,6 +53,7 @@ public class Regulator extends TimerTask {
         TIME_SHIFT = 0.1f;
         navData = new NavDataListener(dc.getDrone());
         this.dh = dh;
+        autoMode = false;
     }
 
     public synchronized boolean isAutoMode() {
