@@ -13,6 +13,7 @@ import de.yadrone.base.command.VideoBitRateMode;
 import de.yadrone.base.command.VideoCodec;
 import java.io.IOException;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +30,7 @@ public class YADrone
      */
     public static void main(String[] args)
     {
-//        Timer timer = new Timer();
+        Timer timer = new Timer();
         Semaphore mySem = new Semaphore(1, true);
         ControllerStateStorage store = new ControllerStateStorage();
         PS3ControllerReader reader = null;
@@ -53,8 +54,9 @@ public class YADrone
 //        }
 //        reader.start();
         DroneControl cont = new DroneControl(drone, mySem, store);
-        Regulator reg = new Regulator(cont,dh);
+        TimerTask reg = new Regulator(cont,dh);
         cont.start();
+        timer.scheduleAtFixedRate(reg, 0, 100);
         DroneGUI gui = new DroneGUI(drone, cont, pip);
         Thread guiThread = new Thread(gui);
         guiThread.start();
