@@ -15,7 +15,7 @@ public class DataHandler {
 
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
-    private final int CAPACITY = 15;
+    private final int CAPACITY = 10;
     private final double dev = 0.1;
     private Deque<double[]> centroidAndRadius = new ArrayDeque<>();
     private int imageWidth;
@@ -61,17 +61,17 @@ public class DataHandler {
      */
     public synchronized void addCentroidAndRadius(Mat centroidAndRadius) {
         try {
-            isCircleDataFresh();
+           // isCircleDataFresh();
             double[] circle = circleFilter(centroidAndRadius);
             if (circle != null) {
-                System.out.println("Batman!");
-                this.centroidAndRadius.add(centroidAndRadius.get(0, 0));
+                this.centroidAndRadius.add(circle);
                 lastTimeCircleDetected = System.currentTimeMillis();
                 if (this.centroidAndRadius.size() > CAPACITY) {
                     this.centroidAndRadius.remove();
                 }
             }
         } catch (Exception e) {
+            System.out.println("failed to add new circle");
         }
     }
 
