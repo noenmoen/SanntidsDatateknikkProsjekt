@@ -114,7 +114,6 @@ public class Regulator extends TimerTask {
         this.kdPitch = kdPitch;
     }
 
-
     public synchronized float getKpYaw() {
         return kpYaw;
     }
@@ -155,7 +154,10 @@ public class Regulator extends TimerTask {
     private float yawPID(float yawDes, float yawAct) {
         yawErr = yawDes - yawAct;
         if (yawErr >= 180f) {
-            yawErr -= 360f; // Compensate for errors that cross 0 deg.
+            yawErr -= 360f; // Compensate for errors that cross +-180 deg.
+        }
+        if (yawErr <= -180f) {
+            yawErr += 360f;
         }
         yawErrSum += yawErr * TIME_SHIFT;
         yawDerr = (yawErr - prevYawErr) / TIME_SHIFT;
@@ -163,8 +165,6 @@ public class Regulator extends TimerTask {
         prevYawErr = yawErr;
         return yawSpeedOut;
     }
-    
-
 
     // PID algorithm for controlling the altitude of the drone (relative to ground)
     private float zPID(float zDes, float zAct) {
@@ -175,13 +175,12 @@ public class Regulator extends TimerTask {
         prevZerr = zErr;
         return zSpeedOut;
     }
-  
 
     @Override
     public void run() {
         while (true) {
             // Only run while drone is in autonomous mode
-            while (autoMode) {
+            while (autoMode && dh.HasCircle()) {
                 yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
                 pitchAct = navData.getPitch() / 1000f;
                 rollAct = navData.getRoll() / 1000f;
@@ -189,20 +188,20 @@ public class Regulator extends TimerTask {
 
                 float yaw = dh.GetDiff()[0];
                 float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
-                if (yawDes >= 360f) {
-                    yawDes = (yawAct - 360f) + yaw; // Compensate for illegal desired angles (0<yaw<360)
-                } else if (yawDes < 0) {
-                    yawDes = (360f + yawAct) + yaw;
+                if (yawDes >= 180f) {
+                    yawDes = (yawAct - 360f) + yaw; // Compensate for illegal desired angles (-180<yaw<180)
+                } else if (yawDes <= -180f) {
+                    yawDes = (yawAct + 360f) + yaw;
                 }
                 droneInputs[3] = yawPID(yawDes, yawAct);
-//                System.out.println("Desired yaw angle: " + yawDes + " - actual yaw angle: " + yawAct);
-//                System.out.println("-----------------------------------------------------------");
+                System.out.println("Desired yaw angle: " + yawDes + " - actual yaw angle: " + yawAct);
+                System.out.println("-----------------------------------------------------------");
 
                 float z = dh.GetDiff()[1];
                 float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
                 droneInputs[2] = zPID(zDes, zAct);
-//                System.out.println("Desired altitude: " + zDes + " - actual altitude: " + zAct);
-//                System.out.println("-----------------------------------------------------------");
+                System.out.println("Desired altitude: " + zDes + " - actual altitude: " + zAct);
+                System.out.println("-----------------------------------------------------------");
 
                 // TODO: control algorithms for roll and pitch
                 droneInputs[1] = droneInputs[0] = 0f;
