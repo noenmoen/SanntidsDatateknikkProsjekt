@@ -175,29 +175,6 @@ public class CircleDetection extends Thread implements ImageListener {
 
     /**
      *
-     *
-     *
-     * @param circles: Is given by Houghcircles
-     * @param image: The image you draw cirles on
-     * @return
-     */
-    private Mat DrawCircles(Mat circles, Mat image) {
-        System.out.println("---------------------------------------------------");
-        System.out.println("Number of circles found: " + circles.cols());
-        if (circles.cols() > 0) {
-            for (int i = 0; i < circles.cols(); i++) {
-                double[] circle = circles.get(0, i);
-                Point p = new Point(circle[0], circle[1]);
-                Imgproc.circle(image, p, (int) circle[2], new Scalar(0, 0, 255), 2);
-            }
-        } else {
-            System.out.println("could not find any circles!!");
-        }
-        return image;
-    }
-
-    /**
-     *
      * @param circles- Is given by Houghcircles
      * @param image- The image you draw circles on
      * @param color- type Scalar
@@ -217,39 +194,12 @@ public class CircleDetection extends Thread implements ImageListener {
 //                        + circle[0] + "x" + circle[1] + " Radius: " + circle[2]);
             }
         } else {
-            System.out.println("could not find any circles!!");
+            System.out.println("could not find any circles!");
         }
         
         return image;
     }
 
-    /**
-     * Non adaptive threshold method
-     *
-     * @param mat
-     * @param thresholdvalue
-     * @return
-     */
-    private Mat Threshold(Mat mat, int thresholdvalue) {
-        Mat thresh = new Mat();
-        Imgproc.threshold(mat, thresh, thresholdvalue, 255, Imgproc.THRESH_BINARY);
-        return thresh;
-
-    }
-
-    /**
-     * Adaptive Threshold
-     *
-     * @param mat
-     * @return
-     */
-    private Mat adaptThresholdGaussian(Mat mat) {
-        Mat thresh = new Mat();
-        Imgproc.adaptiveThreshold(mat, thresh, 255,
-                Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY_INV, 35, -1);
-        return thresh;
-
-    }
 
     @Override
     public void run() {
@@ -264,36 +214,39 @@ public class CircleDetection extends Thread implements ImageListener {
                 }
 
             }
-            
+            Imgproc.GaussianBlur(image, image, gaussKernel, sigmaX);
             Mat originalImage = image.clone();
             Vector<Mat> HSV = new Vector<>();
 
             Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
-            Core.split(image, HSV);
-            Mat h = HSV.get(0);
-            Mat s = HSV.get(1);
-            Mat v = HSV.get(2);
+            
+            Core.inRange(image, new Scalar(0.149 * 255, 0.071 * 255, 0.000 * 255), new Scalar(0.567 * 255, 255,0.691 * 255), image);
+            
+//            Core.split(image, HSV);
+//            Mat h = HSV.get(0);
+//            Mat s = HSV.get(1);
+//            Mat v = HSV.get(2);
 
-            Mat hg = new Mat();
-            Mat sg = new Mat();
-            Mat vg = new Mat();
-            Imgproc.GaussianBlur(h, hg, gaussKernel, sigmaX);
-            Imgproc.GaussianBlur(s, sg, gaussKernel, sigmaX);
-            Imgproc.GaussianBlur(v, vg, gaussKernel, sigmaX);
+//            Mat hg = new Mat();
+//            Mat sg = new Mat();
+//            Mat vg = new Mat();
+//            Imgproc.GaussianBlur(h, hg, gaussKernel, sigmaX);
+//            Imgproc.GaussianBlur(s, sg, gaussKernel, sigmaX);
+//            Imgproc.GaussianBlur(v, vg, gaussKernel, sigmaX);
 
-            Mat ht2 = MinMaxThreshold(hg, 0.149 * 255, 0.567 * 255);
-            Mat st2 = MinMaxThreshold(sg, 0.071 * 255, 255);
-            Mat vt2 = MinMaxThreshold(vg, 0.000 * 255, 0.691 * 255);
+//            Mat ht2 = MinMaxThreshold(hg, 0.149 * 255, 0.567 * 255);
+//            Mat st2 = MinMaxThreshold(sg, 0.071 * 255, 255);
+//            Mat vt2 = MinMaxThreshold(vg, 0.000 * 255, 0.691 * 255);
 //            iv.show(ht2, "Thresholding: HT2");
 //            iv.show(st2, "Thresholding: ST2");
 //            iv.show(vt2, "Thresholding: VT2");
-            Mat ad1 = new Mat();
-            Mat ad2 = new Mat();
-            Mat ad3 = new Mat();
+//            Mat ad1 = new Mat();
+//            Mat ad2 = new Mat();
+//            Mat ad3 = new Mat();
             Mat out = new Mat();
-            Core.multiply(ht2, st2, ad1);
-            Core.multiply(ad1, vt2, ad2);
-            Core.multiply(st2, vt2, ad3);
+//            Core.multiply(originalImage,image,out);
+//            Core.multiply(ad1, vt2, ad2);
+//            Core.multiply(st2, vt2, ad3);
 
 //            for(int i=0;i<1;i++){
 //            Imgproc.erode(ad2, ad2, );
@@ -301,14 +254,15 @@ public class CircleDetection extends Thread implements ImageListener {
 //            }
 //            iv.show(ad2, "Thresholding: ad2");
 //            iv.show(ad3, "Thresholding: ad3");
-            Mat circles = CircleFinder(ad2, denom, cannyThresh_upper,
+            Mat circles = CircleFinder(image, denom, cannyThresh_upper,
                     cannyThresh_inner, circle_min, circle_max);
-            Vector<Mat> channels = new Vector<>();
-            Core.split(originalImage, channels);
-            Core.multiply(channels.get(0), ad2, channels.get(0));
-            Core.multiply(channels.get(1), ad2, channels.get(1));
-            Core.multiply(channels.get(2), ad2, channels.get(2));
-            Core.merge(channels, originalImage);
+            
+//            Vector<Mat> channels = new Vector<>();
+//            Core.split(originalImage, channels);
+//            Core.multiply(channels.get(0), ad2, channels.get(0));
+//            Core.multiply(channels.get(1), ad2, channels.get(1));
+//            Core.multiply(channels.get(2), ad2, channels.get(2));
+//            Core.merge(channels, originalImage);
 //            try {
 //                System.out.println(circles.cols() + " " + circles.rows());
 //                reg.AddNewCoordinate(circles);
@@ -320,7 +274,7 @@ public class CircleDetection extends Thread implements ImageListener {
 //                out = DrawCircles(circles, originalImage, color, lineWidth);
 //            }
             out = DrawCircles(circles, originalImage, color, lineWidth);
-//            iv.show(image1, "Resulting Image");
+//            iv.show(out, "Resulting Image");
             pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
             dh.addCentroidAndRadius(circles);
             System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
