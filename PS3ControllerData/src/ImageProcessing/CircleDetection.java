@@ -206,15 +206,15 @@ public class CircleDetection extends Thread implements ImageListener {
      */
     private Mat DrawCircles(Mat circles, Mat image, Scalar color, int lineWidth) {
 
-        System.out.println("---------------------------------------------------");
-        System.out.println("Number of circles found: " + circles.cols());
+//        System.out.println("---------------------------------------------------");
+//        System.out.println("Number of circles found: " + circles.cols());
         if (circles.cols() > 0) {
             for (int i = 0; i < circles.cols(); i++) {
                 double[] circle = circles.get(0, i);
                 Point p = new Point(circle[0], circle[1]);
                 Imgproc.circle(image, p, (int) circle[2], color, lineWidth);
-                System.out.println((i + 1) + " Coordinates: "
-                        + circle[0] + "x" + circle[1] + " Radius: " + circle[2]);
+//                System.out.println((i + 1) + " Coordinates: "
+//                        + circle[0] + "x" + circle[1] + " Radius: " + circle[2]);
             }
         } else {
             System.out.println("could not find any circles!!");
