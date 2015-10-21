@@ -16,7 +16,7 @@ public class DataHandler {
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
     private final int CAPACITY = 10;
-    private final double dev = 0.5;
+    private final double dev = 0.25;
     private Deque<double[]> centroidAndRadius = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
@@ -64,7 +64,6 @@ public class DataHandler {
             // isCircleDataFresh();
             double[] circle = circleFilter(centroidAndRadius);
             if (circle != null) {
-                System.out.println("Batman!");
                 this.centroidAndRadius.add(circle);
                 lastTimeCircleDetected = System.currentTimeMillis();
                 if (this.centroidAndRadius.size() > CAPACITY) {
@@ -140,10 +139,8 @@ public class DataHandler {
             avg[1] = sumY / this.centroidAndRadius.size();
             avg[2] = sumRadius / this.centroidAndRadius.size();
         }
-        System.out.println("average " + avg[0] + " " + avg[1]);
 
         if (avg[0] == 0 && avg[0] == 0 && avg[0] == 0) {
-            System.out.println("IRONMAN");
             return centroidAndRadius.get(0, 0);
         }
         // Returns valid circle
