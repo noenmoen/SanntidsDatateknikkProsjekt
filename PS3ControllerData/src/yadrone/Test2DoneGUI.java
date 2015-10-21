@@ -6,38 +6,55 @@
 package yadrone;
 
 import ImageProcessing.ImageBuffer;
+import ImageProcessing.ProcessedImagePanel;
 import de.yadrone.base.IARDrone;
 import java.awt.Image;
+import javax.swing.UIManager;
 import org.opencv.core.Mat;
 
 /**
  *
  * @author Morten
  */
-public class Test2DoneGUI extends javax.swing.JFrame implements Runnable{
+public class Test2DoneGUI extends javax.swing.JFrame implements Runnable
+{
 
-    VideoListener vl;
-    ImageBuffer pi;
+    private VideoListener v1;
+    private NavDataListener navData;
+
+    private DroneControl cont;
+    private IARDrone drone;
+    private final ProcessedImagePanel pil;
+    private String[] yawDropDownStrings = {"Propotional", "Integral", "Derivate"};
 
     /**
      * Creates new form Test2DoneGUI
      */
-    public Test2DoneGUI(IARDrone drone) {
+    public Test2DoneGUI(IARDrone drone, DroneControl cont, ProcessedImagePanel pil)
+    {
+        this.drone = drone;
+        v1 = new VideoListener(drone);
+        navData = new NavDataListener(drone);
+        this.cont = cont;
+        this.pil = pil;
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        }
+        catch (Exception e) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }
+            catch (Exception ex) {
+            }
+
+        }
         initComponents();
-        vl = new VideoListener(drone);
-    }
-
-
-
-    public void run() {
-
-        if (vl.isDisplayable()) {
-            VideoStreamViewer.paint(vl.getDroneImage().createGraphics());
-        }
-        if (pi != null) {
-            ImageProcessViewer.paint(pi.getBufferedImage().createGraphics());
-        }
-
+        this.setVisible(true);
     }
 
     /**
@@ -47,21 +64,26 @@ public class Test2DoneGUI extends javax.swing.JFrame implements Runnable{
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
 
         jPanel1 = new javax.swing.JPanel();
-        VideoStreamViewer = new javax.swing.JPanel();
-        ImageProcessViewer = new javax.swing.JPanel();
+        VideoStreamViewer = v1;
+        ImageProcessViewer = pil;
         ButtonPanel1 = new javax.swing.JPanel();
         manButton = new javax.swing.JButton();
         autoButton = new javax.swing.JButton();
-        modeTextField = new javax.swing.JTextField();
         rollTextField = new javax.swing.JTextField();
         pitchTextField = new javax.swing.JTextField();
         yawTextField = new javax.swing.JTextField();
-        altitudeTesxtField = new javax.swing.JTextField();
+        altitudeTextField = new javax.swing.JTextField();
         batTextField = new javax.swing.JTextField();
         landButton = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
+        jLabel2 = new javax.swing.JLabel();
+        yawPIDtextField = new javax.swing.JTextField();
+        yawPIDdropDown = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -88,26 +110,28 @@ public class Test2DoneGUI extends javax.swing.JFrame implements Runnable{
         );
         ImageProcessViewerLayout.setVerticalGroup(
             ImageProcessViewerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 253, Short.MAX_VALUE)
+            .addGap(0, 258, Short.MAX_VALUE)
         );
 
         ButtonPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         manButton.setText("Manual mode");
-        manButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        manButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 manButtonActionPerformed(evt);
             }
         });
 
-        autoButton.setText("Automatic mode");
-        autoButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        autoButton.setText("Autonomous mode");
+        autoButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 autoButtonActionPerformed(evt);
             }
         });
-
-        modeTextField.setText("Mode");
 
         rollTextField.setText("Roll:");
 
@@ -115,14 +139,28 @@ public class Test2DoneGUI extends javax.swing.JFrame implements Runnable{
 
         yawTextField.setText("Yaw:");
 
-        altitudeTesxtField.setText("Altitude:");
+        altitudeTextField.setText("Altitude:");
 
         batTextField.setText("Battery Status:");
 
         landButton.setText("Land");
-        landButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        landButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 landButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("PID gains");
+
+        yawPIDdropDown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Propotional", "Derivate", "Integral" }));
+        yawPIDdropDown.setToolTipText("Yaw");
+        yawPIDdropDown.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                yawPIDdropDownActionPerformed(evt);
             }
         });
 
@@ -138,25 +176,32 @@ public class Test2DoneGUI extends javax.swing.JFrame implements Runnable{
                     .addComponent(rollTextField))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(ButtonPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(altitudeTesxtField, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(batTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addGroup(ButtonPanel1Layout.createSequentialGroup()
                 .addGap(35, 35, 35)
                 .addComponent(manButton, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(autoButton, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
+                .addComponent(autoButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(33, 33, 33))
             .addGroup(ButtonPanel1Layout.createSequentialGroup()
                 .addGap(134, 134, 134)
                 .addComponent(landButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ButtonPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(modeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(89, 89, 89))
+            .addGroup(ButtonPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(altitudeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(batTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+            .addComponent(jSeparator1)
+            .addComponent(jSeparator2)
+            .addGroup(ButtonPanel1Layout.createSequentialGroup()
+                .addGap(141, 141, 141)
+                .addComponent(jLabel2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(ButtonPanel1Layout.createSequentialGroup()
+                .addComponent(yawPIDdropDown, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(yawPIDtextField)
+                .addContainerGap())
         );
         ButtonPanel1Layout.setVerticalGroup(
             ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -169,11 +214,19 @@ public class Test2DoneGUI extends javax.swing.JFrame implements Runnable{
                 .addComponent(yawTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(16, 16, 16)
                 .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(altitudeTesxtField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(altitudeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(batTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(yawPIDtextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(yawPIDdropDown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(modeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(landButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -228,31 +281,75 @@ public class Test2DoneGUI extends javax.swing.JFrame implements Runnable{
     }// </editor-fold>//GEN-END:initComponents
 
     private void manButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manButtonActionPerformed
-        // TODO add your handling code here:
+
+        cont.setMode(DroneControl.DroneMode.MAN_MODE);
     }//GEN-LAST:event_manButtonActionPerformed
 
     private void autoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoButtonActionPerformed
-        // TODO add your handling code here:
+
+        cont.setMode(DroneControl.DroneMode.AUTO_MODE);
     }//GEN-LAST:event_autoButtonActionPerformed
 
     private void landButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_landButtonActionPerformed
-        // TODO add your handling code here:
+
+        cont.setMode(DroneControl.DroneMode.LANDING);
     }//GEN-LAST:event_landButtonActionPerformed
+
+    private void yawPIDdropDownActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawPIDdropDownActionPerformed
+    {//GEN-HEADEREND:event_yawPIDdropDownActionPerformed
+        switch (yawPIDdropDown.getSelectedIndex()) {
+            case 0:
+
+            case 1:
+                
+            case 2:
+
+        }
+    }//GEN-LAST:event_yawPIDdropDownActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ButtonPanel1;
     private javax.swing.JPanel ImageProcessViewer;
     private javax.swing.JPanel VideoStreamViewer;
-    private javax.swing.JTextField altitudeTesxtField;
+    private javax.swing.JTextField altitudeTextField;
     private javax.swing.JButton autoButton;
     private javax.swing.JTextField batTextField;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
     private javax.swing.JButton landButton;
     private javax.swing.JButton manButton;
-    private javax.swing.JTextField modeTextField;
     private javax.swing.JTextField pitchTextField;
     private javax.swing.JTextField rollTextField;
+    private javax.swing.JComboBox yawPIDdropDown;
+    private javax.swing.JTextField yawPIDtextField;
     private javax.swing.JTextField yawTextField;
     // End of variables declaration//GEN-END:variables
+
+    // Ikke-autogenererte metoder
+    private void repaintTextFields()
+    {
+        rollTextField.repaint();
+        pitchTextField.repaint();
+        yawTextField.repaint();
+        altitudeTextField.repaint();
+        batTextField.repaint();
+    }
+
+    public void run()
+    {
+
+        while (true) {
+            rollTextField.setText("Roll: " + navData.getRoll());
+            pitchTextField.setText("Pitch: " + navData.getPitch());
+            yawTextField.setText("Yaw: " + navData.getYaw());
+            altitudeTextField.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
+            batTextField.setText("Battery status : " + navData.getPercentage() + "%");
+            repaintTextFields();
+        }
+
+    }
+
 }
