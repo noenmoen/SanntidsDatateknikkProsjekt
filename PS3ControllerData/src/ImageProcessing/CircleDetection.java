@@ -96,7 +96,7 @@ public class CircleDetection extends Thread implements ImageListener {
      * @return 
      */
     private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh) {
-        long a = System.currentTimeMillis();
+
 
         Mat newMat = new Mat(mat.size(), mat.type());
 
@@ -122,8 +122,6 @@ public class CircleDetection extends Thread implements ImageListener {
                 }
             }
         }
-        long b = System.currentTimeMillis();
-        System.out.println("Threshold timed: " + (b-a));
 
         return newMat;
     }
@@ -166,14 +164,12 @@ public class CircleDetection extends Thread implements ImageListener {
      * @return Mat Circles in 3-layered vector
      */
     private Mat CircleFinder(Mat image, int denominator, int cannyThresh, int centerThresh, int minRatio, int maxRatio) {
-        long a = System.currentTimeMillis();
+
         Mat circles = new Mat();
         Imgproc.HoughCircles(image, circles, Imgproc.CV_HOUGH_GRADIENT, 1,
                 ((image.height() + image.width()) / 2) / denominator,
                 cannyThresh, centerThresh, minRatio, maxRatio);
-        
-        long b = System.currentTimeMillis();
-        System.out.println("circlefinder timed: " + (b-a));
+
         return circles;
     }
 
@@ -209,7 +205,7 @@ public class CircleDetection extends Thread implements ImageListener {
      * @return Mat- the image drawn
      */
     private Mat DrawCircles(Mat circles, Mat image, Scalar color, int lineWidth) {
-        long a = System.currentTimeMillis();
+
         System.out.println("---------------------------------------------------");
         System.out.println("Number of circles found: " + circles.cols());
         if (circles.cols() > 0) {
@@ -224,9 +220,6 @@ public class CircleDetection extends Thread implements ImageListener {
             System.out.println("could not find any circles!!");
         }
         
-        
-        long b = System.currentTimeMillis();
-        System.out.println("DrawCircles timed: " + (b-a));
         return image;
     }
 
