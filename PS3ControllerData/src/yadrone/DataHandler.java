@@ -15,8 +15,8 @@ public class DataHandler {
 
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
-    private final int CAPACITY = 10;
-    private final double dev = 0.5;
+    private final int CAPACITY = 50;
+    private final double dev = 0.25;
     private Deque<double[]> centroidAndRadius = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
