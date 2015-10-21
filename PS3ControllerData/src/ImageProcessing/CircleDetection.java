@@ -212,10 +212,9 @@ public class CircleDetection extends Thread implements ImageListener {
         Mat oldImage = null;
         Mat image = null;
         while (true) {
-            long start = System.currentTimeMillis();            
+            long start = System.currentTimeMillis();
             while (oldImage == image) {
                 try {
-                    System.out.println("---------------------------------------" + (oldImage == image));
                     image = ic.BufferedImageToMat(bufferedImage);
                 } catch (Exception e) {
                 }
@@ -286,7 +285,7 @@ public class CircleDetection extends Thread implements ImageListener {
 //            iv.show(out, "Resulting Image");
             pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
             dh.setImageWidthAndHight(image);
-            dh.addCentroidAndRadius(circles);            
+            dh.addCentroidAndRadius(circles);
             System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
         }
     }
