@@ -14,45 +14,37 @@ import java.util.TimerTask;
 public class Regulator extends TimerTask {
 
     private float[] droneInputs = new float[4];
-    private float[] desValues = new float[4];
     private float yawAct;
     private float pitchAct;
     private float rollAct;
     private float zAct;
-    private float yawErr;
-    private float yawErrSum;
-    private float yawDerr;
-    private float prevYawErr;
-    private float kpYaw;
-    private float kiYaw;
-    private float kdYaw;
-    private float yawSpeedOut;
-    private float zErr;
-    private float zErrSum;
-    private float zDerr;
-    private float prevZerr;
-    private float kpZ;
-    private float kiZ;
-    private float kdZ;
-    private float pitchErr;
-    private float pitchErrSum;
-    private float pitchDerr;
-    private float prevPitchErr;
-    private float kpPitch;
-    private float kiPitch;
-    private float kdPitch;
-    private float pitchSpeedOut;
-    private float zSpeedOut;
     private boolean autoMode;
     private final float TIME_SHIFT;
     private NavDataListener navData;
     private DroneControl dc;
     private DataHandler dh;
+    private PIDController yawPID;
+    private PIDController zPID;
+    private PIDController pitchPID;
 
-    public Regulator(DroneControl dc, DataHandler dh) {
-        TIME_SHIFT = 0.1f;
+    public Regulator(DroneControl dc, DataHandler dh, float CYCLE_TIME) {
+        TIME_SHIFT = CYCLE_TIME;
         navData = new NavDataListener(dc.getDrone());
         this.dh = dh;
+
+        // set up the PID controller for the yaw axis
+        yawPID = new PIDController(0, 0, 0, TIME_SHIFT);
+        yawPID.setContinuous();
+        yawPID.setInputRange(-1f, 1f);
+        yawPID.setOutputRange(-0.5f, 0.5f);
+
+        // set up the PID controller for the z axis
+        zPID = new PIDController(0, 0, 0, TIME_SHIFT);
+        zPID.setContinuous(false);
+        // set up the PID controller for the pitch axis
+        pitchPID = new PIDController(0, 0, 0, TIME_SHIFT);
+        pitchPID.setContinuous(false);
+        pitchPID.setOutputRange(-0.5f, 0.5f);
         //autoMode = false;
         autoMode = true; // for testing purposes, remove before flight!
     }
@@ -65,121 +57,86 @@ public class Regulator extends TimerTask {
         this.autoMode = autoMode;
     }
 
-    private float pitchPID(float pitchDes, float pitchAct) {
-        pitchErr = pitchDes - pitchAct;
-        pitchErrSum += pitchErr * TIME_SHIFT;
-        pitchDerr = (pitchErr - prevPitchErr) / TIME_SHIFT;
-        pitchSpeedOut = kpPitch * pitchErr + kiPitch * pitchErrSum + kdPitch * pitchDerr;
-        prevPitchErr = pitchErr;
-        return pitchSpeedOut;
-    }
     /* Drone dynamics are unknown, these methods are for tuning the gain
      parameters in order to achieve acceptable performance
      @param: Kp = proportional gain, Ki = integral gain, Kd = derivative gain
      */
-
     public synchronized void setKpYaw(float kpYaw) {
-        this.kpYaw = kpYaw;
+        yawPID.setKp(kpYaw);
     }
 
     public synchronized void setKiYaw(float kiYaw) {
-        this.kiYaw = kiYaw;
+        yawPID.setKi(kiYaw);
     }
 
     public synchronized void setKdYaw(float kdYaw) {
-        this.kdYaw = kdYaw;
+        yawPID.setKd(kdYaw);
     }
 
     public synchronized void setKpZ(float kpZ) {
-        this.kpZ = kpZ;
+        zPID.setKp(kpZ);
     }
 
     public synchronized void setKiZ(float kiZ) {
-        this.kiZ = kiZ;
+        zPID.setKi(kiZ);
     }
 
     public synchronized void setKdZ(float kdZ) {
-        this.kdZ = kdZ;
+        zPID.setKd(kdZ);
     }
 
     public synchronized void setKpPitch(float kpPitch) {
-        this.kpPitch = kpPitch;
+        pitchPID.setKp(kpPitch);
     }
 
     public synchronized void setKiPitch(float kiPitch) {
-        this.kiPitch = kiPitch;
+        pitchPID.setKi(kiPitch);
     }
 
     public synchronized void setKdPitch(float kdPitch) {
-        this.kdPitch = kdPitch;
+        pitchPID.setKd(kdPitch);
     }
 
     public synchronized float getKpYaw() {
-        return kpYaw;
+        return yawPID.getKp();
     }
 
     public synchronized float getKiYaw() {
-        return kiYaw;
+        return yawPID.getKi();
     }
 
     public synchronized float getKdYaw() {
-        return kdYaw;
+        return yawPID.getKd();
     }
 
     public synchronized float getKpZ() {
-        return kpZ;
+        return zPID.getKp();
     }
 
     public synchronized float getKiZ() {
-        return kiZ;
+        return zPID.getKi();
     }
 
     public synchronized float getKdZ() {
-        return kdZ;
+        return zPID.getKd();
     }
 
     public synchronized float getKpPitch() {
-        return kpPitch;
+        return pitchPID.getKp();
     }
 
     public synchronized float getKiPitch() {
-        return kiPitch;
+        return pitchPID.getKi();
     }
 
     public synchronized float getKdPitch() {
-        return kdPitch;
-    }
-
-    // PID algorithm for controlling the yaw angle of the drone
-    private float yawPID(float yawDes, float yawAct) {
-        yawErr = yawDes - yawAct;
-        if (yawErr >= 180f) {
-            yawErr -= 360f; // Compensate for errors that cross +-180 deg.
-        }
-        if (yawErr <= -180f) {
-            yawErr += 360f;
-        }
-        yawErrSum += yawErr * TIME_SHIFT;
-        yawDerr = (yawErr - prevYawErr) / TIME_SHIFT;
-        yawSpeedOut = kpYaw * yawErr + kiYaw * yawErrSum + kdYaw * yawDerr;
-        prevYawErr = yawErr;
-        return yawSpeedOut;
-    }
-
-    // PID algorithm for controlling the altitude of the drone (relative to ground)
-    private float zPID(float zDes, float zAct) {
-        zErr = zDes - zAct;
-        zErrSum += zErr * TIME_SHIFT;
-        zDerr = (zErr - prevZerr) / TIME_SHIFT;
-        zSpeedOut = kpZ * zErr + kiZ * zErrSum + kdZ * zDerr;
-        prevZerr = zErr;
-        return zSpeedOut;
+        return pitchPID.getKd();
     }
 
     @Override
     public void run() {
         while (true) {
-            // Only run while drone is in autonomous mode
+            // Only run while drone is in autonomous mode, and the drone has found a hulahoop
             while (autoMode && dh.HasCircle()) {
                 yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
                 pitchAct = navData.getPitch() / 1000f;
@@ -193,13 +150,20 @@ public class Regulator extends TimerTask {
                 } else if (yawDes <= -180f) {
                     yawDes = (yawAct + 360f) + yaw;
                 }
-                droneInputs[3] = yawPID(yawDes, yawAct);
+
+                yawPID.setSetpoint(mapAngles(yawDes)); // map the desired yaw angle to values in [-1,1]
+                yawPID.setInput(mapAngles(yawAct)); // map the actual yaw angle to values in [-1,1]
+                droneInputs[3] = yawPID.runPID();
+                // DEBUG
                 System.out.println("Desired yaw angle: " + yawDes + " - actual yaw angle: " + yawAct);
                 System.out.println("-----------------------------------------------------------");
 
                 float z = dh.GetDiff()[1];
                 float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
-                droneInputs[2] = zPID(zDes, zAct);
+                zPID.setSetpoint(zDes);
+                zPID.setInput(zAct);
+                droneInputs[2] = zPID.runPID();
+                // DEBUG
                 System.out.println("Desired altitude: " + zDes + " - actual altitude: " + zAct);
                 System.out.println("-----------------------------------------------------------");
 
@@ -207,6 +171,20 @@ public class Regulator extends TimerTask {
                 droneInputs[1] = droneInputs[0] = 0f;
                 //dc.moveAuto(droneInputs); || testing
             }
+            
+            // if the drone is not in autoMode, we reset the controllers
+
+            pitchPID.reset();
+            zPID.reset();
+            yawPID.reset();
+
         }
+    }
+    /*
+     convert angles between -180 to 180 into values between -1 and 1 (float)
+     */
+
+    private float mapAngles(float angle) {
+        return angle / 180f;
     }
 }
