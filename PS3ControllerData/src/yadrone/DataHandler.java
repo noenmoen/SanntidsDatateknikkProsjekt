@@ -64,6 +64,7 @@ public class DataHandler {
             isCircleDataFresh();
             double[] circle = circleFilter(centroidAndRadius);
             if (circle != null) {
+                System.out.println("Batman!");
                 this.centroidAndRadius.add(centroidAndRadius.get(0, 0));
                 lastTimeCircleDetected = System.currentTimeMillis();
                 if (this.centroidAndRadius.size() > CAPACITY) {
