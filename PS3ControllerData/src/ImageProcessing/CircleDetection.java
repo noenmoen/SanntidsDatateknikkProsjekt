@@ -47,7 +47,6 @@ public class CircleDetection extends Thread implements ImageListener {
     private ImageViewer iv = new ImageViewer();
     private ImageConverter ic = new ImageConverter();
     private BufferedImage bufferedImage;
-    private DroneGUI droneGUI;
     private final ProcessedImagePanel pip;
     private DataHandler dh;
 
@@ -74,7 +73,6 @@ public class CircleDetection extends Thread implements ImageListener {
             double sigmaX,
             IARDrone drone,
             int bufferSize,
-            DroneGUI droneGUI,
             ProcessedImagePanel pip,
             DataHandler dh) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -87,7 +85,6 @@ public class CircleDetection extends Thread implements ImageListener {
         this.lowThreshold = lowthreshold;
         this.sigmaX = sigmaX;
         drone.getVideoManager().addImageListener(this);
-        this.droneGUI = droneGUI;
         this.pip = pip;
         this.dh = dh;
         this.hl = 0.149;
