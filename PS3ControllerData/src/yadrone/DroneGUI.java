@@ -19,7 +19,8 @@ import javax.swing.UIManager;
  *
  * @author Morten
  */
-public class DroneGUI extends javax.swing.JFrame implements Runnable {
+public class DroneGUI extends javax.swing.JFrame implements Runnable
+{
 
     private VideoListener v1;
     private NavDataListener navData;
@@ -37,7 +38,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
             DroneControl cont,
             ProcessedImagePanel pil,
             TimerTask regulator,
-            CircleDetection cd) {
+            CircleDetection cd)
+    {
         this.drone = drone;
         this.cont = cont;
         this.pil = pil;
@@ -52,14 +54,17 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
                     break;
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
             }
 
         }
         initComponents();
+        initTextFieldText();
         this.setVisible(true);
 
     }
@@ -370,6 +375,10 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
             {
                 valueLowerTFFocusGained(evt);
             }
+            public void focusLost(java.awt.event.FocusEvent evt)
+            {
+                valueLowerTFFocusLost(evt);
+            }
         });
         valueLowerTF.addActionListener(new java.awt.event.ActionListener()
         {
@@ -609,11 +618,16 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         landButton.setForeground(Color.GREEN);
     }//GEN-LAST:event_landButtonActionPerformed
 
+//==============================================================================
+// Yaw PID parameter input fields
+//==============================================================================
+
     private void yawPropotionalTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawPropotionalTextFieldActionPerformed
     {//GEN-HEADEREND:event_yawPropotionalTextFieldActionPerformed
         try {
             regulator.setKpYaw(Float.valueOf(yawPropotionalTextField.getText()));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
         }
 
     }//GEN-LAST:event_yawPropotionalTextFieldActionPerformed
@@ -622,14 +636,16 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
     {//GEN-HEADEREND:event_yawDerivateTextFieldActionPerformed
         try {
             regulator.setKdYaw(Float.valueOf(yawDerivateTextField.getText()));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
         }    }//GEN-LAST:event_yawDerivateTextFieldActionPerformed
 
     private void yawIntegralTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawIntegralTextFieldActionPerformed
     {//GEN-HEADEREND:event_yawIntegralTextFieldActionPerformed
         try {
             regulator.setKiYaw(Float.valueOf(yawIntegralTextField.getText()));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
         }    }//GEN-LAST:event_yawIntegralTextFieldActionPerformed
 
     private void yawDerivateTextFieldFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawDerivateTextFieldFocusGained
@@ -662,98 +678,137 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         yawDerivateTextField.setText("Derivate: " + regulator.getKdYaw());
     }//GEN-LAST:event_yawDerivateTextFieldFocusLost
 
+//==============================================================================
+// Snapshot button
+//==============================================================================    
+
     private void snapshotButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_snapshotButtonActionPerformed
     {//GEN-HEADEREND:event_snapshotButtonActionPerformed
         try {
-            File outputfile = new File("saved.png");
+            String name = "" + System.currentTimeMillis();
+            File outputfile = new File(name + ".png");
             ImageIO.write(v1.getImage(), "png", outputfile);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
         }
     }//GEN-LAST:event_snapshotButtonActionPerformed
 
+//==============================================================================
+// HSV threshold parameter input fields
+//==============================================================================    
+
     private void hueLowerTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_hueLowerTFActionPerformed
     {//GEN-HEADEREND:event_hueLowerTFActionPerformed
-        // TODO add your handling code here:
+        try {
+            cd.setHl(Double.valueOf(hueLowerTF.getText()));
+        }
+        catch (Exception e) {
+        }
     }//GEN-LAST:event_hueLowerTFActionPerformed
 
     private void hueUpperTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_hueUpperTFActionPerformed
     {//GEN-HEADEREND:event_hueUpperTFActionPerformed
-        // TODO add your handling code here:
+        try {
+            cd.setHu(Double.valueOf(hueUpperTF.getText()));
+        }
+        catch (Exception e) {
+        }
     }//GEN-LAST:event_hueUpperTFActionPerformed
 
     private void SaturationLowerTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_SaturationLowerTFActionPerformed
     {//GEN-HEADEREND:event_SaturationLowerTFActionPerformed
-        // TODO add your handling code here:
+        try {
+            cd.setSl(Double.valueOf(SaturationLowerTF.getText()));
+        }
+        catch (Exception e) {
+        }
     }//GEN-LAST:event_SaturationLowerTFActionPerformed
 
     private void saturationUpperTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_saturationUpperTFActionPerformed
     {//GEN-HEADEREND:event_saturationUpperTFActionPerformed
-        // TODO add your handling code here:
+        try {
+            cd.setSu(Double.valueOf(saturationUpperTF.getText()));
+        }
+        catch (Exception e) {
+        }
     }//GEN-LAST:event_saturationUpperTFActionPerformed
 
     private void valueLowerTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_valueLowerTFActionPerformed
     {//GEN-HEADEREND:event_valueLowerTFActionPerformed
-        // TODO add your handling code here:
+        try {
+            cd.setVl(Double.valueOf(valueLowerTF.getText()));
+        }
+        catch (Exception e) {
+        }
     }//GEN-LAST:event_valueLowerTFActionPerformed
 
     private void valueUpperTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_valueUpperTFActionPerformed
     {//GEN-HEADEREND:event_valueUpperTFActionPerformed
-        // TODO add your handling code here:
+        try {
+            cd.setVu(Double.valueOf(valueUpperTF.getText()));
+        }
+        catch (Exception e) {
+        }
     }//GEN-LAST:event_valueUpperTFActionPerformed
 
     private void hueLowerTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_hueLowerTFFocusGained
     {//GEN-HEADEREND:event_hueLowerTFFocusGained
-        // TODO add your handling code here:
+        hueLowerTF.setText("");
     }//GEN-LAST:event_hueLowerTFFocusGained
 
     private void hueUpperTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_hueUpperTFFocusGained
     {//GEN-HEADEREND:event_hueUpperTFFocusGained
-        // TODO add your handling code here:
+        hueUpperTF.setText("");
     }//GEN-LAST:event_hueUpperTFFocusGained
 
     private void SaturationLowerTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_SaturationLowerTFFocusGained
     {//GEN-HEADEREND:event_SaturationLowerTFFocusGained
-        // TODO add your handling code here:
+        SaturationLowerTF.setText("");
     }//GEN-LAST:event_SaturationLowerTFFocusGained
 
     private void saturationUpperTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_saturationUpperTFFocusGained
     {//GEN-HEADEREND:event_saturationUpperTFFocusGained
-        // TODO add your handling code here:
+        saturationUpperTF.setText("");
     }//GEN-LAST:event_saturationUpperTFFocusGained
 
     private void valueLowerTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_valueLowerTFFocusGained
     {//GEN-HEADEREND:event_valueLowerTFFocusGained
-        // TODO add your handling code here:
+        valueLowerTF.setText("");
     }//GEN-LAST:event_valueLowerTFFocusGained
 
     private void valueUpperTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_valueUpperTFFocusGained
     {//GEN-HEADEREND:event_valueUpperTFFocusGained
-        // TODO add your handling code here:
+        valueUpperTF.setText("");
     }//GEN-LAST:event_valueUpperTFFocusGained
 
     private void hueLowerTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_hueLowerTFFocusLost
     {//GEN-HEADEREND:event_hueLowerTFFocusLost
-        // TODO add your handling code here:
+        hueLowerTF.setText("H lower threshold: " + cd.getHl());
     }//GEN-LAST:event_hueLowerTFFocusLost
 
     private void hueUpperTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_hueUpperTFFocusLost
     {//GEN-HEADEREND:event_hueUpperTFFocusLost
-        // TODO add your handling code here:
+        hueUpperTF.setText("H upper threshold: " + cd.getHu());
     }//GEN-LAST:event_hueUpperTFFocusLost
 
     private void SaturationLowerTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_SaturationLowerTFFocusLost
     {//GEN-HEADEREND:event_SaturationLowerTFFocusLost
-        // TODO add your handling code here:
+        SaturationLowerTF.setText("S lower threshold: " + cd.getSl());
     }//GEN-LAST:event_SaturationLowerTFFocusLost
 
     private void saturationUpperTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_saturationUpperTFFocusLost
     {//GEN-HEADEREND:event_saturationUpperTFFocusLost
-        // TODO add your handling code here:
+        saturationUpperTF.setText("S upper threshold: " + cd.getSu());
     }//GEN-LAST:event_saturationUpperTFFocusLost
+
+    private void valueLowerTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_valueLowerTFFocusLost
+    {//GEN-HEADEREND:event_valueLowerTFFocusLost
+        valueLowerTF.setText("V lower threshold: " + cd.getVl());
+    }//GEN-LAST:event_valueLowerTFFocusLost
 
     private void valueUpperTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_valueUpperTFFocusLost
     {//GEN-HEADEREND:event_valueUpperTFFocusLost
-        // TODO add your handling code here:
+        valueUpperTF.setText("V upper threshold: " + cd.getVu());
     }//GEN-LAST:event_valueUpperTFFocusLost
 
 
@@ -792,7 +847,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
     // End of variables declaration//GEN-END:variables
 
     // Ikke-autogenererte metoder
-    private void repaintTextFields() {
+    private void repaintTextFields()
+    {
         rollTextField.repaint();
         pitchTextField.repaint();
         yawTextField.repaint();
@@ -800,7 +856,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
         batTextField.repaint();
     }
 
-    public void run() {
+    public void run()
+    {
 
         while (true) {
             try {
@@ -810,13 +867,24 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable {
                 altitudeTextField.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
                 batTextField.setText("Battery status : " + navData.getPercentage() + "%");
                 System.out.println("Navdata updated--------------------------------------------------------------------+");
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 System.out.println("NavData Fail -----------------------------------------*");
             }
 
             repaintTextFields();
         }
 
+    }
+
+    private void initTextFieldText()
+    {
+        hueLowerTF.setText("H lower threshold: " + cd.getHl());
+        hueUpperTF.setText("H upper threshold: " + cd.getHu());
+        SaturationLowerTF.setText("S lower threshold: " + cd.getSl());
+        saturationUpperTF.setText("S upper threshold: " + cd.getSu());
+        valueLowerTF.setText("V lower threshold: " + cd.getVl());
+        valueUpperTF.setText("V upper threshold: " + cd.getVu());
     }
 
 }
