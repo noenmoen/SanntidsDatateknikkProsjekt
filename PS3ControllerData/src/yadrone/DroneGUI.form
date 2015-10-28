@@ -494,6 +494,7 @@
                                   <Component id="hueUpperTF" min="-2" pref="138" max="-2" attributes="0"/>
                               </Group>
                           </Group>
+                          <Component id="jButtonSaveParameters" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -543,7 +544,9 @@
                           <Component id="jButtonvum" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jButtonvup" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="56" max="32767" attributes="0"/>
+                      <EmptySpace pref="26" max="32767" attributes="0"/>
+                      <Component id="jButtonSaveParameters" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="snapshotButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -774,6 +777,14 @@
                   <Dimension value="[67, 19]"/>
                 </Property>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="jButtonSaveParameters">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Save Parameters"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonSaveParametersActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

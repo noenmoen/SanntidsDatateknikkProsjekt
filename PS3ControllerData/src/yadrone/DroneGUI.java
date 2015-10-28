@@ -11,11 +11,13 @@ import de.yadrone.base.IARDrone;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import javax.swing.UIManager;
+import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -136,6 +138,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         jButtonvup = new javax.swing.JButton();
         jButtonGFSM = new javax.swing.JButton();
         jButtonGFSP = new javax.swing.JButton();
+        jButtonSaveParameters = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         landButton = new javax.swing.JButton();
         autoButton = new javax.swing.JButton();
@@ -684,6 +687,15 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         jButtonGFSP.setText("+");
         jButtonGFSP.setPreferredSize(new java.awt.Dimension(67, 19));
 
+        jButtonSaveParameters.setText("Save Parameters");
+        jButtonSaveParameters.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonSaveParametersActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -734,7 +746,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                                     .addComponent(jButtonsup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addComponent(saturationUpperTF, javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(valueUpperTF, javax.swing.GroupLayout.Alignment.TRAILING))
-                            .addComponent(hueUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(hueUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jButtonSaveParameters, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -775,7 +788,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                     .addComponent(jButtonvlp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonvum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonvup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addComponent(jButtonSaveParameters)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(snapshotButton)
                 .addContainerGap())
         );
@@ -1004,32 +1019,32 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 
     private void hueLowerTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_hueLowerTFFocusLost
     {//GEN-HEADEREND:event_hueLowerTFFocusLost
-        hueLowerTF.setText("H lower threshold: " + cd.getHl());
+        updateTextFields();
     }//GEN-LAST:event_hueLowerTFFocusLost
 
     private void hueUpperTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_hueUpperTFFocusLost
     {//GEN-HEADEREND:event_hueUpperTFFocusLost
-        hueUpperTF.setText("H upper threshold: " + cd.getHu());
+        updateTextFields();
     }//GEN-LAST:event_hueUpperTFFocusLost
 
     private void SaturationLowerTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_SaturationLowerTFFocusLost
     {//GEN-HEADEREND:event_SaturationLowerTFFocusLost
-        SaturationLowerTF.setText("S lower threshold: " + cd.getSl());
+       updateTextFields();
     }//GEN-LAST:event_SaturationLowerTFFocusLost
 
     private void saturationUpperTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_saturationUpperTFFocusLost
     {//GEN-HEADEREND:event_saturationUpperTFFocusLost
-        saturationUpperTF.setText("S upper threshold: " + cd.getSu());
+        updateTextFields();
     }//GEN-LAST:event_saturationUpperTFFocusLost
 
     private void valueLowerTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_valueLowerTFFocusLost
     {//GEN-HEADEREND:event_valueLowerTFFocusLost
-        valueLowerTF.setText("V lower threshold: " + cd.getVl());
+        updateTextFields();
     }//GEN-LAST:event_valueLowerTFFocusLost
 
     private void valueUpperTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_valueUpperTFFocusLost
     {//GEN-HEADEREND:event_valueUpperTFFocusLost
-        valueUpperTF.setText("V upper threshold: " + cd.getVu());
+        updateTextFields();
     }//GEN-LAST:event_valueUpperTFFocusLost
 //==============================================================================
 // PID Yaw parameter input fields
@@ -1242,6 +1257,24 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         updateTextFields();
     }//GEN-LAST:event_jButtonvlpActionPerformed
 
+    private void jButtonSaveParametersActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonSaveParametersActionPerformed
+    {//GEN-HEADEREND:event_jButtonSaveParametersActionPerformed
+        try {
+            
+            String s = "" + cd.getHl()
+                    + " " + cd.getHu()
+                    + " " + cd.getSl()
+                    + " " + cd.getSu()
+                    + " " + cd.getVl()
+                    + " " + cd.getVu()
+                    + " " + cd.getSigmaX();
+            FileUtils.writeStringToFile(new File("imProParameters.txt"), s);
+        }
+        catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }//GEN-LAST:event_jButtonSaveParametersActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ButtonPanel1;
@@ -1256,6 +1289,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private javax.swing.JTextField hueUpperTF;
     private javax.swing.JButton jButtonGFSM;
     private javax.swing.JButton jButtonGFSP;
+    private javax.swing.JButton jButtonSaveParameters;
     private javax.swing.JButton jButtonhlm;
     private javax.swing.JButton jButtonhlp;
     private javax.swing.JButton jButtonhum;
