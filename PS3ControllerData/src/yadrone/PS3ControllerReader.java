@@ -50,8 +50,7 @@ public class PS3ControllerReader extends Thread {
 
                 state = c.read();
                 ControllerStateChange cont_change = new ControllerStateChange(oldState, state);
-                if (cont_change.isButtonStateChanged() || cont_change.isJoysticksChanged())
-                setState(state);
+                if (cont_change.isChanged()) setState(state);
                 oldState = state;
             }
         } catch (IOException ex) {

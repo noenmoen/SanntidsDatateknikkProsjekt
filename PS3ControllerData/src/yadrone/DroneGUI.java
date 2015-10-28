@@ -866,7 +866,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                 yawTextField.setText("Yaw: " + navData.getYaw());
                 altitudeTextField.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
                 batTextField.setText("Battery status : " + navData.getPercentage() + "%");
-                System.out.println("Navdata updated--------------------------------------------------------------------+");
+                //System.out.println("Navdata updated--------------------------------------------------------------------+");
             }
             catch (Exception e) {
                 System.out.println("NavData Fail -----------------------------------------*");

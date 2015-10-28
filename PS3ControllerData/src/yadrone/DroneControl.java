@@ -47,7 +47,9 @@ public class DroneControl extends Thread {
             DroneMode m = getDroneMode();
             switch (m) {
                 case MAN_MODE:
-                    if(reg.isAutoMode()) reg.setAutoMode(false);
+//                    if (reg.isAutoMode()) {
+//                        reg.setAutoMode(false);
+//                    }
                     while (storage.getAvailable()) { // If the controller has produced new data
 
                         try {
@@ -57,44 +59,46 @@ public class DroneControl extends Thread {
                         }
                         state = storage.getState();
 
-                        move(state);
+                        moveMan(state);
 
                         sem.release();
-                        break;
+
                     }
-                case AUTO_MODE:
-                    if (!reg.isAutoMode()) reg.setAutoMode(true);
                     break;
-                    
+                case AUTO_MODE:
+                    if (!reg.isAutoMode()) {
+                        reg.setAutoMode(true);
+                    }
+                    break;
+
                 case LANDING:
-                    drone.getCommandManager().landing().doFor(3000);
+                //drone.getCommandManager().landing().doFor(3000);
             }
         }
     }
 
-    // Converting joystick coordinates (int from -128 to 127) to int values between 0 and +-100
-    private int getLeftJoystickX() {
-        return (int) (state.getLeftJoystickX() / 1.28);
+    // Converting joystick coordinates (int from -128 to 127) to float values between -1 and 1
+    private float getLeftJoystickX() {
+        return state.getLeftJoystickX() / 128f;
     }
 
-    private int getLeftJoystickY() {
-        return (int) (state.getLeftJoystickY() / 1.28);
+    private float getLeftJoystickY() {
+        return state.getLeftJoystickY() / 128f;
     }
 
-    private int getRightJoystickX() {
-        return (int) (state.getRightJoystickX() / 1.28);
+    private float getRightJoystickX() {
+        return state.getRightJoystickX() / 128f;
     }
 
-    private int getRightJoystickY() {
-        return (int) (state.getRightJoystickY() / 1.28);
+    private float getRightJoystickY() {
+        return state.getRightJoystickY() / 128f;
     }
 
-    private void move(GameControllerState st) {
+    private void moveMan(GameControllerState st) {
         if (st.isTriangle()) {
             drone.getCommandManager().flatTrim();
             System.out.println("Drone take off");
             drone.getCommandManager().takeOff().doFor(2000);
-            //drone.takeOff();
 
         }
         // Pressing square will enable/disable free roaming
@@ -110,17 +114,21 @@ public class DroneControl extends Thread {
         }
         // If free roam is enabled and the drone is hovering, it can be controlled by the DS3
         if (freeroam) {
-            //System.out.println("Coord: left x = " + getLeftJoystickX()+"left y = " + -getLeftJoystickY()+"right y = " + -getRightJoystickY()+"right x = " + getRightJoystickX());
-            drone.getCommandManager().move(getLeftJoystickX(), -getLeftJoystickY(), -getRightJoystickY(), getRightJoystickX());
+            float[] inputs = new float[4];
+            inputs[0] = getLeftJoystickX();
+            inputs[1] = -getLeftJoystickY();
+            inputs[2] = -getRightJoystickY();
+            inputs[3] = getRightJoystickX();
+            System.out.println("Coord: left x = " + getLeftJoystickX() + " left y = " + -getLeftJoystickY() + " right y = " + -getRightJoystickY() + " right x = " + getRightJoystickX());
+            System.out.println("----------------------------------------------------------------------");
+            move(inputs);
 
         }
         // Pressing cross on the DS3 will make the drone land
         if (st.isCross()) {
             System.out.println("Drone landing");
             freeroam = false;
-            drone.getCommandManager().landing().doFor(3000);
-            drone.getCommandManager().flatTrim();
-            //drone.landing();
+            drone.getCommandManager().landing().doFor(3000).flatTrim();
 
         }
     }
@@ -128,6 +136,7 @@ public class DroneControl extends Thread {
     public synchronized void setMode(DroneMode mode) {
         this.mode = mode;
     }
+
     private synchronized DroneMode getDroneMode() {
         return mode;
     }
@@ -136,7 +145,7 @@ public class DroneControl extends Thread {
         this.reg = reg;
     }
 
-    public void moveAuto(float inputs[]) {
+    public void move(float inputs[]) {
         drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
     }
 
