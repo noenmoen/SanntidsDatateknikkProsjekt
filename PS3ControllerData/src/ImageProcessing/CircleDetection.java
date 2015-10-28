@@ -87,12 +87,12 @@ public class CircleDetection extends Thread implements ImageListener {
         drone.getVideoManager().addImageListener(this);
         this.pip = pip;
         this.dh = dh;
-        this.hl = 0.149;
-        this.sl = 0.071;
-        this.vl = 0.000;
-        this.hu = 0.567;
-        this.su = 1.000;
-        this.vu = 0.691;
+        this.hl = 0.160;
+        this.sl = 0.19;
+        this.vl = 0.7;
+        this.hu = 0.505;
+        this.su = 0.19;
+        this.vu = 0.7;
     }
 
     /**
