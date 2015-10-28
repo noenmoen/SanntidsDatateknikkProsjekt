@@ -11,6 +11,8 @@ import de.yadrone.base.IARDrone;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import javax.swing.UIManager;
@@ -30,6 +32,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private Regulator regulator;
     private final ProcessedImagePanel pil;
     private final CircleDetection cd;
+
+    private final double HSV_INCR = 0.05;
+    DecimalFormat df = new DecimalFormat("#.###");
 
     /**
      * Creates new form Test2DoneGUI
@@ -63,8 +68,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             }
 
         }
+        df.setRoundingMode(RoundingMode.CEILING);
         initComponents();
-        initTextFieldText();
+        updateTextFields();
         this.setVisible(true);
 
     }
@@ -92,12 +98,20 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         batTextField = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        yawPropotionalTextField = new javax.swing.JTextField();
-        yawPropotionalTextField.setText("Propotional: " + regulator.getKpYaw());
+        yawProportionalTextField = new javax.swing.JTextField();
+        yawProportionalTextField.setText("Propotional: " + regulator.getKpYaw());
         jLabel1 = new javax.swing.JLabel();
         yawIntegralTextField = new javax.swing.JTextField();
         yawIntegralTextField.setText("Integral: " + regulator.getKiYaw());
         yawDerivateTextField = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        pitchProportionalTextField = new javax.swing.JTextField();
+        pitchIntegralTextField = new javax.swing.JTextField();
+        pitchDerivateTextField = new javax.swing.JTextField();
+        zProportionalTextField = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        zIntegralTextField = new javax.swing.JTextField();
+        zDerivateTextField = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         snapshotButton = new javax.swing.JButton();
         valueUpperTF = new javax.swing.JTextField();
@@ -107,6 +121,21 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         SaturationLowerTF = new javax.swing.JTextField();
         hueLowerTF = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
+        gaussFilterSigmaTextField = new javax.swing.JTextField();
+        jButtonhlm = new javax.swing.JButton();
+        jButtonhlp = new javax.swing.JButton();
+        jButtonhup = new javax.swing.JButton();
+        jButtonhum = new javax.swing.JButton();
+        jButtonslm = new javax.swing.JButton();
+        jButtonslp = new javax.swing.JButton();
+        jButtonsum = new javax.swing.JButton();
+        jButtonsup = new javax.swing.JButton();
+        jButtonvlm = new javax.swing.JButton();
+        jButtonvlp = new javax.swing.JButton();
+        jButtonvum = new javax.swing.JButton();
+        jButtonvup = new javax.swing.JButton();
+        jButtonGFSM = new javax.swing.JButton();
+        jButtonGFSP = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         landButton = new javax.swing.JButton();
         autoButton = new javax.swing.JButton();
@@ -182,7 +211,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ButtonPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(yawTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(rollTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -201,36 +230,28 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("PID gains");
 
-        yawPropotionalTextField.setText("Propotional 0.0");
-        yawPropotionalTextField.addFocusListener(new java.awt.event.FocusAdapter()
+        yawProportionalTextField.setText("Proportional");
+        yawProportionalTextField.addFocusListener(new java.awt.event.FocusAdapter()
         {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                yawPropotionalTextFieldFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt)
             {
-                yawPropotionalTextFieldFocusLost(evt);
+                yawProportionalTextFieldFocusLost(evt);
             }
         });
-        yawPropotionalTextField.addActionListener(new java.awt.event.ActionListener()
+        yawProportionalTextField.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                yawPropotionalTextFieldActionPerformed(evt);
+                yawProportionalTextFieldActionPerformed(evt);
             }
         });
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Yaw");
 
-        yawIntegralTextField.setText("Integral 0.0");
+        yawIntegralTextField.setText("Integral ");
         yawIntegralTextField.addFocusListener(new java.awt.event.FocusAdapter()
         {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                yawIntegralTextFieldFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt)
             {
                 yawIntegralTextFieldFocusLost(evt);
@@ -244,13 +265,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             }
         });
 
-        yawDerivateTextField.setText("Derivate 0.0");
+        yawDerivateTextField.setText("Derivate ");
         yawDerivateTextField.addFocusListener(new java.awt.event.FocusAdapter()
         {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                yawDerivateTextFieldFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt)
             {
                 yawDerivateTextFieldFocusLost(evt);
@@ -264,6 +281,108 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             }
         });
 
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setText("Pitch");
+
+        pitchProportionalTextField.setText("Proportional");
+        pitchProportionalTextField.addFocusListener(new java.awt.event.FocusAdapter()
+        {
+            public void focusLost(java.awt.event.FocusEvent evt)
+            {
+                pitchProportionalTextFieldFocusLost(evt);
+            }
+        });
+        pitchProportionalTextField.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                pitchProportionalTextFieldActionPerformed(evt);
+            }
+        });
+
+        pitchIntegralTextField.setText("Integral");
+        pitchIntegralTextField.addFocusListener(new java.awt.event.FocusAdapter()
+        {
+            public void focusLost(java.awt.event.FocusEvent evt)
+            {
+                pitchIntegralTextFieldFocusLost(evt);
+            }
+        });
+        pitchIntegralTextField.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                pitchIntegralTextFieldActionPerformed(evt);
+            }
+        });
+
+        pitchDerivateTextField.setText("Derivate");
+        pitchDerivateTextField.addFocusListener(new java.awt.event.FocusAdapter()
+        {
+            public void focusLost(java.awt.event.FocusEvent evt)
+            {
+                pitchDerivateTextFieldFocusLost(evt);
+            }
+        });
+        pitchDerivateTextField.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                pitchDerivateTextFieldActionPerformed(evt);
+            }
+        });
+
+        zProportionalTextField.setText("Proportional");
+        zProportionalTextField.addFocusListener(new java.awt.event.FocusAdapter()
+        {
+            public void focusLost(java.awt.event.FocusEvent evt)
+            {
+                zProportionalTextFieldFocusLost(evt);
+            }
+        });
+        zProportionalTextField.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                zProportionalTextFieldActionPerformed(evt);
+            }
+        });
+
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel7.setText("Z");
+
+        zIntegralTextField.setText("Integral");
+        zIntegralTextField.addFocusListener(new java.awt.event.FocusAdapter()
+        {
+            public void focusLost(java.awt.event.FocusEvent evt)
+            {
+                zIntegralTextFieldFocusLost(evt);
+            }
+        });
+        zIntegralTextField.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                zIntegralTextFieldActionPerformed(evt);
+            }
+        });
+
+        zDerivateTextField.setText("Derivate");
+        zDerivateTextField.addFocusListener(new java.awt.event.FocusAdapter()
+        {
+            public void focusLost(java.awt.event.FocusEvent evt)
+            {
+                zDerivateTextFieldFocusLost(evt);
+            }
+        });
+        zDerivateTextField.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                zDerivateTextFieldActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -272,13 +391,24 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(yawIntegralTextField, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(yawPropotionalTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
-                            .addComponent(yawDerivateTextField, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(yawDerivateTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                            .addComponent(yawProportionalTextField, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(zProportionalTextField)
+                            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(zIntegralTextField)
+                            .addComponent(zDerivateTextField))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(pitchProportionalTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                            .addComponent(pitchIntegralTextField)
+                            .addComponent(pitchDerivateTextField))))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -286,14 +416,26 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel2)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel7))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(yawProportionalTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pitchProportionalTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(zProportionalTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(yawPropotionalTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(yawIntegralTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pitchIntegralTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(zIntegralTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(yawIntegralTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(yawDerivateTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(yawDerivateTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pitchDerivateTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(zDerivateTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(58, Short.MAX_VALUE))
         );
 
@@ -311,10 +453,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         valueUpperTF.setText("V upper threshold:");
         valueUpperTF.addFocusListener(new java.awt.event.FocusAdapter()
         {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                valueUpperTFFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt)
             {
                 valueUpperTFFocusLost(evt);
@@ -331,10 +469,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         saturationUpperTF.setText("S upper threshold:");
         saturationUpperTF.addFocusListener(new java.awt.event.FocusAdapter()
         {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                saturationUpperTFFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt)
             {
                 saturationUpperTFFocusLost(evt);
@@ -351,10 +485,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         hueUpperTF.setText("H upper threshold:");
         hueUpperTF.addFocusListener(new java.awt.event.FocusAdapter()
         {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                hueUpperTFFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt)
             {
                 hueUpperTFFocusLost(evt);
@@ -371,10 +501,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         valueLowerTF.setText("V lower threshold:");
         valueLowerTF.addFocusListener(new java.awt.event.FocusAdapter()
         {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                valueLowerTFFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt)
             {
                 valueLowerTFFocusLost(evt);
@@ -391,10 +517,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         SaturationLowerTF.setText("S lower threshold:");
         SaturationLowerTF.addFocusListener(new java.awt.event.FocusAdapter()
         {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                SaturationLowerTFFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt)
             {
                 SaturationLowerTFFocusLost(evt);
@@ -411,10 +533,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         hueLowerTF.setText("H lower threshold:");
         hueLowerTF.addFocusListener(new java.awt.event.FocusAdapter()
         {
-            public void focusGained(java.awt.event.FocusEvent evt)
-            {
-                hueLowerTFFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt)
             {
                 hueLowerTFFocusLost(evt);
@@ -431,6 +549,141 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("Image Processing");
 
+        gaussFilterSigmaTextField.setText("Gauss filter sigma:");
+
+        jButtonhlm.setText("-");
+        jButtonhlm.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonhlm.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonhlmActionPerformed(evt);
+            }
+        });
+
+        jButtonhlp.setText("+");
+        jButtonhlp.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonhlp.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonhlpActionPerformed(evt);
+            }
+        });
+
+        jButtonhup.setText("+");
+        jButtonhup.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonhup.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonhupActionPerformed(evt);
+            }
+        });
+
+        jButtonhum.setText("-");
+        jButtonhum.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonhum.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonhumActionPerformed(evt);
+            }
+        });
+
+        jButtonslm.setText("-");
+        jButtonslm.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonslm.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonslmActionPerformed(evt);
+            }
+        });
+
+        jButtonslp.setText("+");
+        jButtonslp.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonslp.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonslpActionPerformed(evt);
+            }
+        });
+
+        jButtonsum.setText("-");
+        jButtonsum.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonsum.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonsumActionPerformed(evt);
+            }
+        });
+
+        jButtonsup.setText("+");
+        jButtonsup.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonsup.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonsupActionPerformed(evt);
+            }
+        });
+
+        jButtonvlm.setText("-");
+        jButtonvlm.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonvlm.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonvlmActionPerformed(evt);
+            }
+        });
+
+        jButtonvlp.setText("+");
+        jButtonvlp.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonvlp.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonvlpActionPerformed(evt);
+            }
+        });
+
+        jButtonvum.setText("-");
+        jButtonvum.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonvum.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonvumActionPerformed(evt);
+            }
+        });
+
+        jButtonvup.setText("+");
+        jButtonvup.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonvup.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonvupActionPerformed(evt);
+            }
+        });
+
+        jButtonGFSM.setText("-");
+        jButtonGFSM.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonGFSM.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonGFSMActionPerformed(evt);
+            }
+        });
+
+        jButtonGFSP.setText("+");
+        jButtonGFSP.setPreferredSize(new java.awt.Dimension(67, 19));
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -438,18 +691,50 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(snapshotButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(snapshotButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(valueLowerTF, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
-                            .addComponent(hueLowerTF, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(SaturationLowerTF, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addGap(168, 168, 168)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(saturationUpperTF)
-                            .addComponent(hueUpperTF)
-                            .addComponent(valueUpperTF))))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jButtonvlm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonvlp, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(jButtonslm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonslp, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE))
+                            .addComponent(valueLowerTF)
+                            .addComponent(SaturationLowerTF, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(jButtonhlm, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButtonhlp, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(hueLowerTF, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jButtonGFSM, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButtonGFSP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(gaussFilterSigmaTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                    .addComponent(jButtonvum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jButtonvup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                    .addComponent(jButtonhum, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jButtonhup, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                    .addComponent(jButtonsum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jButtonsup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(saturationUpperTF, javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(valueUpperTF, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(hueUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -457,21 +742,42 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(hueLowerTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(hueUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(hueUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(gaussFilterSigmaTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonhlm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonhlp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonhup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonhum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonGFSM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonGFSP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(SaturationLowerTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(saturationUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonslm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonslp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonsum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonsup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(valueUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(valueLowerTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonvlm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonvlp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonvum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonvup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
                 .addComponent(snapshotButton)
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -523,7 +829,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(manButton, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(landButton, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE)
+                        .addComponent(landButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(autoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -533,7 +839,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(manButton)
                     .addComponent(autoButton)
@@ -572,10 +878,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 150, Short.MAX_VALUE)))
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -619,66 +924,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     }//GEN-LAST:event_landButtonActionPerformed
 
 //==============================================================================
-// Yaw PID parameter input fields
-//==============================================================================
-
-    private void yawPropotionalTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawPropotionalTextFieldActionPerformed
-    {//GEN-HEADEREND:event_yawPropotionalTextFieldActionPerformed
-        try {
-            regulator.setKpYaw(Float.valueOf(yawPropotionalTextField.getText()));
-        }
-        catch (Exception e) {
-        }
-
-    }//GEN-LAST:event_yawPropotionalTextFieldActionPerformed
-
-    private void yawDerivateTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawDerivateTextFieldActionPerformed
-    {//GEN-HEADEREND:event_yawDerivateTextFieldActionPerformed
-        try {
-            regulator.setKdYaw(Float.valueOf(yawDerivateTextField.getText()));
-        }
-        catch (Exception e) {
-        }    }//GEN-LAST:event_yawDerivateTextFieldActionPerformed
-
-    private void yawIntegralTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawIntegralTextFieldActionPerformed
-    {//GEN-HEADEREND:event_yawIntegralTextFieldActionPerformed
-        try {
-            regulator.setKiYaw(Float.valueOf(yawIntegralTextField.getText()));
-        }
-        catch (Exception e) {
-        }    }//GEN-LAST:event_yawIntegralTextFieldActionPerformed
-
-    private void yawDerivateTextFieldFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawDerivateTextFieldFocusGained
-    {//GEN-HEADEREND:event_yawDerivateTextFieldFocusGained
-        yawDerivateTextField.setText("");
-    }//GEN-LAST:event_yawDerivateTextFieldFocusGained
-
-    private void yawIntegralTextFieldFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawIntegralTextFieldFocusGained
-    {//GEN-HEADEREND:event_yawIntegralTextFieldFocusGained
-        yawIntegralTextField.setText("");
-    }//GEN-LAST:event_yawIntegralTextFieldFocusGained
-
-    private void yawPropotionalTextFieldFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawPropotionalTextFieldFocusGained
-    {//GEN-HEADEREND:event_yawPropotionalTextFieldFocusGained
-        yawPropotionalTextField.setText("");
-    }//GEN-LAST:event_yawPropotionalTextFieldFocusGained
-
-    private void yawPropotionalTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawPropotionalTextFieldFocusLost
-    {//GEN-HEADEREND:event_yawPropotionalTextFieldFocusLost
-        yawPropotionalTextField.setText("Propotional: " + regulator.getKpYaw());
-    }//GEN-LAST:event_yawPropotionalTextFieldFocusLost
-
-    private void yawIntegralTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawIntegralTextFieldFocusLost
-    {//GEN-HEADEREND:event_yawIntegralTextFieldFocusLost
-        yawIntegralTextField.setText("Integral: " + regulator.getKiYaw());
-     }//GEN-LAST:event_yawIntegralTextFieldFocusLost
-
-    private void yawDerivateTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawDerivateTextFieldFocusLost
-    {//GEN-HEADEREND:event_yawDerivateTextFieldFocusLost
-        yawDerivateTextField.setText("Derivate: " + regulator.getKdYaw());
-    }//GEN-LAST:event_yawDerivateTextFieldFocusLost
-
-//==============================================================================
 // Snapshot button
 //==============================================================================    
 
@@ -700,86 +945,62 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private void hueLowerTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_hueLowerTFActionPerformed
     {//GEN-HEADEREND:event_hueLowerTFActionPerformed
         try {
-            cd.setHl(Double.valueOf(hueLowerTF.getText()));
+            cd.setHl(Double.valueOf(getValueFromTextInput(hueLowerTF.getText())));
         }
         catch (Exception e) {
         }
+        updateTextFields();
     }//GEN-LAST:event_hueLowerTFActionPerformed
 
     private void hueUpperTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_hueUpperTFActionPerformed
     {//GEN-HEADEREND:event_hueUpperTFActionPerformed
         try {
-            cd.setHu(Double.valueOf(hueUpperTF.getText()));
+            cd.setHu(Double.valueOf(getValueFromTextInput(hueUpperTF.getText())));
         }
         catch (Exception e) {
         }
+        updateTextFields();
     }//GEN-LAST:event_hueUpperTFActionPerformed
 
     private void SaturationLowerTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_SaturationLowerTFActionPerformed
     {//GEN-HEADEREND:event_SaturationLowerTFActionPerformed
         try {
-            cd.setSl(Double.valueOf(SaturationLowerTF.getText()));
+            cd.setSl(Double.valueOf(getValueFromTextInput(SaturationLowerTF.getText())));
         }
         catch (Exception e) {
         }
+        updateTextFields();
     }//GEN-LAST:event_SaturationLowerTFActionPerformed
 
     private void saturationUpperTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_saturationUpperTFActionPerformed
     {//GEN-HEADEREND:event_saturationUpperTFActionPerformed
         try {
-            cd.setSu(Double.valueOf(saturationUpperTF.getText()));
+            cd.setSu(Double.valueOf(getValueFromTextInput(saturationUpperTF.getText())));
         }
         catch (Exception e) {
         }
+        updateTextFields();
     }//GEN-LAST:event_saturationUpperTFActionPerformed
 
     private void valueLowerTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_valueLowerTFActionPerformed
     {//GEN-HEADEREND:event_valueLowerTFActionPerformed
         try {
-            cd.setVl(Double.valueOf(valueLowerTF.getText()));
+            cd.setVl(Double.valueOf(getValueFromTextInput(valueLowerTF.getText())));
         }
         catch (Exception e) {
         }
+        updateTextFields();
     }//GEN-LAST:event_valueLowerTFActionPerformed
 
     private void valueUpperTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_valueUpperTFActionPerformed
     {//GEN-HEADEREND:event_valueUpperTFActionPerformed
         try {
-            cd.setVu(Double.valueOf(valueUpperTF.getText()));
+            cd.setVu(Double.valueOf(getValueFromTextInput(valueUpperTF.getText())));
         }
         catch (Exception e) {
         }
+        updateTextFields();
     }//GEN-LAST:event_valueUpperTFActionPerformed
-
-    private void hueLowerTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_hueLowerTFFocusGained
-    {//GEN-HEADEREND:event_hueLowerTFFocusGained
-        hueLowerTF.setText("");
-    }//GEN-LAST:event_hueLowerTFFocusGained
-
-    private void hueUpperTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_hueUpperTFFocusGained
-    {//GEN-HEADEREND:event_hueUpperTFFocusGained
-        hueUpperTF.setText("");
-    }//GEN-LAST:event_hueUpperTFFocusGained
-
-    private void SaturationLowerTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_SaturationLowerTFFocusGained
-    {//GEN-HEADEREND:event_SaturationLowerTFFocusGained
-        SaturationLowerTF.setText("");
-    }//GEN-LAST:event_SaturationLowerTFFocusGained
-
-    private void saturationUpperTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_saturationUpperTFFocusGained
-    {//GEN-HEADEREND:event_saturationUpperTFFocusGained
-        saturationUpperTF.setText("");
-    }//GEN-LAST:event_saturationUpperTFFocusGained
-
-    private void valueLowerTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_valueLowerTFFocusGained
-    {//GEN-HEADEREND:event_valueLowerTFFocusGained
-        valueLowerTF.setText("");
-    }//GEN-LAST:event_valueLowerTFFocusGained
-
-    private void valueUpperTFFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_valueUpperTFFocusGained
-    {//GEN-HEADEREND:event_valueUpperTFFocusGained
-        valueUpperTF.setText("");
-    }//GEN-LAST:event_valueUpperTFFocusGained
 
     private void hueLowerTFFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_hueLowerTFFocusLost
     {//GEN-HEADEREND:event_hueLowerTFFocusLost
@@ -810,6 +1031,216 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     {//GEN-HEADEREND:event_valueUpperTFFocusLost
         valueUpperTF.setText("V upper threshold: " + cd.getVu());
     }//GEN-LAST:event_valueUpperTFFocusLost
+//==============================================================================
+// PID Yaw parameter input fields
+//============================================================================== 
+    private void yawProportionalTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawProportionalTextFieldActionPerformed
+    {//GEN-HEADEREND:event_yawProportionalTextFieldActionPerformed
+        try {
+            regulator.setKpYaw(Float.valueOf(
+                    getValueFromTextInput(yawProportionalTextField.getText())));
+        }
+        catch (Exception e) {
+        }
+        updateTextFields();
+    }//GEN-LAST:event_yawProportionalTextFieldActionPerformed
+
+    private void yawIntegralTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawIntegralTextFieldActionPerformed
+    {//GEN-HEADEREND:event_yawIntegralTextFieldActionPerformed
+        try {
+            regulator.setKiYaw(Float.valueOf(
+                    getValueFromTextInput(yawIntegralTextField.getText())));
+        }
+        catch (Exception e) {
+        }
+        updateTextFields();
+    }//GEN-LAST:event_yawIntegralTextFieldActionPerformed
+
+    private void yawDerivateTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_yawDerivateTextFieldActionPerformed
+    {//GEN-HEADEREND:event_yawDerivateTextFieldActionPerformed
+        try {
+            regulator.setKdYaw(Float.valueOf(
+                    getValueFromTextInput(yawDerivateTextField.getText())));
+        }
+        catch (Exception e) {
+        }
+        updateTextFields();
+    }//GEN-LAST:event_yawDerivateTextFieldActionPerformed
+
+    private void yawProportionalTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawProportionalTextFieldFocusLost
+    {//GEN-HEADEREND:event_yawProportionalTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_yawProportionalTextFieldFocusLost
+
+    private void yawIntegralTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawIntegralTextFieldFocusLost
+    {//GEN-HEADEREND:event_yawIntegralTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_yawIntegralTextFieldFocusLost
+
+    private void yawDerivateTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_yawDerivateTextFieldFocusLost
+    {//GEN-HEADEREND:event_yawDerivateTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_yawDerivateTextFieldFocusLost
+//==============================================================================
+// PID Z parameter input fields
+//============================================================================== 
+    private void zProportionalTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_zProportionalTextFieldActionPerformed
+    {//GEN-HEADEREND:event_zProportionalTextFieldActionPerformed
+        try {
+            regulator.setKpZ(Float.valueOf(
+                    getValueFromTextInput(zProportionalTextField.getText())));
+        }
+        catch (Exception e) {
+        }
+        updateTextFields();
+    }//GEN-LAST:event_zProportionalTextFieldActionPerformed
+
+    private void zIntegralTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_zIntegralTextFieldActionPerformed
+    {//GEN-HEADEREND:event_zIntegralTextFieldActionPerformed
+        try {
+            regulator.setKiZ(Float.valueOf(
+                    getValueFromTextInput(zIntegralTextField.getText())));
+        }
+        catch (Exception e) {
+        }
+        updateTextFields();
+    }//GEN-LAST:event_zIntegralTextFieldActionPerformed
+
+    private void zDerivateTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_zDerivateTextFieldActionPerformed
+    {//GEN-HEADEREND:event_zDerivateTextFieldActionPerformed
+        try {
+            regulator.setKdZ(Float.valueOf(
+                    getValueFromTextInput(zDerivateTextField.getText())));
+        }
+        catch (Exception e) {
+        }
+        updateTextFields();
+    }//GEN-LAST:event_zDerivateTextFieldActionPerformed
+
+    private void zProportionalTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_zProportionalTextFieldFocusLost
+    {//GEN-HEADEREND:event_zProportionalTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_zProportionalTextFieldFocusLost
+
+    private void zIntegralTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_zIntegralTextFieldFocusLost
+    {//GEN-HEADEREND:event_zIntegralTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_zIntegralTextFieldFocusLost
+
+    private void zDerivateTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_zDerivateTextFieldFocusLost
+    {//GEN-HEADEREND:event_zDerivateTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_zDerivateTextFieldFocusLost
+//==============================================================================
+// PID Pitch parameter input fields
+//============================================================================== 
+    private void pitchProportionalTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pitchProportionalTextFieldActionPerformed
+    {//GEN-HEADEREND:event_pitchProportionalTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pitchProportionalTextFieldActionPerformed
+
+    private void pitchIntegralTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pitchIntegralTextFieldActionPerformed
+    {//GEN-HEADEREND:event_pitchIntegralTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pitchIntegralTextFieldActionPerformed
+
+    private void pitchDerivateTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pitchDerivateTextFieldActionPerformed
+    {//GEN-HEADEREND:event_pitchDerivateTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pitchDerivateTextFieldActionPerformed
+
+    private void pitchProportionalTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pitchProportionalTextFieldFocusLost
+    {//GEN-HEADEREND:event_pitchProportionalTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_pitchProportionalTextFieldFocusLost
+
+    private void pitchIntegralTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pitchIntegralTextFieldFocusLost
+    {//GEN-HEADEREND:event_pitchIntegralTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_pitchIntegralTextFieldFocusLost
+
+    private void pitchDerivateTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pitchDerivateTextFieldFocusLost
+    {//GEN-HEADEREND:event_pitchDerivateTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_pitchDerivateTextFieldFocusLost
+
+    private void jButtonhlmActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonhlmActionPerformed
+    {//GEN-HEADEREND:event_jButtonhlmActionPerformed
+        cd.setHl(cd.getHl() - HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonhlmActionPerformed
+
+    private void jButtonhupActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonhupActionPerformed
+    {//GEN-HEADEREND:event_jButtonhupActionPerformed
+        cd.setHu(cd.getHu() + HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonhupActionPerformed
+
+    private void jButtonhumActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonhumActionPerformed
+    {//GEN-HEADEREND:event_jButtonhumActionPerformed
+        cd.setHu(cd.getHu() - HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonhumActionPerformed
+
+    private void jButtonGFSMActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGFSMActionPerformed
+    {//GEN-HEADEREND:event_jButtonGFSMActionPerformed
+        // TODO add your handling code here:
+        updateTextFields();
+    }//GEN-LAST:event_jButtonGFSMActionPerformed
+
+    private void jButtonsumActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonsumActionPerformed
+    {//GEN-HEADEREND:event_jButtonsumActionPerformed
+        cd.setSu(cd.getSu() - HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonsumActionPerformed
+
+    private void jButtonhlpActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonhlpActionPerformed
+    {//GEN-HEADEREND:event_jButtonhlpActionPerformed
+        cd.setHl(cd.getHl() + HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonhlpActionPerformed
+
+    private void jButtonslmActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonslmActionPerformed
+    {//GEN-HEADEREND:event_jButtonslmActionPerformed
+        cd.setSl(cd.getSl() - HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonslmActionPerformed
+
+    private void jButtonslpActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonslpActionPerformed
+    {//GEN-HEADEREND:event_jButtonslpActionPerformed
+        cd.setSl(cd.getSl() + HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonslpActionPerformed
+
+    private void jButtonsupActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonsupActionPerformed
+    {//GEN-HEADEREND:event_jButtonsupActionPerformed
+        cd.setSu(cd.getSu() + HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonsupActionPerformed
+
+    private void jButtonvumActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonvumActionPerformed
+    {//GEN-HEADEREND:event_jButtonvumActionPerformed
+        cd.setVu(cd.getVu() - HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonvumActionPerformed
+
+    private void jButtonvupActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonvupActionPerformed
+    {//GEN-HEADEREND:event_jButtonvupActionPerformed
+        cd.setVu(cd.getVu() + HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonvupActionPerformed
+
+    private void jButtonvlmActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonvlmActionPerformed
+    {//GEN-HEADEREND:event_jButtonvlmActionPerformed
+        cd.setVl(cd.getVl() - HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonvlmActionPerformed
+
+    private void jButtonvlpActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonvlpActionPerformed
+    {//GEN-HEADEREND:event_jButtonvlpActionPerformed
+        cd.setVl(cd.getVl() + HSV_INCR);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonvlpActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -820,13 +1251,30 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private javax.swing.JTextField altitudeTextField;
     private javax.swing.JButton autoButton;
     private javax.swing.JTextField batTextField;
+    private javax.swing.JTextField gaussFilterSigmaTextField;
     private javax.swing.JTextField hueLowerTF;
     private javax.swing.JTextField hueUpperTF;
+    private javax.swing.JButton jButtonGFSM;
+    private javax.swing.JButton jButtonGFSP;
+    private javax.swing.JButton jButtonhlm;
+    private javax.swing.JButton jButtonhlp;
+    private javax.swing.JButton jButtonhum;
+    private javax.swing.JButton jButtonhup;
+    private javax.swing.JButton jButtonslm;
+    private javax.swing.JButton jButtonslp;
+    private javax.swing.JButton jButtonsum;
+    private javax.swing.JButton jButtonsup;
+    private javax.swing.JButton jButtonvlm;
+    private javax.swing.JButton jButtonvlp;
+    private javax.swing.JButton jButtonvum;
+    private javax.swing.JButton jButtonvup;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -834,6 +1282,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JButton landButton;
     private javax.swing.JButton manButton;
+    private javax.swing.JTextField pitchDerivateTextField;
+    private javax.swing.JTextField pitchIntegralTextField;
+    private javax.swing.JTextField pitchProportionalTextField;
     private javax.swing.JTextField pitchTextField;
     private javax.swing.JTextField rollTextField;
     private javax.swing.JTextField saturationUpperTF;
@@ -842,11 +1293,18 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private javax.swing.JTextField valueUpperTF;
     private javax.swing.JTextField yawDerivateTextField;
     private javax.swing.JTextField yawIntegralTextField;
-    private javax.swing.JTextField yawPropotionalTextField;
+    private javax.swing.JTextField yawProportionalTextField;
     private javax.swing.JTextField yawTextField;
+    private javax.swing.JTextField zDerivateTextField;
+    private javax.swing.JTextField zIntegralTextField;
+    private javax.swing.JTextField zProportionalTextField;
     // End of variables declaration//GEN-END:variables
+//==============================================================================
+//==============================================================================
+// Ikke-autogenererte metoder
+//============================================================================== 
+//==============================================================================
 
-    // Ikke-autogenererte metoder
     private void repaintTextFields()
     {
         rollTextField.repaint();
@@ -866,10 +1324,10 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                 yawTextField.setText("Yaw: " + navData.getYaw());
                 altitudeTextField.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
                 batTextField.setText("Battery status : " + navData.getPercentage() + "%");
-                System.out.println("Navdata updated--------------------------------------------------------------------+");
+                // System.out.println("Navdata updated--------------------------------------------------------------------+");
             }
             catch (Exception e) {
-                System.out.println("NavData Fail -----------------------------------------*");
+                // System.out.println("NavData Fail -----------------------------------------*");
             }
 
             repaintTextFields();
@@ -877,14 +1335,41 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 
     }
 
-    private void initTextFieldText()
+    private void updateTextFields()
     {
-        hueLowerTF.setText("H lower threshold: " + cd.getHl());
-        hueUpperTF.setText("H upper threshold: " + cd.getHu());
-        SaturationLowerTF.setText("S lower threshold: " + cd.getSl());
-        saturationUpperTF.setText("S upper threshold: " + cd.getSu());
-        valueLowerTF.setText("V lower threshold: " + cd.getVl());
-        valueUpperTF.setText("V upper threshold: " + cd.getVu());
+        // Hue  df.format(        ).replace(",", ".")
+        hueLowerTF.setText("H lower thresh: "
+                + df.format(cd.getHl()).replace(",", "."));
+        hueUpperTF.setText("H upper thresh: "
+                + df.format(cd.getHu()).replace(",", "."));
+        // Saturation
+        SaturationLowerTF.setText("S lower thresh: "
+                + df.format(cd.getSl()).replace(",", "."));
+        saturationUpperTF.setText("S upper thresh: "
+                + df.format(cd.getSu()).replace(",", "."));
+        // Value
+        valueLowerTF.setText("V lower thresh: "
+                + df.format(cd.getVl()).replace(",", "."));
+        valueUpperTF.setText("V upper thresh: "
+                + df.format(cd.getVu()).replace(",", "."));
+        // Yaw 
+        yawProportionalTextField.setText("Propotional: " + regulator.getKpYaw());
+        yawIntegralTextField.setText("Integral: " + regulator.getKiYaw());
+        yawDerivateTextField.setText("Derivate: " + regulator.getKdYaw());
+        // Z
+        zProportionalTextField.setText("Propotional: " + regulator.getKpZ());
+        zIntegralTextField.setText("Integral: " + regulator.getKiZ());
+        zDerivateTextField.setText("Derivate: " + regulator.getKdZ());
+        // Pitch
+        pitchProportionalTextField.setText("Propotional: " + regulator.getKpPitch());
+        pitchIntegralTextField.setText("Integral: " + regulator.getKiPitch());
+        pitchDerivateTextField.setText("Derivate: " + regulator.getKdPitch());
+    }
+
+    private String getValueFromTextInput(String text)
+    {
+        String[] s = text.split(":");
+        return s[s.length - 1].trim();
     }
 
 }

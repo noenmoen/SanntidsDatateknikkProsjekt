@@ -23,21 +23,53 @@ import java.util.logging.Level;
  */
 public class YADrone
 {
+
     static final float PERIOD = 0.1f;
+    static IARDrone drone;
+    static PS3ControllerReader reader;
+    static Timer timer = new Timer();
+    static Semaphore mySem = new Semaphore(1, true);
+    static ControllerStateStorage store = new ControllerStateStorage();
+    static ProcessedImagePanel pip = new ProcessedImagePanel();
+    static DataHandler dh = new DataHandler();
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args)
     {
-        Timer timer = new Timer();
-        Semaphore mySem = new Semaphore(1, true);
-        ControllerStateStorage store = new ControllerStateStorage();
-        PS3ControllerReader reader = null;
-        ProcessedImagePanel pip = new ProcessedImagePanel();
-        DataHandler dh = new DataHandler();
+        //declarePS3Controller();
+        declareDrone();
+        
+        DroneControl cont = new DroneControl(drone, mySem, store);
+        TimerTask reg = new Regulator(cont, dh, PERIOD);
+        CircleDetection cd = new CircleDetection(
+                1000, 30, 4, 3, 204, 200, 2, drone, 3, pip, dh);
+        DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd);
+        Thread guiThread = new Thread(gui);
+        
+//==============================================================================
+// Start threds
+//============================================================================== 
+        //reader.start();
+        timer.scheduleAtFixedRate(reg, 0, (int) (1000 * PERIOD));
+        cont.start();
+        cd.start();
+        guiThread.start();
+    }
 
-        IARDrone drone = null;
+    private static void declarePS3Controller()
+    {
+        try {
+            reader = new PS3ControllerReader(mySem, store);
+        }
+        catch (IOException ex) {
+
+        }
+    }
+
+    private static void declareDrone()
+    {
         try {
             drone = new ARDrone();
             drone.start();
@@ -47,21 +79,5 @@ public class YADrone
         }
         drone.getCommandManager().setVideoBitrateControl(VideoBitRateMode.DISABLED); // Test this        
         drone.getCommandManager().setVideoCodec(VideoCodec.H264_360P); // Test this
-        try {
-            reader = new PS3ControllerReader(mySem, store);
-        } catch (IOException ex) {
-            
-        }
-        reader.start();
-        DroneControl cont = new DroneControl(drone, mySem, store);
-        TimerTask reg = new Regulator(cont, dh, PERIOD);
-        cont.start();
-        timer.scheduleAtFixedRate(reg, 0, (int)(1000*PERIOD));
-        CircleDetection cd = new CircleDetection(
-                1000, 30, 4, 3, 204, 200, 2, drone, 3, pip, dh);
-        DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd);
-        Thread guiThread = new Thread(gui);
-        cd.start();
-        guiThread.start();
     }
 }
