@@ -41,7 +41,7 @@ public class Regulator extends TimerTask {
         // set up the PID controller for the z axis
         zPID = new PIDController(0, 0, 0, TIME_SHIFT);
         zPID.setContinuous(false);
-        zPID.setOutputRange(-0.5f,0.5f);
+        zPID.setOutputRange(-0.5f, 0.5f);
         // set up the PID controller for the pitch axis
         pitchPID = new PIDController(0, 0, 0, TIME_SHIFT);
         pitchPID.setContinuous(false);
@@ -159,7 +159,7 @@ public class Regulator extends TimerTask {
                 System.out.println("Desired yaw angle: " + yawDes + " - actual yaw angle: " + yawAct);
                 System.out.println("-----------------------------------------------------------");
 
-                float z = dh.GetDiff()[1]/100f;
+                float z = dh.GetDiff()[1] / 100f;
                 float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
                 zPID.setSetpoint(zDes);
                 zPID.setInput(zAct);
@@ -170,16 +170,17 @@ public class Regulator extends TimerTask {
 
                 // TODO: control algorithms for roll and pitch
                 droneInputs[1] = droneInputs[0] = 0f;
-                dc.moveAuto(droneInputs);
+                dc.move(droneInputs);
             }
-            
-            // if the drone is not in autoMode, we reset the controllers
-            droneInputs[0]=droneInputs[1]=droneInputs[2]=droneInputs[3]=0f;
-            dc.moveAuto(droneInputs);
-            pitchPID.reset();
-            zPID.reset();
-            yawPID.reset();
 
+            while (autoMode) {
+                // if the drone is not in autoMode, we reset the controllers
+                droneInputs[0] = droneInputs[1] = droneInputs[2] = droneInputs[3] = 0f;
+                dc.move(droneInputs);
+                pitchPID.reset();
+                zPID.reset();
+                yawPID.reset();
+            }
         }
     }
     /*

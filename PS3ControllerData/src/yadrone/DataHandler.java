@@ -16,8 +16,8 @@ public class DataHandler {
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 1000;
     private final int CAPACITY = 50;
-    private final double dev = 0.25;
-    private Deque<double[]> centroidAndRadius = new ArrayDeque<>();
+    private final double dev = 0.1;
+    private Deque<double[]> centroidAndRadiusFilt = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
 
@@ -61,13 +61,13 @@ public class DataHandler {
      */
     public synchronized void addCentroidAndRadius(Mat centroidAndRadius) {
         try {
-            // isCircleDataFresh();
+            isCircleDataFresh();
             double[] circle = circleFilter(centroidAndRadius);
             if (circle != null) {
-                this.centroidAndRadius.add(circle);
+                this.centroidAndRadiusFilt.add(circle);
                 lastTimeCircleDetected = System.currentTimeMillis();
-                if (this.centroidAndRadius.size() > CAPACITY) {
-                    this.centroidAndRadius.remove();
+                if (this.centroidAndRadiusFilt.size() > CAPACITY) {
+                    this.centroidAndRadiusFilt.remove();
                 }
             }
         } catch (Exception e) {
@@ -82,12 +82,12 @@ public class DataHandler {
      */
     public synchronized double[] getCentroidAndRadius() {
 
-        return centroidAndRadius.peekLast();
+        return centroidAndRadiusFilt.peekLast();
 
     }
 
     public synchronized boolean HasCircle() {
-        if (centroidAndRadius.isEmpty()) {
+        if (centroidAndRadiusFilt.isEmpty()) {
             return false;
         } else {
             return true;
@@ -99,13 +99,13 @@ public class DataHandler {
      *
      * @return
      */
-    private synchronized boolean isCircleDataFresh() {
+    public synchronized boolean isCircleDataFresh() {
 
         if ((lastTimeCircleDetected + CIRCLE_EXPIRATION_TIME)
                 > System.currentTimeMillis()) {
             return true;
         }
-        centroidAndRadius.clear();
+        centroidAndRadiusFilt.clear();
         return false;
     }
 
@@ -128,16 +128,16 @@ public class DataHandler {
         avg[1] = 0;
         avg[2] = 0;
 
-        for (double[] values : this.centroidAndRadius) {
+        for (double[] values : this.centroidAndRadiusFilt) {
             sumX += values[0];
             sumY += values[1];
             sumRadius += values[2];
         }
         // Average
-        if (this.centroidAndRadius.size() > 0) {
-            avg[0] = sumX / this.centroidAndRadius.size();
-            avg[1] = sumY / this.centroidAndRadius.size();
-            avg[2] = sumRadius / this.centroidAndRadius.size();
+        if (this.centroidAndRadiusFilt.size() > 0) {
+            avg[0] = sumX / this.centroidAndRadiusFilt.size();
+            avg[1] = sumY / this.centroidAndRadiusFilt.size();
+            avg[2] = sumRadius / this.centroidAndRadiusFilt.size();
         }
 
         if (avg[0] == 0 && avg[0] == 0 && avg[0] == 0) {
