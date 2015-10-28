@@ -23,8 +23,7 @@ import yadrone.Regulator;
  *
  * @author Morten
  */
-public class CircleDetection extends Thread implements ImageListener
-{
+public class CircleDetection extends Thread implements ImageListener {
 
     private int highThreshold;
     private double doublehighThreshold;
@@ -75,8 +74,7 @@ public class CircleDetection extends Thread implements ImageListener
             IARDrone drone,
             int bufferSize,
             ProcessedImagePanel pip,
-            DataHandler dh)
-    {
+            DataHandler dh) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         this.cannyThresh_upper = cannyThresh_upper;
         this.cannyThresh_inner = cannyThresh_inner;
@@ -89,12 +87,12 @@ public class CircleDetection extends Thread implements ImageListener
         drone.getVideoManager().addImageListener(this);
         this.pip = pip;
         this.dh = dh;
-        this.hl = 0.149;
-        this.sl = 0.071;
-        this.vl = 0.000;
-        this.hu = 0.567;
-        this.su = 1.000;
-        this.vu = 0.691;
+        this.hl = 0.160;
+        this.sl = 0.19;
+        this.vl = 0.7;
+        this.hu = 0.505;
+        this.su = 0.19;
+        this.vu = 0.7;
     }
 
     /**
@@ -106,8 +104,7 @@ public class CircleDetection extends Thread implements ImageListener
      * @param maxThresh
      * @return
      */
-    private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh)
-    {
+    private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh) {
 
         Mat newMat = new Mat(mat.size(), mat.type());
 
@@ -128,8 +125,7 @@ public class CircleDetection extends Thread implements ImageListener
                 if (x > minThresh && x < maxThresh) {
                     newMat.put(r, c, data1);
 
-                }
-                else {
+                } else {
                     newMat.put(r, c, data0);
                 }
             }
@@ -152,8 +148,7 @@ public class CircleDetection extends Thread implements ImageListener
      * @param image
      * @return Mat: the points where circles can be found
      */
-    private Mat CircleFinder(Mat image)
-    {
+    private Mat CircleFinder(Mat image) {
         Mat circles = new Mat();
         Imgproc.HoughCircles(image, circles, Imgproc.CV_HOUGH_GRADIENT, 1, image.height() / 10, 500, 50, 0, 500);
         return circles;
@@ -175,8 +170,7 @@ public class CircleDetection extends Thread implements ImageListener
      * @param maxRatio max_radius = 0: Maximum radius to be detected.
      * @return Mat Circles in 3-layered vector
      */
-    private Mat CircleFinder(Mat image, int denominator, int cannyThresh, int centerThresh, int minRatio, int maxRatio)
-    {
+    private Mat CircleFinder(Mat image, int denominator, int cannyThresh, int centerThresh, int minRatio, int maxRatio) {
 
         Mat circles = new Mat();
         Imgproc.HoughCircles(image, circles, Imgproc.CV_HOUGH_GRADIENT, 1,
@@ -194,8 +188,8 @@ public class CircleDetection extends Thread implements ImageListener
      * @param lineWidth- 1,2,3,4....
      * @return Mat- the image drawn
      */
-    private Mat DrawCircles(Mat circles, Mat image, Scalar color, int lineWidth)
-    {
+    private Mat DrawCircles(Mat circles, Mat image, Scalar color, int lineWidth) {
+        Scalar colorFilt = new Scalar(0, 255, 0);
 
 //        System.out.println("---------------------------------------------------");
 //        System.out.println("Number of circles found: " + circles.cols());
@@ -204,20 +198,25 @@ public class CircleDetection extends Thread implements ImageListener
                 double[] circle = circles.get(0, i);
                 Point p = new Point(circle[0], circle[1]);
                 Imgproc.circle(image, p, (int) circle[2], color, lineWidth);
+
 //                System.out.println((i + 1) + " Coordinates: "
 //                        + circle[0] + "x" + circle[1] + " Radius: " + circle[2]);
             }
-        }
-        else {
+        } else {
             System.out.println("could not find any circles!");
+        }
+        try {
+            Point pFilt = new Point(dh.getCentroidAndRadius()[0], dh.getCentroidAndRadius()[1]);
+            Imgproc.circle(image, pFilt, (int) dh.getCentroidAndRadius()[2], colorFilt, lineWidth);
+        } catch (Exception e) {
+            System.out.println("Error printing filtered circle");
         }
 
         return image;
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         Mat oldImage = null;
         Mat image = null;
         while (true) {
@@ -225,8 +224,7 @@ public class CircleDetection extends Thread implements ImageListener
             while (oldImage == image) {
                 try {
                     image = ic.BufferedImageToMat(bufferedImage);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                 }
             }
             oldImage = image;
@@ -301,237 +299,219 @@ public class CircleDetection extends Thread implements ImageListener
     }
 
     @Override
-    public synchronized void imageUpdated(BufferedImage bi)
-    {
+    public synchronized void imageUpdated(BufferedImage bi) {
         bufferedImage = bi;
     }
 
     /**
      * @return the gaussKernel
      */
-    public synchronized Size getGaussKernel()
-    {
+    public synchronized Size getGaussKernel() {
         return gaussKernel;
     }
 
     /**
      * @param gaussKernel the gaussKernel to set
      */
-    public synchronized void setGaussKernel(Size gaussKernel)
-    {
+    public synchronized void setGaussKernel(Size gaussKernel) {
         this.gaussKernel = gaussKernel;
     }
 
     /**
      * @return the sigmaX
      */
-    public synchronized double getSigmaX()
-    {
+    public synchronized double getSigmaX() {
         return sigmaX;
     }
 
     /**
      * @param sigmaX the sigmaX to set
      */
-    public synchronized void setSigmaX(double sigmaX)
-    {
+    public synchronized void setSigmaX(double sigmaX) {
         this.sigmaX = sigmaX;
     }
 
     /**
      * @return the color
      */
-    public synchronized Scalar getColor()
-    {
+    public synchronized Scalar getColor() {
         return color;
     }
 
     /**
      * @param color the color to set
      */
-    public synchronized void setColor(Scalar color)
-    {
+    public synchronized void setColor(Scalar color) {
         this.color = color;
     }
 
     /**
      * @return the circle_max
      */
-    public synchronized int getCircle_max()
-    {
+    public synchronized int getCircle_max() {
         return circle_max;
     }
 
     /**
      * @param circle_max the circle_max to set
      */
-    public synchronized void setCircle_max(int circle_max)
-    {
+    public synchronized void setCircle_max(int circle_max) {
         this.circle_max = circle_max;
     }
 
     /**
      * @return the circle_min
      */
-    public synchronized int getCircle_min()
-    {
+    public synchronized int getCircle_min() {
         return circle_min;
     }
 
     /**
      * @param circle_min the circle_min to set
      */
-    public synchronized void setCircle_min(int circle_min)
-    {
+    public synchronized void setCircle_min(int circle_min) {
         this.circle_min = circle_min;
     }
 
     /**
      * @return the cannyThresh_upper
      */
-    public synchronized int getCannyThresh_upper()
-    {
+    public synchronized int getCannyThresh_upper() {
         return cannyThresh_upper;
     }
 
     /**
      * @param cannyThresh_upper the cannyThresh_upper to set
      */
-    public synchronized void setCannyThresh_upper(int cannyThresh_upper)
-    {
+    public synchronized void setCannyThresh_upper(int cannyThresh_upper) {
         this.cannyThresh_upper = cannyThresh_upper;
     }
 
     /**
      * @return the cannyThresh_inner
      */
-    public synchronized int getCannyThresh_inner()
-    {
+    public synchronized int getCannyThresh_inner() {
         return cannyThresh_inner;
     }
 
     /**
      * @param cannyThresh_inner the cannyThresh_inner to set
      */
-    public synchronized void setCannyThresh_inner(int cannyThresh_inner)
-    {
+    public synchronized void setCannyThresh_inner(int cannyThresh_inner) {
         this.cannyThresh_inner = cannyThresh_inner;
     }
 
     /**
      * @return the denom
      */
-    public synchronized int getDenom()
-    {
+    public synchronized int getDenom() {
         return denom;
     }
 
     /**
      * @param denom the denom to set
      */
-    public synchronized void setDenom(int denom)
-    {
+    public synchronized void setDenom(int denom) {
         this.denom = denom;
     }
 
     /**
      * @return the hl
      */
-    public synchronized double getHl()
-    {
+    public synchronized double getHl() {
         return hl;
     }
 
     /**
      * @param hl the hl to set
      */
-    public synchronized void setHl(double hl)
-    {
-        if(isThresholdValueValid(hl))this.hl = hl;
+    public synchronized void setHl(double hl) {
+        if (isThresholdValueValid(hl)) {
+            this.hl = hl;
+        }
     }
 
     /**
      * @return the hu
      */
-    public synchronized double getHu()
-    {
+    public synchronized double getHu() {
         return hu;
     }
 
     /**
      * @param hu the hu to set
      */
-    public synchronized void setHu(double hu)
-    {
-        if(isThresholdValueValid(hu))this.hu = hu;
+    public synchronized void setHu(double hu) {
+        if (isThresholdValueValid(hu)) {
+            this.hu = hu;
+        }
     }
 
     /**
      * @return the sl
      */
-    public synchronized double getSl()
-    {
+    public synchronized double getSl() {
         return sl;
     }
 
     /**
      * @param sl the sl to set
      */
-    public synchronized void setSl(double sl)
-    {
-        if(isThresholdValueValid(sl))this.sl = sl;
+    public synchronized void setSl(double sl) {
+        if (isThresholdValueValid(sl)) {
+            this.sl = sl;
+        }
     }
 
     /**
      * @return the su
      */
-    public synchronized double getSu()
-    {
+    public synchronized double getSu() {
         return su;
     }
 
     /**
      * @param su the su to set
      */
-    public synchronized void setSu(double su)
-    {
-        if(isThresholdValueValid(su))this.su = su;
+    public synchronized void setSu(double su) {
+        if (isThresholdValueValid(su)) {
+            this.su = su;
+        }
     }
 
     /**
      * @return the vl
      */
-    public synchronized double getVl()
-    {
+    public synchronized double getVl() {
         return vl;
     }
 
     /**
      * @param vl the vl to set
      */
-    public synchronized void setVl(double vl)
-    {
-        if(isThresholdValueValid(vl))this.vl = vl;
+    public synchronized void setVl(double vl) {
+        if (isThresholdValueValid(vl)) {
+            this.vl = vl;
+        }
     }
 
     /**
      * @return the vu
      */
-    public synchronized double getVu()
-    {
+    public synchronized double getVu() {
         return vu;
     }
 
     /**
      * @param vu the vu to set
      */
-    public synchronized void setVu(double vu)
-    {
-        if(isThresholdValueValid(vu))this.vu = vu;
+    public synchronized void setVu(double vu) {
+        if (isThresholdValueValid(vu)) {
+            this.vu = vu;
+        }
     }
 
-    private boolean isThresholdValueValid(double value)
-    {
+    private boolean isThresholdValueValid(double value) {
         return (value >= 0.0) && (value <= 1.0);
     }
 }
