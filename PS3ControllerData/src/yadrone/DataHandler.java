@@ -14,14 +14,19 @@ import org.opencv.core.Mat;
 public class DataHandler {
 
     private long lastTimeCircleDetected = 0;
-    private final long CIRCLE_EXPIRATION_TIME = 1000;
-    private final int CAPACITY = 50;
+    private final long CIRCLE_EXPIRATION_TIME = 100;
+    private final int CAPACITY = 25;
     private final double dev = 0.1;
     private Deque<double[]> centroidAndRadiusFilt = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
-
+    private double[] avg = new double[3];
     public DataHandler() {
+    }
+
+    public synchronized double[] getAvg()
+    {
+        return avg;
     }
 
     /**
@@ -123,7 +128,7 @@ public class DataHandler {
         double sumX = 0;
         double sumY = 0;
         double sumRadius = 0;
-        double[] avg = new double[3];
+        
         avg[0] = 0;
         avg[1] = 0;
         avg[2] = 0;
