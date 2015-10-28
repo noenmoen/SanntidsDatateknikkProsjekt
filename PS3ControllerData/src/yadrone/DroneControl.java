@@ -47,7 +47,7 @@ public class DroneControl extends Thread {
             DroneMode m = getDroneMode();
             switch (m) {
                 case MAN_MODE:
-                    //if(reg.isAutoMode()) reg.setAutoMode(false);
+                    if(reg.isAutoMode()) reg.setAutoMode(false);
                     while (storage.getAvailable()) { // If the controller has produced new data
 
                         try {
@@ -63,7 +63,7 @@ public class DroneControl extends Thread {
                         break;
                     }
                 case AUTO_MODE:
-                    //if (!reg.isAutoMode()) reg.setAutoMode(true);
+                    if (!reg.isAutoMode()) reg.setAutoMode(true);
                     break;
                     
                 case LANDING:
