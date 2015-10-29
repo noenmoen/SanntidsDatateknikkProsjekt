@@ -8,7 +8,7 @@ package yadrone;
 /**
  * A class for running the PID-algorithm
  * By setting the integral gain and/or derivative gain = 0,
- * the controller can be either PD or PI
+ * the controller can be either PD or PI (or P)
  * @author vegard
  * 
  */
@@ -37,7 +37,10 @@ public class PIDController {
         this.kd = kd;
         this.cycleTime = cycleTime;
     }
-
+    /*
+    The PID-algorithm that calculates the control input
+    based on the error, accumulated errors, and upcoming error (derivative)
+    */
     private void calculate() {
         error = setPoint - input;
 
@@ -68,6 +71,9 @@ public class PIDController {
         }
 
     }
+    /*
+    Setters and getters for the gains
+    */
 
     public float getKp() {
         return kp;
@@ -93,11 +99,18 @@ public class PIDController {
         this.kd = kd;
     }
 
+    /*
+    Method that is called by the regulator class.
+    Performs the PID algorithm, and returns the control input to the drone.
+    */
     public float runPID() {
         calculate();
         return output;
     }
-
+    /*
+    Set to continuous if the measured value wraps around.
+    (absolute encoder, yaw angle etc...)
+    */
     public void setContinuous(boolean cont) {
         continuous = cont;
     }
@@ -105,11 +118,16 @@ public class PIDController {
     public void setContinuous() {
         this.setContinuous(true);
     }
-
+    /*
+    Sets the maximum allowed input range, used for inputs that wrap around
+    */
     public void setInputRange(float minInput, float maxInput) {
         minInp = minInput;
         maxInp = maxInput;
     }
+    /*
+    Set the max allowed output range
+    */
     public void setOutputRange(float minOutput, float maxOutput) {
         maxOutp = maxOutput;
         minOutp = minOutput;
