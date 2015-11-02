@@ -32,20 +32,29 @@ public class Regulator extends TimerTask {
         navData = new NavDataListener(dc.getDrone());
         this.dh = dh;
 
-        // set up the PID controller for the yaw axis
+        // set up the PD-controller for the yaw axis
         yawPID = new PIDController(0, 0, 0, TIME_SHIFT);
         yawPID.setContinuous();
         yawPID.setInputRange(-1f, 1f);
         yawPID.setOutputRange(-0.5f, 0.5f);
+        yawPID.setKp(4.5f);
+        yawPID.setKi(0.0f);
+        yawPID.setKd(0.65f);
 
-        // set up the PID controller for the z axis
+        // set up the P-controller for the z axis
         zPID = new PIDController(0, 0, 0, TIME_SHIFT);
         zPID.setContinuous(false);
         zPID.setOutputRange(-0.5f, 0.5f);
-        // set up the PID controller for the pitch axis
+        zPID.setKp(0.65f);
+        zPID.setKi(0.0f);
+        zPID.setKd(0.0f);
+        // set up the PD-controller for the pitch axis
         pitchPID = new PIDController(0, 0, 0, TIME_SHIFT);
         pitchPID.setContinuous(false);
-        pitchPID.setOutputRange(-0.5f, 0.5f);
+        pitchPID.setOutputRange(-0.2f, 0.2f);
+        pitchPID.setKp(0.2f);
+        pitchPID.setKi(0.0f);
+        pitchPID.setKd(0.15f);
         autoMode = false;
 //        autoMode = true; // for testing purposes, remove before flight!
     }
