@@ -177,12 +177,15 @@ public class Regulator extends TimerTask {
                 System.out.println("Desired altitude: " + zDes + " - actual altitude: " + zAct);
                 System.out.println("-----------------------------------------------------------");
 
-                // TODO: control algorithms for roll and pitch
+                // TODO: control algorithms for pitch
                 droneInputs[1] = droneInputs[0] = 0f;
                 dc.move(droneInputs);
             }
+            while (autoMode && !dh.HasCircle()) {
+                // TODO: method for finding rings!
+            }
 
-            while (autoMode) {
+            while (!autoMode) {
                 // if the drone is not in autoMode, we reset the controllers
                 droneInputs[0] = droneInputs[1] = droneInputs[2] = droneInputs[3] = 0f;
                 dc.move(droneInputs);
