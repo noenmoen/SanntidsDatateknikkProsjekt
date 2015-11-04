@@ -303,7 +303,7 @@ public class CircleDetection extends Thread implements ImageListener
             pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
             dh.setImageWidthAndHight(image);
             dh.addCentroidAndRadius(circles);
-            System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
+            System.out.println("Circle detection cycletime: " + (System.currentTimeMillis() - start));
         }
     }
 
