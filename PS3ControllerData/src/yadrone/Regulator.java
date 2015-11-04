@@ -5,7 +5,11 @@
  */
 package yadrone;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.TimerTask;
+import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -203,24 +207,45 @@ public class Regulator extends TimerTask {
         yawPID.setContinuous();
         yawPID.setInputRange(-1f, 1f);
         yawPID.setOutputRange(-0.5f, 0.5f);
-        yawPID.setKp(4.5f);
-        yawPID.setKi(0.0f);
-        yawPID.setKd(0.65f);
 
         // set up the P-controller for the z axis
         zPID = new PIDController(0, 0, 0, TIME_SHIFT);
         zPID.setContinuous(false);
         zPID.setOutputRange(-0.5f, 0.5f);
-        zPID.setKp(0.65f);
-        zPID.setKi(0.0f);
-        zPID.setKd(0.0f);
         // set up the PD-controller for the pitch axis
         pitchPID = new PIDController(0, 0, 0, TIME_SHIFT);
         pitchPID.setContinuous(false);
         // Limit the pitch angle, aggressive manouvers are not desirable
         pitchPID.setOutputRange(-0.2f, 0.2f);
-        pitchPID.setKp(0.2f);
-        pitchPID.setKi(0.0f);
-        pitchPID.setKd(0.15f);
+        // Load and set PID gains
+        loadAndSetGainParameters();
+    }
+    private void loadAndSetGainParameters()
+    {
+        String s;
+        try {
+            s = FileUtils.readFileToString(
+                    new File(System.getProperty("user.dir")
+                            + "\\PIDparameters.txt"));
+            String[] paramStrs = s.split(" ");
+            
+        float[] params = new float[Array.getLength(paramStrs)];
+        for (int i = 0; i < Array.getLength(paramStrs); i++) {
+            params[i] = Float.valueOf(paramStrs[i]);
+        }
+        yawPID.setKp(params[0]);
+        yawPID.setKi(params[1]);
+        yawPID.setKd(params[2]);
+        zPID.setKp(params[3]);
+        zPID.setKi(params[4]);
+        zPID.setKd(params[5]);
+        pitchPID.setKp(params[6]);
+        pitchPID.setKi(params[7]);
+        pitchPID.setKd(params[8]);
+        }
+        catch (IOException ex) {
+            System.out.println("Parameter Loading Failed: " + ex);
+        }
+        
     }
 }
