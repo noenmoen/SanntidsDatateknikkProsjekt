@@ -225,19 +225,18 @@ public class CircleDetection extends Thread implements ImageListener
     @Override
     public void run()
     {
-        Mat oldImage = null;
         Mat image = null;
         while (true) {
             long start = System.currentTimeMillis();
-            while (oldImage == image) {
+            while (image == null) {
                 try {
                     image = ic.BufferedImageToMat(bufferedImage);
                 }
                 catch (Exception e) {
-                    System.out.println("Failed to aquire image: "+e);
+                    System.out.println("Failed to aquire image: " + e);
                 }
             }
-            oldImage = image;
+            bufferedImage = null; // Prevents duplicated processing
             Imgproc.GaussianBlur(image, image, getGaussKernel(), getSigmaX());
             Mat originalImage = image.clone();
             Vector<Mat> HSV = new Vector<>();
@@ -564,22 +563,22 @@ public class CircleDetection extends Thread implements ImageListener
                     new File(System.getProperty("user.dir")
                             + "\\imProParameters.txt"));
             String[] paramStrs = s.split(" ");
-            
-        double[] params = new double[Array.getLength(paramStrs)];
-        for (int i = 0; i < Array.getLength(paramStrs); i++) {
-            params[i] = Double.valueOf(paramStrs[i]);
-        }
-        hl = params[0];
-        hu = params[1];
-        sl = params[2];
-        su = params[3];
-        vl = params[4];
-        vu = params[5];
-        sigmaX = params[6];
+
+            double[] params = new double[Array.getLength(paramStrs)];
+            for (int i = 0; i < Array.getLength(paramStrs); i++) {
+                params[i] = Double.valueOf(paramStrs[i]);
+            }
+            hl = params[0];
+            hu = params[1];
+            sl = params[2];
+            su = params[3];
+            vl = params[4];
+            vu = params[5];
+            sigmaX = params[6];
         }
         catch (IOException ex) {
             System.out.println("Parameter Loading Failed: " + ex);
         }
-        
+
     }
 }
