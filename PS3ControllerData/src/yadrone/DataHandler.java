@@ -20,7 +20,10 @@ public class DataHandler {
     private Deque<double[]> centroidAndRadiusFilt = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
-    private double[] avg = new double[3];
+    private double[] avg = new double[3];  
+    private final double MIN_DISTANCE_RADIUS = 148;
+    private final double MIN_DISTANCE_METER = 1.51;
+    
     public DataHandler() {
     }
 
