@@ -31,6 +31,7 @@ public class DroneControl extends Thread {
     private GameControllerState state;
     private Regulator reg;
     private DroneMode mode;
+    private boolean flying;
 
     public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage) {
         sem = s;
@@ -47,9 +48,9 @@ public class DroneControl extends Thread {
             DroneMode m = getDroneMode();
             switch (m) {
                 case MAN_MODE:
-//                    if (reg.isAutoMode()) {
-//                        reg.setAutoMode(false);
-//                    }
+                    if (reg.isAutoMode()) {
+                        reg.setAutoMode(false);
+                    }
                     while (storage.getAvailable()) { // If the controller has produced new data
 
                         try {
@@ -60,19 +61,44 @@ public class DroneControl extends Thread {
                         state = storage.getState();
 
                         moveMan(state);
-
+                        // If a landing flag is still set while in man. mode, reset the flag.
+                        if (storage.isNewFlag()) {
+                            storage.getLandingFlag();
+                        }
                         sem.release();
 
                     }
                     break;
                 case AUTO_MODE:
+                    // If the drone is not flying, take off.
+                    if(!flying) {
+                        drone.getCommandManager().flatTrim();
+                        drone.getCommandManager().takeOff().doFor(2000);
+                        flying = true;
+                    }
+                    // Check for manual landing input from the DS3
+                    try {
+                        sem.acquire();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(DroneControl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    // If the controller has set the landing flag, always land.
+                    if (storage.isNewFlag()) {
+                        storage.getLandingFlag();
+                        setMode(DroneMode.LANDING);
+                        sem.release();
+                        break;
+                    }
+                    sem.release();
+                    // If regulator is not in automode, set automode.
                     if (!reg.isAutoMode()) {
                         reg.setAutoMode(true);
                     }
                     break;
-
+                // Land command from the GUI or DS3 (while automode)
                 case LANDING:
-                //drone.getCommandManager().landing().doFor(3000);
+                    drone.getCommandManager().landing().doFor(3000).flatTrim();
+                    flying=false;
             }
         }
     }
@@ -99,6 +125,7 @@ public class DroneControl extends Thread {
             drone.getCommandManager().flatTrim();
             System.out.println("Drone take off");
             drone.getCommandManager().takeOff().doFor(2000);
+            flying=true;
 
         }
         // Pressing square will enable/disable free roaming
@@ -129,6 +156,7 @@ public class DroneControl extends Thread {
             System.out.println("Drone landing");
             freeroam = false;
             drone.getCommandManager().landing().doFor(3000).flatTrim();
+            flying = false;
 
         }
     }
