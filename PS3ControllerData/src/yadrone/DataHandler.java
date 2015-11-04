@@ -52,12 +52,12 @@ public class DataHandler {
      */
     public synchronized float[] GetDiff() {
         float[] diff = new float[4];
-        diff[0] = (((float) getCentroidAndRadius()[0] - imageWidth / 2)
+        diff[0] = -(((float) getCentroidAndRadius()[0] - imageWidth / 2)
                 / imageWidth) * 93;
-        diff[1] = ((float) getCentroidAndRadius()[1] - imageHeight / 2);
+        diff[1] = -((float) getCentroidAndRadius()[1] - imageHeight / 2);
 
-        System.out.println("Filtered values: YAW diff: " + diff[0]
-                + " Altitude Diff: " + diff[1]);
+        //System.out.println("Filtered values: YAW diff: " + diff[0]
+          //      + " Altitude Diff: " + diff[1]);
         return diff;
 
     }
@@ -95,11 +95,8 @@ public class DataHandler {
     }
 
     public synchronized boolean HasCircle() {
-        if (centroidAndRadiusFilt.isEmpty()) {
-            return false;
-        } else {
-            return true;
-        }
+        return !centroidAndRadiusFilt.isEmpty();
+           
     }
 
     /**
@@ -163,11 +160,11 @@ public class DataHandler {
         return null;
     }
 
-    public float getDiffRad() {
+    public synchronized float getDiffRad() {
         return (float) MIN_DISTANCE_RADIUS - (float)this.avg[2];
     }
 
-    public double getMIN_DISTANCE_METER() {
+    public synchronized double getMIN_DISTANCE_METER() {
         return MIN_DISTANCE_METER;
     }
     

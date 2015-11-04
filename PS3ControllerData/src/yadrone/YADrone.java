@@ -20,11 +20,12 @@ import java.util.logging.Level;
 /**
  *
  * @author vegard
+ * 
  */
 public class YADrone
 {
 
-    static final float PERIOD = 0.1f;
+    static final int PERIOD = 500;
     static IARDrone drone;
     static PS3ControllerReader reader;
     static Timer timer = new Timer();
@@ -38,21 +39,22 @@ public class YADrone
      */
     public static void main(String[] args)
     {
-        //declarePS3Controller();
+        declarePS3Controller();
         declareDrone();
         
         DroneControl cont = new DroneControl(drone, mySem, store);
         TimerTask reg = new Regulator(cont, dh, PERIOD);
+        cont.setRegulator((Regulator)reg);
         CircleDetection cd = new CircleDetection(
                 1000, 30, 4, 3, 204, 200, 2, drone, 3, pip, dh);
-        DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd);
+        DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd, dh);
         Thread guiThread = new Thread(gui);
         
 //==============================================================================
 // Start threds
 //============================================================================== 
-        //reader.start();
-        timer.scheduleAtFixedRate(reg, 0, (int) (1000 * PERIOD));
+        reader.start();
+        timer.scheduleAtFixedRate(reg, 0,PERIOD);
         cont.start();
         cd.start();
         guiThread.start();

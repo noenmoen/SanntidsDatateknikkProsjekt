@@ -69,7 +69,7 @@ public class PIDController {
         } else if (output < minOutp) {
             output = minOutp;
         }
-
+        prevError = error;
     }
     /*
     Setters and getters for the gains

@@ -15,7 +15,8 @@ import org.apache.commons.io.FileUtils;
  *
  * @author Vegard
  */
-public class Regulator extends TimerTask {
+public class Regulator extends TimerTask
+{
 
     private float[] droneInputs = new float[4];
     private float yawAct;
@@ -32,20 +33,24 @@ public class Regulator extends TimerTask {
     private PIDController pitchPID;
     private boolean isReset;
 
-    public Regulator(DroneControl dc, DataHandler dh, float CYCLE_TIME) {
-        TIME_SHIFT = CYCLE_TIME;
+    public Regulator(DroneControl dc, DataHandler dh, int CYCLE_TIME)
+    {
+        TIME_SHIFT = (float) CYCLE_TIME / 1000f;
         navData = new NavDataListener(dc.getDrone());
         this.dh = dh;
         setupControllers();
         autoMode = false;
+        this.dc = dc;
 //        autoMode = true; // for testing purposes, remove before flight!
     }
 
-    public synchronized boolean isAutoMode() {
+    public synchronized boolean isAutoMode()
+    {
         return autoMode;
     }
 
-    public synchronized void setAutoMode(boolean autoMode) {
+    public synchronized void setAutoMode(boolean autoMode)
+    {
         this.autoMode = autoMode;
     }
 
@@ -53,94 +58,122 @@ public class Regulator extends TimerTask {
      parameters in order to achieve acceptable performance
      @param: Kp = proportional gain, Ki = integral gain, Kd = derivative gain
      */
-    public synchronized void setKpYaw(float kpYaw) {
+    public synchronized void setKpYaw(float kpYaw)
+    {
         yawPID.setKp(kpYaw);
     }
 
-    public synchronized void setKiYaw(float kiYaw) {
+    public synchronized void setKiYaw(float kiYaw)
+    {
         yawPID.setKi(kiYaw);
     }
 
-    public synchronized void setKdYaw(float kdYaw) {
+    public synchronized void setKdYaw(float kdYaw)
+    {
         yawPID.setKd(kdYaw);
     }
 
-    public synchronized void setKpZ(float kpZ) {
+    public synchronized void setKpZ(float kpZ)
+    {
         zPID.setKp(kpZ);
     }
 
-    public synchronized void setKiZ(float kiZ) {
+    public synchronized void setKiZ(float kiZ)
+    {
         zPID.setKi(kiZ);
     }
 
-    public synchronized void setKdZ(float kdZ) {
+    public synchronized void setKdZ(float kdZ)
+    {
         zPID.setKd(kdZ);
     }
 
-    public synchronized void setKpPitch(float kpPitch) {
+    public synchronized void setKpPitch(float kpPitch)
+    {
         pitchPID.setKp(kpPitch);
     }
 
-    public synchronized void setKiPitch(float kiPitch) {
+    public synchronized void setKiPitch(float kiPitch)
+    {
         pitchPID.setKi(kiPitch);
     }
 
-    public synchronized void setKdPitch(float kdPitch) {
+    public synchronized void setKdPitch(float kdPitch)
+    {
         pitchPID.setKd(kdPitch);
     }
 
-    public synchronized float getKpYaw() {
+    public synchronized float getKpYaw()
+    {
         return yawPID.getKp();
     }
 
-    public synchronized float getKiYaw() {
+    public synchronized float getKiYaw()
+    {
         return yawPID.getKi();
     }
 
-    public synchronized float getKdYaw() {
+    public synchronized float getKdYaw()
+    {
         return yawPID.getKd();
     }
 
-    public synchronized float getKpZ() {
+    public synchronized float getKpZ()
+    {
         return zPID.getKp();
     }
 
-    public synchronized float getKiZ() {
+    public synchronized float getKiZ()
+    {
         return zPID.getKi();
     }
 
-    public synchronized float getKdZ() {
+    public synchronized float getKdZ()
+    {
         return zPID.getKd();
     }
 
-    public synchronized float getKpPitch() {
+    public synchronized float getKpPitch()
+    {
         return pitchPID.getKp();
     }
 
-    public synchronized float getKiPitch() {
+    public synchronized float getKiPitch()
+    {
         return pitchPID.getKi();
     }
 
-    public synchronized float getKdPitch() {
+    public synchronized float getKdPitch()
+    {
         return pitchPID.getKd();
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         while (true) {
             // Only run while drone is in autonomous mode, and the drone has found a hulahoop
             while (autoMode && dh.HasCircle()) {
+                float[] diff = new float[4];
+                try {
+                    diff = dh.GetDiff();
+                }
+                catch (Exception e) {
+                    System.out.println("Automode: " + e);
+                    break;
+                }
                 isReset = false;
                 yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
                 pitchAct = navData.getPitch() / 1000f;
                 rollAct = navData.getRoll() / 1000f;
                 zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
 
-                float yaw = dh.GetDiff()[0];
+                float yaw = diff[0];
                 float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
                 if (yawDes >= 180f) {
                     yawDes = (yawAct - 360f) + yaw; // Compensate for illegal desired angles (-180<yaw<180)
-                } else if (yawDes <= -180f) {
+                }
+                else if (yawDes <= -180f) {
                     yawDes = (yawAct + 360f) + yaw;
                 }
 
@@ -148,23 +181,20 @@ public class Regulator extends TimerTask {
                 yawPID.setInput(mapAngles(yawAct)); // map the actual yaw angle to values in [-1,1]
                 droneInputs[3] = yawPID.runPID();
                 // DEBUG
-                System.out.println("Desired yaw angle: " + yawDes + " - actual yaw angle: " + yawAct);
-                System.out.println("-----------------------------------------------------------");
-                System.out.println("Yaw control input: " + droneInputs[3]);
-                System.out.println("-----------------------------------------------------------");
 
-                float z = dh.GetDiff()[1] / 100f;
+                float z = diff[1] / 100f;
                 float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
                 zPID.setSetpoint(zDes);
                 zPID.setInput(zAct);
                 droneInputs[2] = zPID.runPID();
                 // DEBUG
-                System.out.println("Desired altitude: " + zDes + " - actual altitude: " + zAct);
-                System.out.println("-----------------------------------------------------------");
-                System.out.println("Z control input: " + droneInputs[2]);
-                System.out.println("-----------------------------------------------------------");
-                
-                
+                System.out.println("Desired yaw angle: " + yawDes
+                        + "  |  actual yaw angle: " + yawAct
+                        + "  |  Yaw control input: " + droneInputs[3]
+                        + "  |  Desired altitude: " + zDes
+                        + "  |  actual altitude: " + zAct
+                        + "  |  Z control input: " + droneInputs[2]);
+
                 // TODO: control algorithms for pitch
                 droneInputs[1] = droneInputs[0] = 0f;
                 dc.move(droneInputs);
@@ -197,11 +227,13 @@ public class Regulator extends TimerTask {
      convert angles between -180 to 180 into values between -1 and 1 (float)
      */
 
-    private float mapAngles(float angle) {
+    private float mapAngles(float angle)
+    {
         return angle / 180f;
     }
-    
-    private void setupControllers() {
+
+    private void setupControllers()
+    {
         // set up the PD-controller for the yaw axis
         yawPID = new PIDController(0, 0, 0, TIME_SHIFT);
         yawPID.setContinuous();
@@ -220,6 +252,7 @@ public class Regulator extends TimerTask {
         // Load and set PID gains
         loadAndSetGainParameters();
     }
+
     private void loadAndSetGainParameters()
     {
         String s;
@@ -228,24 +261,24 @@ public class Regulator extends TimerTask {
                     new File(System.getProperty("user.dir")
                             + "\\PIDparameters.txt"));
             String[] paramStrs = s.split(" ");
-            
-        float[] params = new float[Array.getLength(paramStrs)];
-        for (int i = 0; i < Array.getLength(paramStrs); i++) {
-            params[i] = Float.valueOf(paramStrs[i]);
-        }
-        yawPID.setKp(params[0]);
-        yawPID.setKi(params[1]);
-        yawPID.setKd(params[2]);
-        zPID.setKp(params[3]);
-        zPID.setKi(params[4]);
-        zPID.setKd(params[5]);
-        pitchPID.setKp(params[6]);
-        pitchPID.setKi(params[7]);
-        pitchPID.setKd(params[8]);
+
+            float[] params = new float[Array.getLength(paramStrs)];
+            for (int i = 0; i < Array.getLength(paramStrs); i++) {
+                params[i] = Float.valueOf(paramStrs[i]);
+            }
+            yawPID.setKp(params[0]);
+            yawPID.setKi(params[1]);
+            yawPID.setKd(params[2]);
+            zPID.setKp(params[3]);
+            zPID.setKi(params[4]);
+            zPID.setKd(params[5]);
+            pitchPID.setKp(params[6]);
+            pitchPID.setKi(params[7]);
+            pitchPID.setKd(params[8]);
         }
         catch (IOException ex) {
             System.out.println("Parameter Loading Failed: " + ex);
         }
-        
+
     }
 }

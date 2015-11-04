@@ -34,7 +34,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private Regulator regulator;
     private final ProcessedImagePanel pil;
     private final CircleDetection cd;
-
+    private final DataHandler dh;
     private final double HSV_INCR = 0.05;
     DecimalFormat df = new DecimalFormat("#.###");
 
@@ -45,13 +45,15 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             DroneControl cont,
             ProcessedImagePanel pil,
             TimerTask regulator,
-            CircleDetection cd)
+            CircleDetection cd,
+            DataHandler dh)
     {
         this.drone = drone;
         this.cont = cont;
         this.pil = pil;
         this.regulator = (Regulator) regulator;
         this.cd = cd;
+        this.dh = dh;
         v1 = new VideoListener(drone);
         navData = new NavDataListener(drone);
         try {
@@ -979,11 +981,18 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private void snapshotButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_snapshotButtonActionPerformed
     {//GEN-HEADEREND:event_snapshotButtonActionPerformed
         try {
-            String name = "" + System.currentTimeMillis();
+            String name = "" + dh.getCentroidAndRadius()[2];
             File outputfile = new File(name + ".png");
             ImageIO.write(v1.getImage(), "png", outputfile);
         }
         catch (IOException e) {
+            try {
+                String name = "" + System.currentTimeMillis();
+                File outputfile = new File(name + ".png");
+                ImageIO.write(v1.getImage(), "png", outputfile);
+            }
+            catch (IOException ex) {
+            }
         }
     }//GEN-LAST:event_snapshotButtonActionPerformed
 
