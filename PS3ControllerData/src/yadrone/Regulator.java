@@ -32,6 +32,7 @@ public class Regulator extends TimerTask
     private PIDController zPID;
     private PIDController pitchPID;
     private boolean isReset;
+    private boolean scanning;
 
     public Regulator(DroneControl dc, DataHandler dh, int CYCLE_TIME)
     {
@@ -151,85 +152,86 @@ public class Regulator extends TimerTask
     @Override
     public void run()
     {
-        while (true) {
-            long start = System.currentTimeMillis();
-            // Only run while drone is in autonomous mode, and the drone has found a hulahoop
-            while (autoMode && dh.HasCircle()) {
-                float[] diff = new float[4];
-                try {
-                    diff = dh.GetDiff();
-                }
-                catch (Exception e) {
-                    System.out.println("Automode: " + e);
-                    break;
-                }
-                isReset = false;
-                yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
-                pitchAct = navData.getPitch() / 1000f;
-                rollAct = navData.getRoll() / 1000f;
-                zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
 
-                float yaw = diff[0];
-                float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
-                if (yawDes >= 180f) {
-                    yawDes = (yawAct - 360f) + yaw; // Compensate for illegal desired angles (-180<yaw<180)
-                }
-                else if (yawDes <= -180f) {
-                    yawDes = (yawAct + 360f) + yaw;
-                }
-
-                yawPID.setSetpoint(mapAngles(yawDes)); // map the desired yaw angle to values in [-1,1]
-                yawPID.setInput(mapAngles(yawAct)); // map the actual yaw angle to values in [-1,1]
-                droneInputs[3] = yawPID.runPID();
-                // DEBUG
-
-                float z = diff[1] / 100f;
-                float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
-                zPID.setSetpoint(zDes);
-                zPID.setInput(zAct);
-                droneInputs[2] = zPID.runPID();
-                // DEBUG
-                System.out.println("Desired yaw angle: " + yawDes
-                        + "  |  actual yaw angle: " + yawAct
-                        + "  |  Yaw control input: " + droneInputs[3]
-                        + "  |  Desired altitude: " + zDes
-                        + "  |  actual altitude: " + zAct
-                        + "  |  Z control input: " + droneInputs[2]);
-
-                // TODO: control algorithms for pitch
-                droneInputs[1] = droneInputs[0] = 0f;
-                dc.move(droneInputs);
+        long start = System.currentTimeMillis();
+        // Only run while drone is in autonomous mode, and the drone has found a hulahoop
+        if (autoMode && dh.HasCircle()) {
+            float[] diff = new float[4];
+            try {
+                diff = dh.GetDiff();
             }
-            while (autoMode && !dh.HasCircle()) {
-                isReset = false;
-                // Reset yaw and pitch PIDs
-                pitchPID.reset();
-                yawPID.reset();
-                // Scan the surroundings for rings
-                zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
-                zPID.setSetpoint(1.0f); // Fly to 1,0 m height and scan
-                zPID.setInput(zAct);
-                droneInputs[3] = 0.1f;
-                droneInputs[2] = zPID.runPID();
-                droneInputs[0] = droneInputs[1] = 0f;
-                dc.move(droneInputs);
+            catch (Exception e) {
+                System.out.println("Automode: " + e);
+            }
+            isReset = false;
+            yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
+            pitchAct = navData.getPitch() / 1000f;
+            rollAct = navData.getRoll() / 1000f;
+            zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
+
+            float yaw = diff[0];
+            float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
+            if (yawDes >= 180f) {
+                yawDes = (yawAct - 360f) + yaw; // Compensate for illegal desired angles (-180<yaw<180)
+            }
+            else if (yawDes <= -180f) {
+                yawDes = (yawAct + 360f) + yaw;
             }
 
-            while (!autoMode && !isReset) {
-                // if the drone is not in autoMode, we reset the controllers
-                droneInputs[0] = droneInputs[1] = droneInputs[2] = droneInputs[3] = 0f;
-                pitchPID.reset();
-                zPID.reset();
-                yawPID.reset();
-                isReset = true;
-            }
-            System.out.println("Cycletime regulator: " + (System.currentTimeMillis() - start));
+            yawPID.setSetpoint(mapAngles(yawDes)); // map the desired yaw angle to values in [-1,1]
+            yawPID.setInput(mapAngles(yawAct)); // map the actual yaw angle to values in [-1,1]
+            droneInputs[3] = yawPID.runPID();
+            // DEBUG
+
+            float z = diff[1] / 100f;
+            float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
+            zPID.setSetpoint(zDes);
+            zPID.setInput(zAct);
+            droneInputs[2] = zPID.runPID();
+            // DEBUG
+            System.out.println("Desired yaw angle: " + yawDes
+                    + "  |  actual yaw angle: " + yawAct
+                    + "  |  Yaw control input: " + droneInputs[3]
+                    + "  |  Desired altitude: " + zDes
+                    + "  |  actual altitude: " + zAct
+                    + "  |  Z control input: " + droneInputs[2]);
+
+            // TODO: control algorithms for pitch
+            droneInputs[1] = droneInputs[0] = 0f;
+            dc.move(droneInputs);
+            scanning = false;
         }
+        if (autoMode && !dh.HasCircle() && !scanning) {
+            isReset = false;
+            // Reset yaw and pitch PIDs
+            pitchPID.reset();
+            yawPID.reset();
+            // Scan the surroundings for rings
+//                zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
+//                zPID.setSetpoint(1.0f); // Fly to 1,0 m height and scan
+//                zPID.setInput(zAct);
+            droneInputs[3] = 0.0f;
+            droneInputs[2] = 0.0f;
+            droneInputs[0] = droneInputs[1] = 0f;
+            dc.move(droneInputs);
+            scanning = true;
+        }
+
+        if (!autoMode && !isReset) {
+            // if the drone is not in autoMode, we reset the controllers
+            droneInputs[0] = droneInputs[1] = droneInputs[2] = droneInputs[3] = 0f;
+            pitchPID.reset();
+            zPID.reset();
+            yawPID.reset();
+            isReset = true;
+            scanning = false;
+        }
+        System.out.println("Cycletime regulator: " + (System.currentTimeMillis() - start));
     }
+
     /*
      convert angles between -180 to 180 into values between -1 and 1 (float)
      */
-
     private float mapAngles(float angle)
     {
         return angle / 180f;

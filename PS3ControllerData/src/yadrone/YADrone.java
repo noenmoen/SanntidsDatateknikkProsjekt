@@ -25,7 +25,7 @@ import java.util.logging.Level;
 public class YADrone
 {
 
-    static final int PERIOD = 500;
+    static final int PERIOD = 50; 
     static IARDrone drone;
     static PS3ControllerReader reader;
     static Timer timer = new Timer();
@@ -51,7 +51,7 @@ public class YADrone
         Thread guiThread = new Thread(gui);
         
 //==============================================================================
-// Start threds
+// Start threads
 //============================================================================== 
         reader.start();
         timer.scheduleAtFixedRate(reg, 0,PERIOD);
