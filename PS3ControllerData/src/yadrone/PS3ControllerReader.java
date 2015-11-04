@@ -9,7 +9,6 @@ package yadrone;
  *
  * @author vegard
  */
-
 import com.codeminders.ardrone.controllers.*;
 
 import com.codeminders.ardrone.controllers.hid.manager.HIDControllerFinder;
@@ -50,13 +49,17 @@ public class PS3ControllerReader extends Thread {
 
                 state = c.read();
                 ControllerStateChange cont_change = new ControllerStateChange(oldState, state);
-                if (cont_change.isChanged()) setState(state);
+                if (cont_change.isChanged()) {
+                    setState(state);
+                }
                 oldState = state;
+
             }
         } catch (IOException ex) {
             Logger.getLogger(PS3ControllerReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
 
     private void setState(GameControllerState s) {
         try {
@@ -66,7 +69,13 @@ public class PS3ControllerReader extends Thread {
         }
         if (!storage.getAvailable()) {
             storage.setState(s);
-            
+        }
+        // If cross is pressed, set a flag that lands the drone even if in auto mode.
+        if (state.isCross()) {
+            // If the previous flag is read
+            if (!storage.isNewFlag()) {
+                storage.setLandingFlag();
+            }
         }
         sem.release();
     }

@@ -20,6 +20,7 @@ import com.codeminders.ardrone.controllers.GameControllerState;
 public class ControllerStateStorage {
 
     private boolean available;
+    private boolean newFlag;
     private GameControllerState state;
     public ControllerStateStorage() {
         available = false;
@@ -35,10 +36,18 @@ public class ControllerStateStorage {
 
     }
 
-    public void setState(GameControllerState state) {
-        
+    public void setState(GameControllerState state) {        
         this.state = state;
         available = true;
+    }
+    public void setLandingFlag() {
+        newFlag = true;        
+    }
+    public void getLandingFlag() {
+        newFlag = false;
+    }
+    public boolean isNewFlag() {
+        return newFlag;
     }
 
 }

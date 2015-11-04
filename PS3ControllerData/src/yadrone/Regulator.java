@@ -26,35 +26,13 @@ public class Regulator extends TimerTask {
     private PIDController yawPID;
     private PIDController zPID;
     private PIDController pitchPID;
+    private boolean isReset;
 
     public Regulator(DroneControl dc, DataHandler dh, float CYCLE_TIME) {
         TIME_SHIFT = CYCLE_TIME;
         navData = new NavDataListener(dc.getDrone());
         this.dh = dh;
-
-        // set up the PD-controller for the yaw axis
-        yawPID = new PIDController(0, 0, 0, TIME_SHIFT);
-        yawPID.setContinuous();
-        yawPID.setInputRange(-1f, 1f);
-        yawPID.setOutputRange(-0.5f, 0.5f);
-        yawPID.setKp(4.5f);
-        yawPID.setKi(0.0f);
-        yawPID.setKd(0.65f);
-
-        // set up the P-controller for the z axis
-        zPID = new PIDController(0, 0, 0, TIME_SHIFT);
-        zPID.setContinuous(false);
-        zPID.setOutputRange(-0.5f, 0.5f);
-        zPID.setKp(0.65f);
-        zPID.setKi(0.0f);
-        zPID.setKd(0.0f);
-        // set up the PD-controller for the pitch axis
-        pitchPID = new PIDController(0, 0, 0, TIME_SHIFT);
-        pitchPID.setContinuous(false);
-        pitchPID.setOutputRange(-0.2f, 0.2f);
-        pitchPID.setKp(0.2f);
-        pitchPID.setKi(0.0f);
-        pitchPID.setKd(0.15f);
+        setupControllers();
         autoMode = false;
 //        autoMode = true; // for testing purposes, remove before flight!
     }
@@ -148,6 +126,7 @@ public class Regulator extends TimerTask {
         while (true) {
             // Only run while drone is in autonomous mode, and the drone has found a hulahoop
             while (autoMode && dh.HasCircle()) {
+                isReset = false;
                 yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
                 pitchAct = navData.getPitch() / 1000f;
                 rollAct = navData.getRoll() / 1000f;
@@ -167,6 +146,8 @@ public class Regulator extends TimerTask {
                 // DEBUG
                 System.out.println("Desired yaw angle: " + yawDes + " - actual yaw angle: " + yawAct);
                 System.out.println("-----------------------------------------------------------");
+                System.out.println("Yaw control input: " + droneInputs[3]);
+                System.out.println("-----------------------------------------------------------");
 
                 float z = dh.GetDiff()[1] / 100f;
                 float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
@@ -176,22 +157,35 @@ public class Regulator extends TimerTask {
                 // DEBUG
                 System.out.println("Desired altitude: " + zDes + " - actual altitude: " + zAct);
                 System.out.println("-----------------------------------------------------------");
-
+                System.out.println("Z control input: " + droneInputs[2]);
+                System.out.println("-----------------------------------------------------------");
+                
+                
                 // TODO: control algorithms for pitch
                 droneInputs[1] = droneInputs[0] = 0f;
                 dc.move(droneInputs);
             }
             while (autoMode && !dh.HasCircle()) {
-                // TODO: method for finding rings!
+                isReset = false;
+                // Reset yaw and pitch PIDs
+                pitchPID.reset();
+                yawPID.reset();
+                // Scan the surroundings for rings
+                zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
+                zPID.setSetpoint(1.5f); // Fly to 1,5 m height and scan
+                zPID.setInput(zAct);
+                droneInputs[3] = 0.1f;
+                droneInputs[0] = droneInputs[1] = droneInputs[2] = 0f;
+                dc.move(droneInputs);
             }
 
-            while (!autoMode) {
+            while (!autoMode && !isReset) {
                 // if the drone is not in autoMode, we reset the controllers
                 droneInputs[0] = droneInputs[1] = droneInputs[2] = droneInputs[3] = 0f;
-                dc.move(droneInputs);
                 pitchPID.reset();
                 zPID.reset();
                 yawPID.reset();
+                isReset = true;
             }
         }
     }
@@ -201,5 +195,32 @@ public class Regulator extends TimerTask {
 
     private float mapAngles(float angle) {
         return angle / 180f;
+    }
+    
+    private void setupControllers() {
+        // set up the PD-controller for the yaw axis
+        yawPID = new PIDController(0, 0, 0, TIME_SHIFT);
+        yawPID.setContinuous();
+        yawPID.setInputRange(-1f, 1f);
+        yawPID.setOutputRange(-0.5f, 0.5f);
+        yawPID.setKp(4.5f);
+        yawPID.setKi(0.0f);
+        yawPID.setKd(0.65f);
+
+        // set up the P-controller for the z axis
+        zPID = new PIDController(0, 0, 0, TIME_SHIFT);
+        zPID.setContinuous(false);
+        zPID.setOutputRange(-0.5f, 0.5f);
+        zPID.setKp(0.65f);
+        zPID.setKi(0.0f);
+        zPID.setKd(0.0f);
+        // set up the PD-controller for the pitch axis
+        pitchPID = new PIDController(0, 0, 0, TIME_SHIFT);
+        pitchPID.setContinuous(false);
+        // Limit the pitch angle, aggressive manouvers are not desirable
+        pitchPID.setOutputRange(-0.2f, 0.2f);
+        pitchPID.setKp(0.2f);
+        pitchPID.setKi(0.0f);
+        pitchPID.setKd(0.15f);
     }
 }

@@ -162,4 +162,13 @@ public class DataHandler {
         }
         return null;
     }
+
+    public double getMIN_DISTANCE_RADIUS() {
+        return MIN_DISTANCE_RADIUS;
+    }
+
+    public double getMIN_DISTANCE_METER() {
+        return MIN_DISTANCE_METER;
+    }
+    
 }
