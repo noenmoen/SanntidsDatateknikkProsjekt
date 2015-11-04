@@ -209,7 +209,7 @@ public class CircleDetection extends Thread implements ImageListener
             }
         }
         else {
-            System.out.println("could not find any circles!");
+            //System.out.println("could not find any circles!");
         }
         try {
             Point pFilt = new Point(dh.getAvg()[0], dh.getAvg()[1]);
@@ -234,6 +234,7 @@ public class CircleDetection extends Thread implements ImageListener
                     image = ic.BufferedImageToMat(bufferedImage);
                 }
                 catch (Exception e) {
+                    System.out.println("Failed to aquire image: "+e);
                 }
             }
             oldImage = image;
@@ -311,6 +312,7 @@ public class CircleDetection extends Thread implements ImageListener
     public synchronized void imageUpdated(BufferedImage bi)
     {
         bufferedImage = bi;
+        System.out.println("Buffered image updated!");
     }
 
     /**

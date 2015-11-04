@@ -61,8 +61,8 @@ public class ImageConverter
     {
         int rows = image.getHeight();
         int cols = image.getWidth();
-        System.out.println(
-                "Resolution: " + image.getWidth() + "x" + image.getHeight());
+        // System.out.println(
+        //       "Resolution: " + image.getWidth() + "x" + image.getHeight());
         int type = CvType.CV_8UC3;
         Mat newMat = new Mat(rows, cols, type);
         byte[] data = 
