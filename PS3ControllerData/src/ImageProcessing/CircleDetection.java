@@ -567,13 +567,13 @@ public class CircleDetection extends Thread implements ImageListener
         for (int i = 0; i < Array.getLength(paramStrs); i++) {
             params[i] = Double.valueOf(paramStrs[i]);
         }
-        this.hl = params[0];
-        this.hu = params[1];
-        this.sl = params[2];
-        this.su = params[3];
-        this.vl = params[4];
-        this.vu = params[5];
-        this.sigmaX = params[6];
+        hl = params[0];
+        hu = params[1];
+        sl = params[2];
+        su = params[3];
+        vl = params[4];
+        vu = params[5];
+        sigmaX = params[6];
         }
         catch (IOException ex) {
             System.out.println("Parameter Loading Failed: " + ex);
