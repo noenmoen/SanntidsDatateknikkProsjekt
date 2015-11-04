@@ -152,6 +152,7 @@ public class Regulator extends TimerTask
     public void run()
     {
         while (true) {
+            long start = System.currentTimeMillis();
             // Only run while drone is in autonomous mode, and the drone has found a hulahoop
             while (autoMode && dh.HasCircle()) {
                 float[] diff = new float[4];
@@ -222,6 +223,7 @@ public class Regulator extends TimerTask
                 yawPID.reset();
                 isReset = true;
             }
+            System.out.println("Cycletime regulator: " + (System.currentTimeMillis() - start));
         }
     }
     /*
