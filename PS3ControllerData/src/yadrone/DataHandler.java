@@ -20,15 +20,14 @@ public class DataHandler {
     private Deque<double[]> centroidAndRadiusFilt = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
-    private double[] avg = new double[3];  
-    private final double MIN_DISTANCE_RADIUS = 148;
-    private final double MIN_DISTANCE_METER = 1.51;
-    
+    private double[] avg = new double[3];
+    private float minDistance = 148;
+    private float distanceDiff = 0;
+
     public DataHandler() {
     }
 
-    public synchronized double[] getAvg()
-    {
+    public synchronized double[] getAvg() {
         return avg;
     }
 
@@ -57,7 +56,7 @@ public class DataHandler {
         diff[1] = -((float) getCentroidAndRadius()[1] - imageHeight / 2);
 
         //System.out.println("Filtered values: YAW diff: " + diff[0]
-          //      + " Altitude Diff: " + diff[1]);
+        //      + " Altitude Diff: " + diff[1]);
         return diff;
 
     }
@@ -96,7 +95,7 @@ public class DataHandler {
 
     public synchronized boolean HasCircle() {
         return !centroidAndRadiusFilt.isEmpty();
-           
+
     }
 
     /**
@@ -128,7 +127,7 @@ public class DataHandler {
         double sumX = 0;
         double sumY = 0;
         double sumRadius = 0;
-        
+
         avg[0] = 0;
         avg[1] = 0;
         avg[2] = 0;
@@ -160,12 +159,27 @@ public class DataHandler {
         return null;
     }
 
-    public synchronized float getDiffRad() {
-        return (float) MIN_DISTANCE_RADIUS - (float)this.avg[2];
+    public synchronized float getRealDistance() {
+
+        return (-217.09f + (float) this.avg[2]) / (-47.89f);
     }
 
-    public synchronized double getMIN_DISTANCE_METER() {
-        return MIN_DISTANCE_METER;
+    public synchronized float getMinDistance() {
+        return (-217.09f + minDistance) / (-47.89f);
     }
+
+    public synchronized float getDistanceDiff() {
+        if (HasCircle()) {
+            distanceDiff = getMinDistance()-getRealDistance();
+        }
+        return distanceDiff;
+    }
+
+    public synchronized void setMinDistance(float minDistance) {
+        if(minDistance < 160) this.minDistance = minDistance;
+    }
+    
+    
+
     
 }
