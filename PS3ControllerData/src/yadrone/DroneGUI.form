@@ -270,6 +270,7 @@
                                   <Component id="pitchDerivateTextField" max="32767" attributes="0"/>
                               </Group>
                           </Group>
+                          <Component id="jButtonSaveParametersPID" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -304,7 +305,9 @@
                           <Component id="pitchDerivateTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="zDerivateTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="58" max="32767" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="jButtonSaveParametersPID" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="15" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -421,6 +424,14 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="zDerivateTextFieldActionPerformed"/>
               </Events>
             </Component>
+            <Component class="javax.swing.JButton" name="jButtonSaveParametersPID">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Save Parameters"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonSaveParametersPIDActionPerformed"/>
+              </Events>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="jPanel3">
@@ -494,7 +505,7 @@
                                   <Component id="hueUpperTF" min="-2" pref="138" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="jButtonSaveParameters" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jButtonSaveParametersHSV" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -545,7 +556,7 @@
                           <Component id="jButtonvup" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="26" max="32767" attributes="0"/>
-                      <Component id="jButtonSaveParameters" min="-2" max="-2" attributes="0"/>
+                      <Component id="jButtonSaveParametersHSV" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="snapshotButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -626,6 +637,10 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Gauss filter sigma:"/>
               </Properties>
+              <Events>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="gaussFilterSigmaTextFieldFocusLost"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="gaussFilterSigmaTextFieldActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jButtonhlm">
               <Properties>
@@ -777,13 +792,16 @@
                   <Dimension value="[67, 19]"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonGFSPActionPerformed"/>
+              </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="jButtonSaveParameters">
+            <Component class="javax.swing.JButton" name="jButtonSaveParametersHSV">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Save Parameters"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonSaveParametersActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonSaveParametersHSVActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>
