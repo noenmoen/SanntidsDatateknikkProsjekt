@@ -163,8 +163,8 @@ public class DataHandler {
         return null;
     }
 
-    public double getMIN_DISTANCE_RADIUS() {
-        return MIN_DISTANCE_RADIUS;
+    public float getDiffRad() {
+        return (float) MIN_DISTANCE_RADIUS - (float)this.avg[2];
     }
 
     public double getMIN_DISTANCE_METER() {
