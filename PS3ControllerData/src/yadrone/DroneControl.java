@@ -32,6 +32,7 @@ public class DroneControl extends Thread {
     private Regulator reg;
     private DroneMode mode;
     private boolean flying;
+    private float[] oldInputs = new float[4];
 
     public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage) {
         sem = s;
@@ -71,9 +72,9 @@ public class DroneControl extends Thread {
                     break;
                 case AUTO_MODE:
                     // If the drone is not flying, take off.
-                    if(!flying) {
+                    if (!flying) {
                         drone.getCommandManager().flatTrim();
-                        drone.getCommandManager().takeOff().doFor(2000);
+                        drone.getCommandManager().takeOff();
                         flying = true;
                     }
                     // Check for manual landing input from the DS3
@@ -97,8 +98,8 @@ public class DroneControl extends Thread {
                     break;
                 // Land command from the GUI or DS3 (while automode)
                 case LANDING:
-                    drone.getCommandManager().landing().doFor(3000).flatTrim();
-                    flying=false;
+                    drone.getCommandManager().landing().flatTrim();
+                    flying = false;
             }
         }
     }
@@ -124,8 +125,8 @@ public class DroneControl extends Thread {
         if (st.isTriangle()) {
             drone.getCommandManager().flatTrim();
             System.out.println("Drone take off");
-            drone.getCommandManager().takeOff().doFor(2000);
-            flying=true;
+            drone.getCommandManager().takeOff();
+            flying = true;
 
         }
         // Pressing square will enable/disable free roaming
@@ -155,7 +156,8 @@ public class DroneControl extends Thread {
         if (st.isCross()) {
             System.out.println("Drone landing");
             freeroam = false;
-            drone.getCommandManager().landing().doFor(3000).flatTrim();
+            drone.getCommandManager().landing().
+                    flatTrim();
             flying = false;
 
         }
@@ -174,7 +176,10 @@ public class DroneControl extends Thread {
     }
 
     public void move(float inputs[]) {
-        drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
+        if (oldInputs != inputs) {
+            drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
+        }
+        oldInputs = inputs;
     }
 
     public IARDrone getDrone() {

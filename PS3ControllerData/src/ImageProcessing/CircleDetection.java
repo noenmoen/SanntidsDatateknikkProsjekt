@@ -52,6 +52,7 @@ public class CircleDetection extends Thread implements ImageListener
     private BufferedImage bufferedImage;
     private final ProcessedImagePanel pip;
     private DataHandler dh;
+    private boolean imageUpdated = false;
 
     /**
      *
@@ -225,32 +226,31 @@ public class CircleDetection extends Thread implements ImageListener
     @Override
     public void run()
     {
-        Mat oldImage = null;
         Mat image = null;
+        Mat oldImage = null;
         while (true) {
-            long start = System.currentTimeMillis();
-            while (oldImage == image) {
+            if (isImageUpdated()) {
+                long start = System.currentTimeMillis();
+
                 try {
                     image = ic.BufferedImageToMat(bufferedImage);
-                }
-                catch (Exception e) {
-                    System.out.println("Failed to aquire image: "+e);
-                }
-            }
-            oldImage = image;
-            Imgproc.GaussianBlur(image, image, getGaussKernel(), getSigmaX());
-            Mat originalImage = image.clone();
-            Vector<Mat> HSV = new Vector<>();
+                
 
-            Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
+            //oldImage=image;
+                //bufferedImage = null; // Prevents duplicated processing
+                Imgproc.GaussianBlur(image, image, getGaussKernel(), getSigmaX());
+                Mat originalImage = image.clone();
+                Vector<Mat> HSV = new Vector<>();
 
-            Core.inRange(image, new Scalar(getHl() * 255, getSl() * 255, getVl() * 255),
-                    new Scalar(getHu() * 255, getSu() * 255, getVu() * 255), image);
+                Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
 
-            Core.split(originalImage, HSV);
-            Mat h = HSV.get(0);
-            Mat s = HSV.get(1);
-            Mat v = HSV.get(2);
+                Core.inRange(image, new Scalar(getHl() * 255, getSl() * 255, getVl() * 255),
+                        new Scalar(getHu() * 255, getSu() * 255, getVu() * 255), image);
+
+                Core.split(originalImage, HSV);
+                Mat h = HSV.get(0);
+                Mat s = HSV.get(1);
+                Mat v = HSV.get(2);
 
 //            Mat hg = new Mat();
 //            Mat sg = new Mat();
@@ -270,7 +270,7 @@ public class CircleDetection extends Thread implements ImageListener
 //            Mat ad1 = new Mat();
 //            Mat ad2 = new Mat();
 //            Mat ad3 = new Mat();
-            Mat out = new Mat();
+                Mat out = new Mat();
 //            Core.multiply(h,s,ad1);
 //            Core.multiply(ad1, v, ad2);
 //            Core.multiply(ad2, image, ad3);
@@ -281,14 +281,14 @@ public class CircleDetection extends Thread implements ImageListener
 //            }
 //            iv.show(ad2, "Thresholding: ad2");
 //            iv.show(ad3, "Thresholding: ad3");
-            Mat circles = CircleFinder(image, getDenom(), getCannyThresh_upper(), getCannyThresh_inner(), getCircle_min(), getCircle_max());
+                Mat circles = CircleFinder(image, getDenom(), getCannyThresh_upper(), getCannyThresh_inner(), getCircle_min(), getCircle_max());
 
-            Vector<Mat> channels = new Vector<>();
-            Core.split(originalImage, channels);
-            Core.multiply(channels.get(0), image, channels.get(0));
-            Core.multiply(channels.get(1), image, channels.get(1));
-            Core.multiply(channels.get(2), image, channels.get(2));
-            Core.merge(channels, originalImage);
+                Vector<Mat> channels = new Vector<>();
+                Core.split(originalImage, channels);
+                Core.multiply(channels.get(0), image, channels.get(0));
+                Core.multiply(channels.get(1), image, channels.get(1));
+                Core.multiply(channels.get(2), image, channels.get(2));
+                Core.merge(channels, originalImage);
 //            try {
 //                System.out.println(circles.cols() + " " + circles.rows());
 //                reg.AddNewCoordinate(circles);
@@ -299,12 +299,18 @@ public class CircleDetection extends Thread implements ImageListener
 //                System.out.println(e.getMessage());
 //                out = DrawCircles(circles, originalImage, color, lineWidth);
 //            }
-            out = DrawCircles(circles, originalImage, getColor(), lineWidth);
+                out = DrawCircles(circles, originalImage, getColor(), lineWidth);
 //            iv.show(out, "Resulting Image");
-            pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
-            dh.setImageWidthAndHight(image);
-            dh.addCentroidAndRadius(circles);
-            System.out.println("Cycletime: " + (System.currentTimeMillis() - start));
+                pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
+                dh.setImageWidthAndHight(image);
+                dh.addCentroidAndRadius(circles);
+                }
+                catch (Exception e) {
+                    System.out.println("Failed to aquire image: " + e);
+                }
+                setImageUpdated(false);
+                System.out.println("Circle detection cycletime: " + (System.currentTimeMillis() - start));
+            }
         }
     }
 
@@ -312,7 +318,18 @@ public class CircleDetection extends Thread implements ImageListener
     public synchronized void imageUpdated(BufferedImage bi)
     {
         bufferedImage = bi;
+        setImageUpdated(true);
         System.out.println("Buffered image updated!");
+    }
+
+    public synchronized  boolean isImageUpdated()
+    {
+        return imageUpdated;
+    }
+
+    public synchronized void setImageUpdated(boolean imageUpdated)
+    {
+        this.imageUpdated = imageUpdated;
     }
 
     /**
@@ -564,22 +581,22 @@ public class CircleDetection extends Thread implements ImageListener
                     new File(System.getProperty("user.dir")
                             + "\\imProParameters.txt"));
             String[] paramStrs = s.split(" ");
-            
-        double[] params = new double[Array.getLength(paramStrs)];
-        for (int i = 0; i < Array.getLength(paramStrs); i++) {
-            params[i] = Double.valueOf(paramStrs[i]);
-        }
-        hl = params[0];
-        hu = params[1];
-        sl = params[2];
-        su = params[3];
-        vl = params[4];
-        vu = params[5];
-        sigmaX = params[6];
+
+            double[] params = new double[Array.getLength(paramStrs)];
+            for (int i = 0; i < Array.getLength(paramStrs); i++) {
+                params[i] = Double.valueOf(paramStrs[i]);
+            }
+            hl = params[0];
+            hu = params[1];
+            sl = params[2];
+            su = params[3];
+            vl = params[4];
+            vu = params[5];
+            sigmaX = params[6];
         }
         catch (IOException ex) {
             System.out.println("Parameter Loading Failed: " + ex);
         }
-        
+
     }
 }
