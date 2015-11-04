@@ -91,27 +91,8 @@ public class CircleDetection extends Thread implements ImageListener
         drone.getVideoManager().addImageListener(this);
         this.pip = pip;
         this.dh = dh;
-        String s = "";
-        try {
-            s = FileUtils.readFileToString(
-                    new File(System.getProperty("user.dir")
-                            + "\\imProParameters.txt"));
-        }
-        catch (IOException ex) {
-            System.out.println("FAIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        }
-        String[] paramStrs = s.split(" ");
-        double[] params = new double[Array.getLength(paramStrs)];
-        for (int i = 0; i < Array.getLength(paramStrs); i++) {
-            params[i] = Double.valueOf(paramStrs[i]);
-        }
-        this.hl = params[0];
-        this.hu = params[1];
-        this.sl = params[2];
-        this.su = params[3];
-        this.vl = params[4];
-        this.vu = params[5];
-        this.sigmaX=params[6];
+        loadParameters();
+
     }
 
     /**
@@ -571,5 +552,32 @@ public class CircleDetection extends Thread implements ImageListener
     private boolean isThresholdValueValid(double value)
     {
         return (value >= 0.0) && (value <= 1.0);
+    }
+
+    private void loadParameters()
+    {
+        String s;
+        try {
+            s = FileUtils.readFileToString(
+                    new File(System.getProperty("user.dir")
+                            + "\\imProParameters.txt"));
+            String[] paramStrs = s.split(" ");
+            
+        double[] params = new double[Array.getLength(paramStrs)];
+        for (int i = 0; i < Array.getLength(paramStrs); i++) {
+            params[i] = Double.valueOf(paramStrs[i]);
+        }
+        this.hl = params[0];
+        this.hu = params[1];
+        this.sl = params[2];
+        this.su = params[3];
+        this.vl = params[4];
+        this.vu = params[5];
+        this.sigmaX = params[6];
+        }
+        catch (IOException ex) {
+            System.out.println("Parameter Loading Failed: " + ex);
+        }
+        
     }
 }
