@@ -980,20 +980,28 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 
     private void snapshotButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_snapshotButtonActionPerformed
     {//GEN-HEADEREND:event_snapshotButtonActionPerformed
-        try {
-            String name = "" + dh.getCentroidAndRadius()[2];
-            File outputfile = new File(name + ".png");
-            ImageIO.write(v1.getImage(), "png", outputfile);
-        }
-        catch (IOException e) {
-            try {
+         try {
                 String name = "" + System.currentTimeMillis();
                 File outputfile = new File(name + ".png");
                 ImageIO.write(v1.getImage(), "png", outputfile);
             }
             catch (IOException ex) {
             }
-        }
+        
+//        try {
+//            String name = "" + dh.getCentroidAndRadius()[2];
+//            File outputfile = new File(name + ".png");
+//            ImageIO.write(v1.getImage(), "png", outputfile);
+//        }
+//        catch (IOException e) {
+//            try {
+//                String name = "" + System.currentTimeMillis();
+//                File outputfile = new File(name + ".png");
+//                ImageIO.write(v1.getImage(), "png", outputfile);
+//            }
+//            catch (IOException ex) {
+//            }
+//        }
     }//GEN-LAST:event_snapshotButtonActionPerformed
 
 //==============================================================================
