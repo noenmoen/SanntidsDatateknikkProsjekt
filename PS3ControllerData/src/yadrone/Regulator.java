@@ -15,8 +15,7 @@ import org.apache.commons.io.FileUtils;
  *
  * @author Vegard
  */
-public class Regulator extends TimerTask
-{
+public class Regulator extends TimerTask {
 
     private float[] droneInputs = new float[4];
     private float yawAct;
@@ -34,8 +33,7 @@ public class Regulator extends TimerTask
     private boolean isReset;
     private boolean scanning;
 
-    public Regulator(DroneControl dc, DataHandler dh, int CYCLE_TIME)
-    {
+    public Regulator(DroneControl dc, DataHandler dh, int CYCLE_TIME) {
         TIME_SHIFT = (float) CYCLE_TIME / 1000f;
         navData = new NavDataListener(dc.getDrone());
         this.dh = dh;
@@ -45,13 +43,11 @@ public class Regulator extends TimerTask
 //        autoMode = true; // for testing purposes, remove before flight!
     }
 
-    public synchronized boolean isAutoMode()
-    {
+    public synchronized boolean isAutoMode() {
         return autoMode;
     }
 
-    public synchronized void setAutoMode(boolean autoMode)
-    {
+    public synchronized void setAutoMode(boolean autoMode) {
         this.autoMode = autoMode;
     }
 
@@ -59,108 +55,90 @@ public class Regulator extends TimerTask
      parameters in order to achieve acceptable performance
      @param: Kp = proportional gain, Ki = integral gain, Kd = derivative gain
      */
-    public synchronized void setKpYaw(float kpYaw)
-    {
+    public synchronized void setKpYaw(float kpYaw) {
         yawPID.setKp(kpYaw);
     }
 
-    public synchronized void setKiYaw(float kiYaw)
-    {
+    public synchronized void setKiYaw(float kiYaw) {
         yawPID.setKi(kiYaw);
     }
 
-    public synchronized void setKdYaw(float kdYaw)
-    {
+    public synchronized void setKdYaw(float kdYaw) {
         yawPID.setKd(kdYaw);
     }
 
-    public synchronized void setKpZ(float kpZ)
-    {
+    public synchronized void setKpZ(float kpZ) {
         zPID.setKp(kpZ);
     }
 
-    public synchronized void setKiZ(float kiZ)
-    {
+    public synchronized void setKiZ(float kiZ) {
         zPID.setKi(kiZ);
     }
 
-    public synchronized void setKdZ(float kdZ)
-    {
+    public synchronized void setKdZ(float kdZ) {
         zPID.setKd(kdZ);
     }
 
-    public synchronized void setKpPitch(float kpPitch)
-    {
+    public synchronized void setKpPitch(float kpPitch) {
         pitchPID.setKp(kpPitch);
     }
 
-    public synchronized void setKiPitch(float kiPitch)
-    {
+    public synchronized void setKiPitch(float kiPitch) {
         pitchPID.setKi(kiPitch);
     }
 
-    public synchronized void setKdPitch(float kdPitch)
-    {
+    public synchronized void setKdPitch(float kdPitch) {
         pitchPID.setKd(kdPitch);
     }
 
-    public synchronized float getKpYaw()
-    {
+    public synchronized float getKpYaw() {
         return yawPID.getKp();
     }
 
-    public synchronized float getKiYaw()
-    {
+    public synchronized float getKiYaw() {
         return yawPID.getKi();
     }
 
-    public synchronized float getKdYaw()
-    {
+    public synchronized float getKdYaw() {
         return yawPID.getKd();
     }
 
-    public synchronized float getKpZ()
-    {
+    public synchronized float getKpZ() {
         return zPID.getKp();
     }
 
-    public synchronized float getKiZ()
-    {
+    public synchronized float getKiZ() {
         return zPID.getKi();
     }
 
-    public synchronized float getKdZ()
-    {
+    public synchronized float getKdZ() {
         return zPID.getKd();
     }
 
-    public synchronized float getKpPitch()
-    {
+    public synchronized float getKpPitch() {
         return pitchPID.getKp();
     }
 
-    public synchronized float getKiPitch()
-    {
+    public synchronized float getKiPitch() {
         return pitchPID.getKi();
     }
 
-    public synchronized float getKdPitch()
-    {
+    public synchronized float getKdPitch() {
         return pitchPID.getKd();
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
 
         long start = System.currentTimeMillis();
         // Only run while drone is in autonomous mode, and the drone has found a hulahoop
         if (autoMode && dh.HasCircle()) {
             float[] diff = new float[4];
+            float dist_err = 0;
             try {
                 diff = dh.GetDiff();
-            }
-            catch (Exception e) {
+                dist_err = dh.getDistanceDiff();
+            } catch (Exception e) {
                 System.out.println("Automode: " + e);
             }
             isReset = false;
@@ -173,8 +151,7 @@ public class Regulator extends TimerTask
             float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
             if (yawDes >= 180f) {
                 yawDes = (yawAct - 360f) + yaw; // Compensate for illegal desired angles (-180<yaw<180)
-            }
-            else if (yawDes <= -180f) {
+            } else if (yawDes <= -180f) {
                 yawDes = (yawAct + 360f) + yaw;
             }
 
@@ -188,16 +165,23 @@ public class Regulator extends TimerTask
             zPID.setSetpoint(zDes);
             zPID.setInput(zAct);
             droneInputs[2] = zPID.runPID();
+            float dist = 0;
+            float dist_input = dist - dist_err; // negative pich angle means forward movement, this compensates for this
+            pitchPID.setSetpoint(dist);
+            pitchPID.setInput(dist_input);
+            droneInputs[1] = pitchPID.runPID();
             // DEBUG
             System.out.println("Desired yaw angle: " + yawDes
                     + "  |  actual yaw angle: " + yawAct
                     + "  |  Yaw control input: " + droneInputs[3]
                     + "  |  Desired altitude: " + zDes
                     + "  |  actual altitude: " + zAct
-                    + "  |  Z control input: " + droneInputs[2]);
+                    + "  |  Z control input: " + droneInputs[2]
+                    + "  |  Desired distance: " + dist
+                    + "  |  Actual distance: " + dist_input
+                    + "  |  Pitch control input: " + droneInputs[1]);
 
-            // TODO: control algorithms for pitch
-            droneInputs[1] = droneInputs[0] = 0f;
+            droneInputs[0] = 0f; // Roll angle = 0;
             dc.move(droneInputs);
             scanning = false;
         }
@@ -210,7 +194,7 @@ public class Regulator extends TimerTask
 //                zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
 //                zPID.setSetpoint(1.0f); // Fly to 1,0 m height and scan
 //                zPID.setInput(zAct);
-            droneInputs[3] = 0.0f;
+            droneInputs[3] = 0.0f; // Set a yaw speed for scanning
             droneInputs[2] = 0.0f;
             droneInputs[0] = droneInputs[1] = 0f;
             dc.move(droneInputs);
@@ -232,13 +216,11 @@ public class Regulator extends TimerTask
     /*
      convert angles between -180 to 180 into values between -1 and 1 (float)
      */
-    private float mapAngles(float angle)
-    {
+    private float mapAngles(float angle) {
         return angle / 180f;
     }
 
-    private void setupControllers()
-    {
+    private void setupControllers() {
         // set up the PD-controller for the yaw axis
         yawPID = new PIDController(0, 0, 0, TIME_SHIFT);
         yawPID.setContinuous();
@@ -258,8 +240,7 @@ public class Regulator extends TimerTask
         loadAndSetGainParameters();
     }
 
-    private void loadAndSetGainParameters()
-    {
+    private void loadAndSetGainParameters() {
         String s;
         try {
             s = FileUtils.readFileToString(
@@ -280,8 +261,7 @@ public class Regulator extends TimerTask
             pitchPID.setKp(params[6]);
             pitchPID.setKi(params[7]);
             pitchPID.setKd(params[8]);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             System.out.println("Parameter Loading Failed: " + ex);
         }
 
