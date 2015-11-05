@@ -191,9 +191,7 @@ public class Regulator extends TimerTask {
             pitchPID.reset();
             yawPID.reset();
             // Scan the surroundings for rings
-//                zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
-//                zPID.setSetpoint(1.0f); // Fly to 1,0 m height and scan
-//                zPID.setInput(zAct);
+
             droneInputs[3] = 0.0f; // Set a yaw speed for scanning
             droneInputs[2] = 0.0f;
             droneInputs[0] = droneInputs[1] = 0f;
