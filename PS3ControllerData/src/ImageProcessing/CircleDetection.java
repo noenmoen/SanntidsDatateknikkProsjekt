@@ -27,7 +27,7 @@ import yadrone.DataHandler;
  */
 public class CircleDetection extends Thread implements ImageListener
 {
-
+    
     private int highThreshold;
     private double doublehighThreshold;
     private int lowThreshold = 70;
@@ -93,7 +93,7 @@ public class CircleDetection extends Thread implements ImageListener
         this.pip = pip;
         this.dh = dh;
         loadParameters();
-
+        
     }
 
     /**
@@ -107,9 +107,9 @@ public class CircleDetection extends Thread implements ImageListener
      */
     private Mat MinMaxThreshold(Mat mat, double minThresh, double maxThresh)
     {
-
+        
         Mat newMat = new Mat(mat.size(), mat.type());
-
+        
         double[] data0 = new double[3];
         data0[0] = 0;
         data0[1] = 0;
@@ -120,20 +120,20 @@ public class CircleDetection extends Thread implements ImageListener
         data1[2] = 255;
         int c;
         int r;
-
+        
         for (c = 0; c < mat.width(); c++) {
             for (r = 0; r < mat.height(); r++) {
                 double x = mat.get(r, c)[0];
                 if (x > minThresh && x < maxThresh) {
                     newMat.put(r, c, data1);
-
+                    
                 }
                 else {
                     newMat.put(r, c, data0);
                 }
             }
         }
-
+        
         return newMat;
     }
 
@@ -176,12 +176,12 @@ public class CircleDetection extends Thread implements ImageListener
      */
     private Mat CircleFinder(Mat image, int denominator, int cannyThresh, int centerThresh, int minRatio, int maxRatio)
     {
-
+        
         Mat circles = new Mat();
         Imgproc.HoughCircles(image, circles, Imgproc.CV_HOUGH_GRADIENT, 1,
                 ((image.height() + image.width()) / 2) / denominator,
                 cannyThresh, centerThresh, minRatio, maxRatio);
-
+        
         return circles;
     }
 
@@ -219,34 +219,46 @@ public class CircleDetection extends Thread implements ImageListener
         catch (Exception e) {
             System.out.println("Error printing filtered circle");
         }
-
+        
         return image;
     }
-
+    
     @Override
-    public void run()
+    public synchronized void run()
     {
         Mat image = null;
         Mat oldImage = null;
         while (true) {
-            if (isImageUpdated()) {
+            try {
+                wait();
+
+                //if (isImageUpdated()) {
                 long start = System.currentTimeMillis();
-
-                try {
-                    image = ic.BufferedImageToMat(bufferedImage);
                 
+                image = ic.BufferedImageToMat(bufferedImage);
 
-            //oldImage=image;
+                //oldImage=image;
                 //bufferedImage = null; // Prevents duplicated processing
                 Imgproc.GaussianBlur(image, image, getGaussKernel(), getSigmaX());
                 Mat originalImage = image.clone();
-                Vector<Mat> HSV = new Vector<>();
-
+                Vector<Mat> HSV = new Vector<>();                
                 Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
-
-                Core.inRange(image, new Scalar(getHl() * 255, getSl() * 255, getVl() * 255),
-                        new Scalar(getHu() * 255, getSu() * 255, getVu() * 255), image);
-
+                
+                if (getHl() > getHu()) {
+                    Mat image2 = image.clone();
+                    Core.inRange(image,
+                            new Scalar(0, getSl() * 255, getVl() * 255),
+                            new Scalar(getHu() * 255, getSu() * 255, getVu() * 255), image);
+                    Core.inRange(image2,
+                            new Scalar(getHl() * 255, getSl() * 255, getVl() * 255),
+                            new Scalar(255, getSu() * 255, getVu() * 255), image2);
+                    Core.bitwise_or(image, image2, image);
+                }
+                else {
+                    Core.inRange(image,
+                            new Scalar(getHl() * 255, getSl() * 255, getVl() * 255),
+                            new Scalar(getHu() * 255, getSu() * 255, getVu() * 255), image);
+                }
                 Core.split(originalImage, HSV);
                 Mat h = HSV.get(0);
                 Mat s = HSV.get(1);
@@ -282,7 +294,7 @@ public class CircleDetection extends Thread implements ImageListener
 //            iv.show(ad2, "Thresholding: ad2");
 //            iv.show(ad3, "Thresholding: ad3");
                 Mat circles = CircleFinder(image, getDenom(), getCannyThresh_upper(), getCannyThresh_inner(), getCircle_min(), getCircle_max());
-
+                
                 Vector<Mat> channels = new Vector<>();
                 Core.split(originalImage, channels);
                 Core.multiply(channels.get(0), image, channels.get(0));
@@ -304,29 +316,35 @@ public class CircleDetection extends Thread implements ImageListener
                 pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
                 dh.setImageWidthAndHight(image);
                 dh.addCentroidAndRadius(circles);
-                }
-                catch (Exception e) {
-                    System.out.println("Failed to aquire image: " + e);
-                }
-                setImageUpdated(false);
                 System.out.println("Circle detection cycletime: " + (System.currentTimeMillis() - start));
             }
+            catch (InterruptedException ex) {
+                System.out.println("wait(); in CircleDetection Failed: " + ex);
+            }
+            catch (Exception e) {
+                System.out.println("Failed to aquire image: " + e);
+            }
+            
+            setImageUpdated(false);
+
+            //}
         }
     }
-
+    
     @Override
     public synchronized void imageUpdated(BufferedImage bi)
     {
         bufferedImage = bi;
-        setImageUpdated(true);
+        // setImageUpdated(true);
         System.out.println("Buffered image updated!");
+        notify();
     }
-
-    public synchronized  boolean isImageUpdated()
+    
+    public synchronized boolean isImageUpdated()
     {
         return imageUpdated;
     }
-
+    
     public synchronized void setImageUpdated(boolean imageUpdated)
     {
         this.imageUpdated = imageUpdated;
@@ -567,12 +585,12 @@ public class CircleDetection extends Thread implements ImageListener
             this.vu = vu;
         }
     }
-
+    
     private boolean isThresholdValueValid(double value)
     {
         return (value >= 0.0) && (value <= 1.0);
     }
-
+    
     private void loadParameters()
     {
         String s;
@@ -581,7 +599,7 @@ public class CircleDetection extends Thread implements ImageListener
                     new File(System.getProperty("user.dir")
                             + "\\imProParameters.txt"));
             String[] paramStrs = s.split(" ");
-
+            
             double[] params = new double[Array.getLength(paramStrs)];
             for (int i = 0; i < Array.getLength(paramStrs); i++) {
                 params[i] = Double.valueOf(paramStrs[i]);
@@ -597,6 +615,6 @@ public class CircleDetection extends Thread implements ImageListener
         catch (IOException ex) {
             System.out.println("Parameter Loading Failed: " + ex);
         }
-
+        
     }
 }
