@@ -24,9 +24,16 @@ public class DataHandler {
     private float minDistance = 148;
     private float distanceDiff = 0;
 
+    /**
+     * Constructor
+     */
     public DataHandler() {
     }
 
+    /**
+     *
+     * @return The average radius and centroid data
+     */
     public synchronized double[] getAvg() {
         return avg;
     }
@@ -93,6 +100,10 @@ public class DataHandler {
 
     }
 
+    /**
+     * Determine if there is circle data available
+     * @return
+     */
     public synchronized boolean HasCircle() {
         return !centroidAndRadiusFilt.isEmpty();
 
@@ -159,15 +170,27 @@ public class DataHandler {
         return null;
     }
 
+    /**
+     * 
+     * @return Distance to circle in meters
+     */
     public synchronized float getRealDistance() {
 
         return (-217.09f + (float) this.avg[2]) / (-47.89f);
     }
 
+    /**
+     *
+     * @return 
+     */
     public synchronized float getMinDistance() {
         return (-217.09f + minDistance) / (-47.89f);
     }
 
+    /**
+     *
+     * @return
+     */
     public synchronized float getDistanceDiff() {
         if (HasCircle()) {
             distanceDiff = getMinDistance()-getRealDistance();
@@ -175,6 +198,10 @@ public class DataHandler {
         return distanceDiff;
     }
 
+    /**
+     *
+     * @param minDistance
+     */
     public synchronized void setMinDistance(float minDistance) {
         if(minDistance < 160) this.minDistance = minDistance;
     }
