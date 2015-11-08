@@ -20,12 +20,12 @@ import java.util.logging.Level;
 /**
  *
  * @author vegard
- * 
+ *
  */
 public class YADrone
 {
 
-    static final int PERIOD = 50; 
+    static final int PERIOD = 50;
     static IARDrone drone;
     static PS3ControllerReader reader;
     static Timer timer = new Timer();
@@ -41,20 +41,20 @@ public class YADrone
     {
         declarePS3Controller();
         declareDrone();
-        
+
         DroneControl cont = new DroneControl(drone, mySem, store);
         TimerTask reg = new Regulator(cont, dh, PERIOD);
-        cont.setRegulator((Regulator)reg);
+        cont.setRegulator((Regulator) reg);
         CircleDetection cd = new CircleDetection(
                 1000, 30, 4, 3, 204, 200, 2, drone, 3, pip, dh);
         DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd, dh);
         Thread guiThread = new Thread(gui);
-        
+
 //==============================================================================
 // Start threads
 //============================================================================== 
         reader.start();
-        timer.scheduleAtFixedRate(reg, 0,PERIOD);
+        timer.scheduleAtFixedRate(reg, 0, PERIOD);
         cont.start();
         cd.start();
         guiThread.start();
@@ -77,7 +77,8 @@ public class YADrone
             drone.start();
         }
         catch (Exception exc) {
-            exc.printStackTrace();
+            declareDrone();
+            System.out.println("Failed. Trying to reconnect to drone.");
         }
         drone.getCommandManager().setVideoBitrateControl(VideoBitRateMode.DISABLED); // Test this        
         drone.getCommandManager().setVideoCodec(VideoCodec.H264_360P); // Test this
