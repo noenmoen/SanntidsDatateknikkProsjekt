@@ -16,32 +16,41 @@ import javax.swing.SwingUtilities;
  */
 public class ProcessedImagePanel extends JPanel
 {
-    private BufferedImage bufferedImage=null;
+    private BufferedImage bufferedImage = null;
 
+    /**
+     * Constructor. Sets panel size and visibility
+     */
     public ProcessedImagePanel()
     {
         setSize(640, 360);
         setVisible(true);
     }
-    
+
     @Override
-    public void paint(Graphics g) {
-        
+    public void paint(Graphics g)
+    {
         if (bufferedImage != null) {
             g.drawImage(bufferedImage, 0, 0, bufferedImage.getWidth(),
                     bufferedImage.getHeight(), null);
         }
     }
 
+    /**
+     * Updates and repaints image panel
+     * @param bufferedImage input image
+     */
     public synchronized void setBufferedImage(BufferedImage bufferedImage)
-    {       
+    {
         this.bufferedImage = bufferedImage;
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 repaint();
             }
         });
     }
-    
+
 }
