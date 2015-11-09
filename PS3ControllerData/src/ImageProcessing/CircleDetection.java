@@ -1,8 +1,6 @@
-
 /**
  * Detects circles
  */
-
 package ImageProcessing;
 
 import de.yadrone.base.IARDrone;
@@ -91,7 +89,8 @@ public class CircleDetection extends Thread implements ImageListener {
                 long start = System.currentTimeMillis();
                 image = ic.BufferedImageToMat(bufferedImage);
 
-                Imgproc.GaussianBlur(image, image, getGaussKernel(), getSigmaX());
+                Imgproc.GaussianBlur(image, image, getGaussKernel(),
+                        getSigmaX());
 
                 Mat originalImage = image.clone();
 
@@ -100,19 +99,45 @@ public class CircleDetection extends Thread implements ImageListener {
                 if (getHl() > getHu()) {
                     Mat image2 = image.clone();
                     Core.inRange(image,
-                            new Scalar(0, getSl() * 255, getVl() * 255),
-                            new Scalar(getHu() * 255, getSu() * 255, getVu() * 255), image);
+                            new Scalar(
+                                    0,
+                                    getSl() * 255,
+                                    getVl() * 255),
+                            new Scalar(
+                                    getHu() * 255,
+                                    getSu() * 255,
+                                    getVu() * 255),
+                            image);
                     Core.inRange(image2,
-                            new Scalar(getHl() * 255, getSl() * 255, getVl() * 255),
-                            new Scalar(255, getSu() * 255, getVu() * 255), image2);
+                            new Scalar(
+                                    getHl() * 255,
+                                    getSl() * 255,
+                                    getVl() * 255),
+                            new Scalar(255,
+                                    getSu() * 255,
+                                    getVu() * 255),
+                            image2);
+
                     Core.bitwise_or(image, image2, image);
+
                 } else {
                     Core.inRange(image,
-                            new Scalar(getHl() * 255, getSl() * 255, getVl() * 255),
-                            new Scalar(getHu() * 255, getSu() * 255, getVu() * 255), image);
+                            new Scalar(getHl() * 255,
+                                    getSl() * 255,
+                                    getVl() * 255),
+                            new Scalar(getHu() * 255,
+                                    getSu() * 255,
+                                    getVu() * 255),
+                            image);
                 }
 
-                Mat circles = CircleFinder(image, getDenom(), getCannyThresh_upper(), getCannyThresh_inner(), getCircle_min(), getCircle_max());
+                Mat circles = CircleFinder(
+                        image,
+                        getDenom(),
+                        getCannyThresh_upper(),
+                        getCannyThresh_inner(),
+                        getCircle_min(),
+                        getCircle_max());
 
                 Vector<Mat> channels = new Vector<>();
                 Core.split(originalImage, channels);
@@ -122,11 +147,17 @@ public class CircleDetection extends Thread implements ImageListener {
                 Core.merge(channels, originalImage);
 
                 Mat out = new Mat();
-                out = DrawCircles(circles, originalImage, getColor(), lineWidth);
+                out = DrawCircles(
+                        circles,
+                        originalImage,
+                        getColor(),
+                        lineWidth);
                 pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
                 dh.setImageWidthAndHight(image);
                 dh.addCentroidAndRadius(circles);
-                System.out.println("Circle detection cycletime: " + (System.currentTimeMillis() - start));
+                System.out.println("Circle detection cycletime: "
+                        + (System.currentTimeMillis() - start));
+
             } catch (InterruptedException ex) {
                 System.out.println("wait(); in CircleDetection Failed: " + ex);
             } catch (Exception e) {
@@ -136,7 +167,7 @@ public class CircleDetection extends Thread implements ImageListener {
     }
 
     /**
-     *  Loads image processing parameters
+     * Loads image processing parameters
      */
     private void loadParameters() {
         String s;
@@ -178,12 +209,25 @@ public class CircleDetection extends Thread implements ImageListener {
      * @param maxRatio max_radius = 0: Maximum radius to be detected.
      * @return Mat Circles in 3-layered vector
      */
-    private Mat CircleFinder(Mat image, int denominator, int cannyThresh, int centerThresh, int minRatio, int maxRatio) {
+    private Mat CircleFinder(
+            Mat image,
+            int denominator,
+            int cannyThresh,
+            int centerThresh,
+            int minRatio,
+            int maxRatio) {
 
         Mat circles = new Mat();
-        Imgproc.HoughCircles(image, circles, Imgproc.CV_HOUGH_GRADIENT, 1,
+        Imgproc.HoughCircles(
+                image,
+                circles,
+                Imgproc.CV_HOUGH_GRADIENT,
+                1,
                 ((image.height() + image.width()) / 2) / denominator,
-                cannyThresh, centerThresh, minRatio, maxRatio);
+                cannyThresh,
+                centerThresh,
+                minRatio,
+                maxRatio);
 
         return circles;
     }
@@ -196,7 +240,12 @@ public class CircleDetection extends Thread implements ImageListener {
      * @param lineWidth- 1,2,3,4....
      * @return Mat- the image drawn
      */
-    private Mat DrawCircles(Mat circles, Mat image, Scalar color, int lineWidth) {
+    private Mat DrawCircles(
+            Mat circles,
+            Mat image,
+            Scalar color,
+            int lineWidth) {
+
         Scalar colorFilt = new Scalar(0, 255, 0);
         if (circles.cols() > 0) {
             for (int i = 0; i < circles.cols(); i++) {
@@ -207,7 +256,13 @@ public class CircleDetection extends Thread implements ImageListener {
         }
         try {
             Point pFilt = new Point(dh.getAvg()[0], dh.getAvg()[1]);
-            Imgproc.circle(image, pFilt, (int) dh.getAvg()[2], colorFilt, lineWidth);
+            Imgproc.circle(
+                    image,
+                    pFilt,
+                    (int) dh.getAvg()[2],
+                    colorFilt,
+                    lineWidth);
+
         } catch (Exception e) {
             System.out.println("Error printing filtered circle");
         }
@@ -321,8 +376,9 @@ public class CircleDetection extends Thread implements ImageListener {
     }
 
     /**
-     * Changes the minimum distance between circles, smaller denom gives larger 
-     * distance 
+     * Changes the minimum distance between circles, smaller denom gives larger
+     * distance
+     *
      * @return the denom
      */
     public synchronized int getDenom() {
