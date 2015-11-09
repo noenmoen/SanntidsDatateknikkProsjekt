@@ -46,7 +46,7 @@ public class YADrone
         TimerTask reg = new Regulator(cont, dh, PERIOD);
         cont.setRegulator((Regulator) reg);
         CircleDetection cd = new CircleDetection(
-                1000, 30, 4, 3, 204, 200, 2, drone, 3, pip, dh);
+                1000, 30, 4, 3, drone, 3, pip, dh);
         DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd);
         Thread guiThread = new Thread(gui);
 

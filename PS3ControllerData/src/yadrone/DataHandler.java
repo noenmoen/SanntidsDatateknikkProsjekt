@@ -171,7 +171,7 @@ public class DataHandler {
     }
 
     /**
-     * 
+     * Approximated distance to the ring in meters
      * @return Distance to circle in meters
      */
     public synchronized float getRealDistance() {
@@ -180,7 +180,7 @@ public class DataHandler {
     }
 
     /**
-     *
+     * the minimum distance from the drone given in meters
      * @return 
      */
     public synchronized float getMinDistance() {
@@ -188,7 +188,8 @@ public class DataHandler {
     }
 
     /**
-     *
+     * Gives the approximated distance between the circle and the drone 
+     * in meters
      * @return
      */
     public synchronized float getDistanceDiff() {
@@ -200,6 +201,8 @@ public class DataHandler {
 
     /**
      *
+     * Set the minimum distance from the circle to the drone. This value is 
+     * given in pixels read from the average radius.
      * @param minDistance
      */
     public synchronized void setMinDistance(float minDistance) {
