@@ -161,8 +161,10 @@ public class DataHandler {
         // Returns valid circle
         for (int x = 0; x < centroidAndRadius.cols(); x++) {
             for (int i = 0; i < 3; i++) {
-                if ((double) centroidAndRadius.get(0, x)[i] < avg[i] * (1 + dev)
-                        || (double) centroidAndRadius.get(0, x)[i] > avg[i] * (1 - dev)) {
+                if ((double) centroidAndRadius.get(0, x)[i] 
+                        < avg[i] * (1 + dev)
+                        || (double) centroidAndRadius.get(0, x)[i]
+                        > avg[i] * (1 - dev)) {
                     return centroidAndRadius.get(0, x);
                 }
             }
