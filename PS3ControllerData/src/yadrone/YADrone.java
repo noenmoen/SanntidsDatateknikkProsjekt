@@ -41,7 +41,6 @@ public class YADrone
     {
         declarePS3Controller();
         declareDrone();
-
         DroneControl cont = new DroneControl(drone, mySem, store);
         TimerTask reg = new Regulator(cont, dh, PERIOD);
         cont.setRegulator((Regulator) reg);
@@ -80,7 +79,9 @@ public class YADrone
             declareDrone();
             System.out.println("Failed. Trying to reconnect to drone.");
         }
-        drone.getCommandManager().setVideoBitrateControl(VideoBitRateMode.DISABLED); // Test this        
-        drone.getCommandManager().setVideoCodec(VideoCodec.H264_360P); // Test this
+        drone.getCommandManager().setVideoBitrateControl(
+                VideoBitRateMode.DISABLED); // Test this        
+        drone.getCommandManager().setVideoCodec(
+                VideoCodec.H264_360P); // Test this
     }
 }
