@@ -7,7 +7,6 @@ package yadrone;
 
 import com.codeminders.ardrone.controllers.GameControllerState;
 import de.yadrone.base.IARDrone;
-import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
