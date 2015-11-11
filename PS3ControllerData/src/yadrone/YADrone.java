@@ -57,6 +57,7 @@ public class YADrone
         reader.start();
         timer.scheduleAtFixedRate(reg, 0, PERIOD);
         cont.start();
+        cd.setPriority(10);
         cd.start();
         guiThread.start();
     }
