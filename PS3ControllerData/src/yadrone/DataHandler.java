@@ -15,19 +15,22 @@ public class DataHandler {
 
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 250;
-    private final int CAPACITY = 25;
     private final double dev = 0.1;
+    private int capacity = 25;
     private Deque<double[]> centroidAndRadiusFilt = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
     private double[] avg = new double[3];
     private float minDistance = 148;
     private float distanceDiff = 0;
+    private int[] resolution;
 
     /**
      * Constructor
      */
-    public DataHandler() {
+    public DataHandler(int[] resolution) {
+        this.resolution = resolution;
+        setImageWidthAndHight();
     }
 
     /**
@@ -43,9 +46,9 @@ public class DataHandler {
      *
      * @param image
      */
-    public synchronized void setImageWidthAndHight(Mat image) {
-        this.imageWidth = image.width();
-        this.imageHeight = image.height();
+    public synchronized void setImageWidthAndHight() {
+        this.imageWidth = this.resolution[0];
+        this.imageHeight = this.resolution[1];
     }
 
     /**
@@ -58,9 +61,9 @@ public class DataHandler {
      */
     public synchronized float[] GetDiff() {
         float[] diff = new float[4];
-        diff[0] = -(((float) getCentroidAndRadius()[0] - imageWidth / 2)
+        diff[0] = (((float) getCentroidAndRadius()[0] - imageWidth / 2)
                 / imageWidth) * 93;
-        diff[1] = -((float) getCentroidAndRadius()[1] - imageHeight / 2);
+        diff[1] = ((float) getCentroidAndRadius()[1] - imageHeight / 2);
 
         //System.out.println("Filtered values: YAW diff: " + diff[0]
         //      + " Altitude Diff: " + diff[1]);
@@ -80,7 +83,7 @@ public class DataHandler {
             if (circle != null) {
                 this.centroidAndRadiusFilt.add(circle);
                 lastTimeCircleDetected = System.currentTimeMillis();
-                if (this.centroidAndRadiusFilt.size() > CAPACITY) {
+                if (this.centroidAndRadiusFilt.size() > capacity) {
                     this.centroidAndRadiusFilt.remove();
                 }
             }
@@ -142,7 +145,7 @@ public class DataHandler {
         avg[0] = 0;
         avg[1] = 0;
         avg[2] = 0;
-
+        // sum CAPACITY
         for (double[] values : this.centroidAndRadiusFilt) {
             sumX += values[0];
             sumY += values[1];
@@ -209,9 +212,14 @@ public class DataHandler {
      */
     public synchronized void setMinDistance(float minDistance) {
         if(minDistance < 160) this.minDistance = minDistance;
-    }
-    
-    
+    }  
 
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
     
 }
