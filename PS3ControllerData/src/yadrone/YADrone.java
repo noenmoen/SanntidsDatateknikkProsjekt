@@ -25,26 +25,30 @@ public class YADrone
 {
 
     static final int PERIOD = 100;
+    static final boolean IS_RESOLUTION_HIGH = false;
     static IARDrone drone;
     static PS3ControllerReader reader;
     static Timer timer = new Timer();
     static Semaphore mySem = new Semaphore(1, true);
     static ControllerStateStorage store = new ControllerStateStorage();
-    static ProcessedImagePanel pip = new ProcessedImagePanel();
     static DataHandler dh = new DataHandler();
+    static int[] resolution = new int[2];
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args)
     {
+        setResolution();
         declarePS3Controller();
         declareDrone();
+
+        ProcessedImagePanel pip = new ProcessedImagePanel(resolution);
         DroneControl cont = new DroneControl(drone, mySem, store);
         TimerTask reg = new Regulator(cont, dh, PERIOD);
         cont.setRegulator((Regulator) reg);
         CircleDetection cd = new CircleDetection(4, drone, pip, dh);
-        DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd);
+        DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd, resolution);
         Thread guiThread = new Thread(gui);
 
 //==============================================================================
@@ -78,8 +82,25 @@ public class YADrone
             System.out.println("Failed. Trying to reconnect to drone.");
         }
         drone.getCommandManager().setVideoBitrateControl(
-                VideoBitRateMode.DISABLED); // Test this        
-        drone.getCommandManager().setVideoCodec(
-                VideoCodec.H264_360P); // Test this
+                VideoBitRateMode.DISABLED); // Test this   
+        if (isResolutionHigh) {
+            drone.getCommandManager().setVideoCodec(VideoCodec.H264_720P);
+        }
+        else {
+            drone.getCommandManager().setVideoCodec(VideoCodec.H264_360P);
+        }
+
+    }
+
+    private static void setResolution()
+    {
+        if (isResolutionHigh) {
+            resolution[0] = 1280;
+            resolution[1] = 720;
+        }
+        else {
+            resolution[0] = 640;
+            resolution[1] = 360;
+        }
     }
 }

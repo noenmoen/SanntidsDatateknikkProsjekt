@@ -24,9 +24,9 @@ public class VideoListener extends JPanel implements ImageListener {
 
     private BufferedImage image = null;
 
-    public VideoListener(final IARDrone drone) {
+    public VideoListener(final IARDrone drone,int[] resolution) {
         
-        setSize(640, 360);
+        setSize(resolution[0], resolution[1]);
         setVisible(true);
 
         drone.getVideoManager().addImageListener(this);

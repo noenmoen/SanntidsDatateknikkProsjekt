@@ -49,14 +49,15 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             DroneControl cont,
             ProcessedImagePanel pil,
             TimerTask regulator,
-            CircleDetection cd)
+            CircleDetection cd,
+            int[] resolution)
     {
         this.drone = drone;
         this.cont = cont;
         this.pil = pil;
         this.regulator = (Regulator) regulator;
         this.cd = cd;
-        v1 = new VideoListener(drone);
+        v1 = new VideoListener(drone,resolution);
         navData = new NavDataListener(drone);
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
