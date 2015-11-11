@@ -94,13 +94,13 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         VideoStreamViewer = v1;
         ImageProcessViewer = pil;
         ButtonPanel1 = new javax.swing.JPanel();
-        jSeparator2 = new javax.swing.JSeparator();
         jLabel4 = new javax.swing.JLabel();
-        yawTextField = new javax.swing.JTextField();
-        pitchTextField = new javax.swing.JTextField();
-        rollTextField = new javax.swing.JTextField();
-        altitudeTextField = new javax.swing.JTextField();
-        batTextField = new javax.swing.JTextField();
+        jPanel5 = new javax.swing.JPanel();
+        yawTextLabel = new javax.swing.JLabel();
+        PitchTextLabel = new javax.swing.JLabel();
+        RollTextLabel = new javax.swing.JLabel();
+        altidudeTextLabel = new javax.swing.JLabel();
+        batteryTextLabel = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         yawProportionalTextField = new javax.swing.JTextField();
@@ -185,35 +185,59 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("Navigation data");
 
-        yawTextField.setText("Yaw:");
+        jPanel5.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        pitchTextField.setText("Pitch:");
+        yawTextLabel.setText("Yaw:");
 
-        rollTextField.setText("Roll:");
+        PitchTextLabel.setText("Pitch:");
 
-        altitudeTextField.setText("Altitude:");
+        RollTextLabel.setText("Roll:");
 
-        batTextField.setText("Battery Status:");
+        altidudeTextLabel.setText("Altidude:");
+
+        batteryTextLabel.setText("Battery:");
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(altidudeTextLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
+                    .addComponent(yawTextLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(PitchTextLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(batteryTextLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
+                    .addComponent(RollTextLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(yawTextLabel)
+                    .addComponent(PitchTextLabel)
+                    .addComponent(RollTextLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(altidudeTextLabel)
+                    .addComponent(batteryTextLabel))
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout ButtonPanel1Layout = new javax.swing.GroupLayout(ButtonPanel1);
         ButtonPanel1.setLayout(ButtonPanel1Layout);
         ButtonPanel1Layout.setHorizontalGroup(
             ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSeparator2)
-            .addGroup(ButtonPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ButtonPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(ButtonPanel1Layout.createSequentialGroup()
-                        .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(altitudeTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
-                            .addComponent(yawTextField, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(pitchTextField)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(batTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
-                            .addComponent(rollTextField))))
+                .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         ButtonPanel1Layout.setVerticalGroup(
@@ -221,18 +245,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ButtonPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel4)
-                .addGap(18, 18, 18)
-                .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(yawTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(rollTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pitchTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(ButtonPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(altitudeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(batTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(441, 441, 441)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6))
         );
 
         jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -872,7 +887,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                     .addComponent(jButtonvlp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonvum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonvup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addComponent(jButtonSaveParametersHSV)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(snapshotButton)
@@ -973,12 +988,12 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ImageProcessViewer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(ButtonPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(ButtonPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -1481,11 +1496,13 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ButtonPanel1;
     private javax.swing.JPanel ImageProcessViewer;
+    private javax.swing.JLabel PitchTextLabel;
+    private javax.swing.JLabel RollTextLabel;
     private javax.swing.JTextField SaturationLowerTF;
     private javax.swing.JPanel VideoStreamViewer;
-    private javax.swing.JTextField altitudeTextField;
+    private javax.swing.JLabel altidudeTextLabel;
     private javax.swing.JButton autoButton;
-    private javax.swing.JTextField batTextField;
+    private javax.swing.JLabel batteryTextLabel;
     private javax.swing.JTextField gaussFilterDimTextField;
     private javax.swing.JTextField gaussFilterSigmaTextField;
     private javax.swing.JTextField hueLowerTF;
@@ -1519,14 +1536,12 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JButton landButton;
     private javax.swing.JButton manButton;
     private javax.swing.JTextField pitchDerivateTextField;
     private javax.swing.JTextField pitchIntegralTextField;
     private javax.swing.JTextField pitchProportionalTextField;
-    private javax.swing.JTextField pitchTextField;
-    private javax.swing.JTextField rollTextField;
     private javax.swing.JTextField saturationUpperTF;
     private javax.swing.JButton snapshotButton;
     private javax.swing.JTextField valueLowerTF;
@@ -1534,7 +1549,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private javax.swing.JTextField yawDerivateTextField;
     private javax.swing.JTextField yawIntegralTextField;
     private javax.swing.JTextField yawProportionalTextField;
-    private javax.swing.JTextField yawTextField;
+    private javax.swing.JLabel yawTextLabel;
     private javax.swing.JTextField zDerivateTextField;
     private javax.swing.JTextField zIntegralTextField;
     private javax.swing.JTextField zProportionalTextField;
@@ -1545,34 +1560,19 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 //============================================================================== 
 //==============================================================================
 
-    private void repaintTextFields()
-    {
-        rollTextField.repaint();
-        pitchTextField.repaint();
-        yawTextField.repaint();
-        altitudeTextField.repaint();
-        batTextField.repaint();
-    }
-
     public void run()
     {
 
         while (true) {
             try {
-                rollTextField.setText("Roll: " + navData.getRoll());
-                pitchTextField.setText("Pitch: " + navData.getPitch());
-                yawTextField.setText("Yaw: " + navData.getYaw());
-                altitudeTextField.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
-                batTextField.setText("Battery status : " + navData.getPercentage() + "%");
+                updateNavDataText();
+
                 //System.out.println("Navdata updated--------------------------------------------------------------------+");
             }
             catch (Exception e) {
                 // System.out.println("NavData Fail -----------------------------------------*");
             }
-
-            repaintTextFields();
         }
-
     }
 
     private void updateTextFields()
@@ -1603,7 +1603,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                 + df.format(cd.getSigmaX()).replace(",", "."));
         // Mask 
         gaussFilterDimTextField.setText("Gauss filter dimensions: "
-                + (int)cd.getGaussKernelDim());
+                + (int) cd.getGaussKernelDim());
 
         // PID
         // ---------------------------------------------------------------------
@@ -1625,6 +1625,31 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     {
         String[] s = text.split(":");
         return s[s.length - 1].trim();
+    }
+
+    private void updateNavDataText()
+    {
+        RollTextLabel.setText("Roll: " + navData.getRoll());
+        PitchTextLabel.setText("Pitch: " + navData.getPitch());
+        yawTextLabel.setText("Yaw: " + navData.getYaw());
+        altidudeTextLabel.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
+        int percentage = navData.getPercentage();
+        if (percentage > 75) {
+            batteryTextLabel.setText(
+                    "<html><font color='green'>Battery status: "
+                    + "<font color='black'>" + percentage + "%</html>");
+        }
+        else if (percentage > 25) {
+            batteryTextLabel.setText(
+                    "<html><font color='yellow'>Battery status: "
+                    + "<font color='black'>" + percentage + "%</html>");
+        }
+        else {
+            batteryTextLabel.setText(
+                    "<html><font color='red'>Battery status: "
+                    + "<font color='black'>" + percentage + "%</html>");
+        }
+
     }
 
 }
