@@ -32,7 +32,7 @@ public class CircleDetection extends Thread implements ImageListener
     private Scalar color = new Scalar(0, 0, 255);
     private int lineWidth = 4;
     private int circle_max = 500;
-    private int circle_min = 20;
+    private int circle_min = 40;
     private int cannyThresh_upper = 1000;
     private int cannyThresh_inner = 30;
     private int denom;
@@ -86,48 +86,14 @@ public class CircleDetection extends Thread implements ImageListener
 
                 long start = System.currentTimeMillis();
                 image = ic.BufferedImageToMat(bufferedImage);
-
+                // Blurr image
                 Imgproc.GaussianBlur(image, image, getGaussKernel(),
                         getSigmaX());
-
+                //Change colorspectrum
                 Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
-
-                if (getHl() > getHu()) {
-                    Mat image2 = image.clone();
-                    Core.inRange(image,
-                            new Scalar(
-                                    0,
-                                    getSl() * 255,
-                                    getVl() * 255),
-                            new Scalar(
-                                    getHu() * 255,
-                                    getSu() * 255,
-                                    getVu() * 255),
-                            image);
-                    Core.inRange(image2,
-                            new Scalar(
-                                    getHl() * 255,
-                                    getSl() * 255,
-                                    getVl() * 255),
-                            new Scalar(255,
-                                    getSu() * 255,
-                                    getVu() * 255),
-                            image2);
-
-                    Core.bitwise_or(image, image2, image);
-
-                }
-                else {
-                    Core.inRange(image,
-                            new Scalar(getHl() * 255,
-                                    getSl() * 255,
-                                    getVl() * 255),
-                            new Scalar(getHu() * 255,
-                                    getSu() * 255,
-                                    getVu() * 255),
-                            image);
-                }
-
+                //Thersholding
+                image = thresholdHSV(image);
+                // Call to houghCircles
                 Mat circles = CircleFinder(
                         image,
                         getDenom(),
@@ -135,16 +101,16 @@ public class CircleDetection extends Thread implements ImageListener
                         getCannyThresh_inner(),
                         getCircle_min(),
                         getCircle_max());
-
+                // Change colorspectrum
                Imgproc.cvtColor(image, image, Imgproc.COLOR_GRAY2RGB);
                 Mat out = new Mat();
+                // Draw circles in threshold image
                 out = DrawCircles(
                         circles,
                         image,
                         getColor(),
                         lineWidth);
                 pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
-                dh.setImageWidthAndHight(image);
                 dh.addCentroidAndRadius(circles);
                 System.out.println("Circle detection cycletime: "
                         + (System.currentTimeMillis() - start));
@@ -536,5 +502,44 @@ public class CircleDetection extends Thread implements ImageListener
     private boolean isThresholdValueValid(double value)
     {
         return (value >= 0.0) && (value <= 1.0);
+    }
+
+    private Mat thresholdHSV(Mat image) {
+        if (getHl() > getHu()) {
+                    Mat image2 = image.clone();
+                    Core.inRange(image,
+                            new Scalar(
+                                    0,
+                                    getSl() * 255,
+                                    getVl() * 255),
+                            new Scalar(
+                                    getHu() * 255,
+                                    getSu() * 255,
+                                    getVu() * 255),
+                            image);
+                    Core.inRange(image2,
+                            new Scalar(
+                                    getHl() * 255,
+                                    getSl() * 255,
+                                    getVl() * 255),
+                            new Scalar(255,
+                                    getSu() * 255,
+                                    getVu() * 255),
+                            image2);
+
+                    Core.bitwise_or(image, image2, image);
+
+                }
+                else {
+                    Core.inRange(image,
+                            new Scalar(getHl() * 255,
+                                    getSl() * 255,
+                                    getVl() * 255),
+                            new Scalar(getHu() * 255,
+                                    getSu() * 255,
+                                    getVu() * 255),
+                            image);
+                }
+        return image;
     }
 }
