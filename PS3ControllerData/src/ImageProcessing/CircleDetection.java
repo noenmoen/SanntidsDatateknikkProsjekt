@@ -23,7 +23,8 @@ import yadrone.DataHandler;
  *
  * @author Morten
  */
-public class CircleDetection extends Thread implements ImageListener {
+public class CircleDetection extends Thread implements ImageListener
+{
 
     private Size gaussKernel = new Size();
     private double sigmaX;
@@ -66,7 +67,8 @@ public class CircleDetection extends Thread implements ImageListener {
             IARDrone drone,
             int bufferSize,
             ProcessedImagePanel pip,
-            DataHandler dh) {
+            DataHandler dh)
+    {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         this.cannyThresh_upper = cannyThresh_upper;
         this.cannyThresh_inner = cannyThresh_inner;
@@ -80,7 +82,8 @@ public class CircleDetection extends Thread implements ImageListener {
     }
 
     @Override
-    public synchronized void run() {
+    public synchronized void run()
+    {
         Mat image = null;
         while (true) {
             try {
@@ -120,7 +123,8 @@ public class CircleDetection extends Thread implements ImageListener {
 
                     Core.bitwise_or(image, image2, image);
 
-                } else {
+                }
+                else {
                     Core.inRange(image,
                             new Scalar(getHl() * 255,
                                     getSl() * 255,
@@ -158,9 +162,11 @@ public class CircleDetection extends Thread implements ImageListener {
                 System.out.println("Circle detection cycletime: "
                         + (System.currentTimeMillis() - start));
 
-            } catch (InterruptedException ex) {
+            }
+            catch (InterruptedException ex) {
                 System.out.println("wait(); in CircleDetection Failed: " + ex);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 System.out.println("Failed to aquire image: " + e);
             }
         }
@@ -169,7 +175,8 @@ public class CircleDetection extends Thread implements ImageListener {
     /**
      * Loads image processing parameters
      */
-    private void loadParameters() {
+    private void loadParameters()
+    {
         String s;
         try {
             s = FileUtils.readFileToString(
@@ -188,7 +195,8 @@ public class CircleDetection extends Thread implements ImageListener {
             vl = params[4];
             vu = params[5];
             sigmaX = params[6];
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             System.out.println("Parameter Loading Failed: " + ex);
         }
 
@@ -215,7 +223,8 @@ public class CircleDetection extends Thread implements ImageListener {
             int cannyThresh,
             int centerThresh,
             int minRatio,
-            int maxRatio) {
+            int maxRatio)
+    {
 
         Mat circles = new Mat();
         Imgproc.HoughCircles(
@@ -244,7 +253,8 @@ public class CircleDetection extends Thread implements ImageListener {
             Mat circles,
             Mat image,
             Scalar color,
-            int lineWidth) {
+            int lineWidth)
+    {
 
         Scalar colorFilt = new Scalar(0, 255, 0);
         if (circles.cols() > 0) {
@@ -263,7 +273,8 @@ public class CircleDetection extends Thread implements ImageListener {
                     colorFilt,
                     lineWidth);
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println("Error printing filtered circle");
         }
 
@@ -271,7 +282,8 @@ public class CircleDetection extends Thread implements ImageListener {
     }
 
     @Override
-    public synchronized void imageUpdated(BufferedImage bi) {
+    public synchronized void imageUpdated(BufferedImage bi)
+    {
         bufferedImage = bi;
         System.out.println("Buffered image updated!");
         notify();
@@ -280,98 +292,128 @@ public class CircleDetection extends Thread implements ImageListener {
     /**
      * @return the gaussKernel
      */
-    public synchronized Size getGaussKernel() {
+    public synchronized int getGaussKernelDim()
+    {
+        return (int) gaussKernel.width;
+    }
+
+    /**
+     * @return the gaussKernel
+     */
+    public synchronized Size getGaussKernel()
+    {
         return gaussKernel;
     }
 
     /**
      * @param gaussKernel the gaussKernel to set
      */
-    public synchronized void setGaussKernel(Size gaussKernel) {
+    public synchronized void setGaussKernelDim(int dim)
+    {
+        this.gaussKernel = new Size(dim, dim);
+    }
+
+    /**
+     * @param gaussKernel the gaussKernel to set
+     */
+    public synchronized void setGaussKernel(Size gaussKernel)
+    {
         this.gaussKernel = gaussKernel;
     }
 
     /**
      * @return the sigmaX
      */
-    public synchronized double getSigmaX() {
+    public synchronized double getSigmaX()
+    {
         return sigmaX;
     }
 
     /**
      * @param sigmaX the sigmaX to set
      */
-    public synchronized void setSigmaX(double sigmaX) {
+    public synchronized void setSigmaX(double sigmaX)
+    {
         this.sigmaX = sigmaX;
     }
 
     /**
      * @return the color
      */
-    public synchronized Scalar getColor() {
+    public synchronized Scalar getColor()
+    {
         return color;
     }
 
     /**
      * @param color the color to set
      */
-    public synchronized void setColor(Scalar color) {
+    public synchronized void setColor(Scalar color)
+    {
         this.color = color;
     }
 
     /**
      * @return the circle_max
      */
-    public synchronized int getCircle_max() {
+    public synchronized int getCircle_max()
+    {
         return circle_max;
     }
 
     /**
      * @param circle_max the circle_max to set
      */
-    public synchronized void setCircle_max(int circle_max) {
+    public synchronized void setCircle_max(int circle_max)
+    {
         this.circle_max = circle_max;
     }
 
     /**
      * @return the circle_min
      */
-    public synchronized int getCircle_min() {
+    public synchronized int getCircle_min()
+    {
         return circle_min;
     }
 
     /**
      * @param circle_min the circle_min to set
      */
-    public synchronized void setCircle_min(int circle_min) {
+    public synchronized void setCircle_min(int circle_min)
+    {
         this.circle_min = circle_min;
     }
 
     /**
      * @return the cannyThresh_upper
      */
-    public synchronized int getCannyThresh_upper() {
+    public synchronized int getCannyThresh_upper()
+    {
         return cannyThresh_upper;
     }
 
     /**
      * @param cannyThresh_upper the cannyThresh_upper to set
      */
-    public synchronized void setCannyThresh_upper(int cannyThresh_upper) {
+    public synchronized void setCannyThresh_upper(int cannyThresh_upper)
+    {
         this.cannyThresh_upper = cannyThresh_upper;
     }
 
     /**
      * @return the cannyThresh_inner
      */
-    public synchronized int getCannyThresh_inner() {
+    public synchronized int getCannyThresh_inner()
+    {
         return cannyThresh_inner;
     }
 
     /**
      * @param cannyThresh_inner the cannyThresh_inner to set
      */
-    public synchronized void setCannyThresh_inner(int cannyThresh_inner) {
+    public synchronized void setCannyThresh_inner(int cannyThresh_inner)
+    {
         this.cannyThresh_inner = cannyThresh_inner;
     }
 
@@ -381,28 +423,32 @@ public class CircleDetection extends Thread implements ImageListener {
      *
      * @return the denom
      */
-    public synchronized int getDenom() {
+    public synchronized int getDenom()
+    {
         return denom;
     }
 
     /**
      * @param denom the denom to set
      */
-    public synchronized void setDenom(int denom) {
+    public synchronized void setDenom(int denom)
+    {
         this.denom = denom;
     }
 
     /**
      * @return the hl
      */
-    public synchronized double getHl() {
+    public synchronized double getHl()
+    {
         return hl;
     }
 
     /**
      * @param hl the hl to set
      */
-    public synchronized void setHl(double hl) {
+    public synchronized void setHl(double hl)
+    {
         if (isThresholdValueValid(hl)) {
             this.hl = hl;
         }
@@ -411,14 +457,16 @@ public class CircleDetection extends Thread implements ImageListener {
     /**
      * @return the hu
      */
-    public synchronized double getHu() {
+    public synchronized double getHu()
+    {
         return hu;
     }
 
     /**
      * @param hu the hu to set
      */
-    public synchronized void setHu(double hu) {
+    public synchronized void setHu(double hu)
+    {
         if (isThresholdValueValid(hu)) {
             this.hu = hu;
         }
@@ -427,14 +475,16 @@ public class CircleDetection extends Thread implements ImageListener {
     /**
      * @return the sl
      */
-    public synchronized double getSl() {
+    public synchronized double getSl()
+    {
         return sl;
     }
 
     /**
      * @param sl the sl to set
      */
-    public synchronized void setSl(double sl) {
+    public synchronized void setSl(double sl)
+    {
         if (isThresholdValueValid(sl)) {
             this.sl = sl;
         }
@@ -443,14 +493,16 @@ public class CircleDetection extends Thread implements ImageListener {
     /**
      * @return the su
      */
-    public synchronized double getSu() {
+    public synchronized double getSu()
+    {
         return su;
     }
 
     /**
      * @param su the su to set
      */
-    public synchronized void setSu(double su) {
+    public synchronized void setSu(double su)
+    {
         if (isThresholdValueValid(su)) {
             this.su = su;
         }
@@ -459,14 +511,16 @@ public class CircleDetection extends Thread implements ImageListener {
     /**
      * @return the vl
      */
-    public synchronized double getVl() {
+    public synchronized double getVl()
+    {
         return vl;
     }
 
     /**
      * @param vl the vl to set
      */
-    public synchronized void setVl(double vl) {
+    public synchronized void setVl(double vl)
+    {
         if (isThresholdValueValid(vl)) {
             this.vl = vl;
         }
@@ -475,20 +529,23 @@ public class CircleDetection extends Thread implements ImageListener {
     /**
      * @return the vu
      */
-    public synchronized double getVu() {
+    public synchronized double getVu()
+    {
         return vu;
     }
 
     /**
      * @param vu the vu to set
      */
-    public synchronized void setVu(double vu) {
+    public synchronized void setVu(double vu)
+    {
         if (isThresholdValueValid(vu)) {
             this.vu = vu;
         }
     }
 
-    private boolean isThresholdValueValid(double value) {
+    private boolean isThresholdValueValid(double value)
+    {
         return (value >= 0.0) && (value <= 1.0);
     }
 }
