@@ -176,7 +176,6 @@ public class DroneControl extends Thread
 
     public void move(float inputs[])
     {
-        System.out.println("************************Called move!***************************");
         cm.move(inputs[0], inputs[1], inputs[2], inputs[3]);
     }
 
