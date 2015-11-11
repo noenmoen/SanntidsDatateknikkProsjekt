@@ -83,7 +83,7 @@ public class YADrone
         }
         drone.getCommandManager().setVideoBitrateControl(
                 VideoBitRateMode.DISABLED); // Test this   
-        if (isResolutionHigh) {
+        if (IS_RESOLUTION_HIGH) {
             drone.getCommandManager().setVideoCodec(VideoCodec.H264_720P);
         }
         else {
@@ -94,7 +94,7 @@ public class YADrone
 
     private static void setResolution()
     {
-        if (isResolutionHigh) {
+        if (IS_RESOLUTION_HIGH) {
             resolution[0] = 1280;
             resolution[1] = 720;
         }
