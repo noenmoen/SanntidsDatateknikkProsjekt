@@ -16,9 +16,11 @@ import java.util.logging.Logger;
  * @author vegard Class for testing flight of the drone using PS3 dual shock
  * controller
  */
-public class DroneControl extends Thread {
+public class DroneControl extends Thread
+{
 
-    public enum DroneMode {
+    public enum DroneMode
+    {
 
         MAN_MODE, AUTO_MODE, LANDING;
     };
@@ -31,7 +33,8 @@ public class DroneControl extends Thread {
     private DroneMode mode;
     private boolean flying;
 
-    public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage) {
+    public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage)
+    {
         sem = s;
         this.storage = storage;
         this.drone = drone;
@@ -40,7 +43,8 @@ public class DroneControl extends Thread {
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         while (true) {
             DroneMode m = getDroneMode();
             switch (m) {
@@ -52,7 +56,8 @@ public class DroneControl extends Thread {
 
                         try {
                             sem.acquire();
-                        } catch (InterruptedException ex) {
+                        }
+                        catch (InterruptedException ex) {
                             Logger.getLogger(DroneControl.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         state = storage.getState();
@@ -69,14 +74,15 @@ public class DroneControl extends Thread {
                 case AUTO_MODE:
                     // If the drone is not flying, take off.
                     if (!flying) {
-                        //drone.getCommandManager().flatTrim();
-                        //drone.getCommandManager().takeOff();
+                        drone.getCommandManager().flatTrim();
+                        drone.getCommandManager().takeOff();
                         flying = true;
                     }
                     // Check for manual landing input from the DS3
                     try {
                         sem.acquire();
-                    } catch (InterruptedException ex) {
+                    }
+                    catch (InterruptedException ex) {
                         Logger.getLogger(DroneControl.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     // If the controller has set the landing flag, always land.
@@ -94,30 +100,38 @@ public class DroneControl extends Thread {
                     break;
                 // Land command from the GUI or DS3 (while automode)
                 case LANDING:
-                    drone.getCommandManager().landing().flatTrim();
-                    flying = false;
+                    if (flying) {
+                        drone.getCommandManager().landing();
+                        drone.getCommandManager().flatTrim();
+                        flying = false;
+                    }
             }
         }
     }
 
     // Converting joystick coordinates (int from -128 to 127) to float values between -1 and 1
-    private float getLeftJoystickX() {
+    private float getLeftJoystickX()
+    {
         return state.getLeftJoystickX() / 128f;
     }
 
-    private float getLeftJoystickY() {
+    private float getLeftJoystickY()
+    {
         return state.getLeftJoystickY() / 128f;
     }
 
-    private float getRightJoystickX() {
+    private float getRightJoystickX()
+    {
         return state.getRightJoystickX() / 128f;
     }
 
-    private float getRightJoystickY() {
+    private float getRightJoystickY()
+    {
         return state.getRightJoystickY() / 128f;
     }
 
-    private void moveMan(GameControllerState st) {
+    private void moveMan(GameControllerState st)
+    {
         if (st.isTriangle()) {
             drone.getCommandManager().flatTrim();
             drone.getCommandManager().takeOff();
@@ -126,8 +140,8 @@ public class DroneControl extends Thread {
 
         // Pressing cross on the DS3 will make the drone land
         if (st.isCross()) {
-            drone.getCommandManager().landing().
-                    flatTrim();
+            drone.getCommandManager().landing();
+            drone.getCommandManager().flatTrim();
             flying = false;
         }
         float[] inputs = new float[4];
@@ -140,23 +154,28 @@ public class DroneControl extends Thread {
         move(inputs);
     }
 
-    public synchronized void setMode(DroneMode mode) {
+    public synchronized void setMode(DroneMode mode)
+    {
         this.mode = mode;
     }
 
-    private synchronized DroneMode getDroneMode() {
+    private synchronized DroneMode getDroneMode()
+    {
         return mode;
     }
 
-    public void setRegulator(Regulator reg) {
+    public void setRegulator(Regulator reg)
+    {
         this.reg = reg;
     }
 
-    public void move(float inputs[]) {
+    public void move(float inputs[])
+    {
         drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
     }
 
-    public IARDrone getDrone() {
+    public IARDrone getDrone()
+    {
         return drone;
     }
 }

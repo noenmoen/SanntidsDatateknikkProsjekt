@@ -38,6 +38,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 
     /**
      * Constructor
+     *
      * @param drone Drone object
      * @param pil Image panel with processed image stream
      * @param cont DroneControl object for receiving navigation data
@@ -76,7 +77,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         df.setRoundingMode(RoundingMode.CEILING);
         initComponents();
         updateTextFields();
-        this.setVisible(true);    }
+        this.setVisible(true);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -141,6 +143,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         jButtonGFSM = new javax.swing.JButton();
         jButtonGFSP = new javax.swing.JButton();
         jButtonSaveParametersHSV = new javax.swing.JButton();
+        gaussFilterDimTextField = new javax.swing.JTextField();
+        jButtonvlp1 = new javax.swing.JButton();
+        jButtonvlp2 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         landButton = new javax.swing.JButton();
         autoButton = new javax.swing.JButton();
@@ -708,7 +713,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                jButtonGFSMActionPerformed(evt);
+                jButtonGFSMactionPerformed(evt);
             }
         });
 
@@ -718,7 +723,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                jButtonGFSPActionPerformed(evt);
+                jButtonGFSPactionPerformed(evt);
             }
         });
 
@@ -728,6 +733,42 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 jButtonSaveParametersHSVActionPerformed(evt);
+            }
+        });
+
+        gaussFilterDimTextField.setText("Gauss filter dimensions:");
+        gaussFilterDimTextField.addFocusListener(new java.awt.event.FocusAdapter()
+        {
+            public void focusLost(java.awt.event.FocusEvent evt)
+            {
+                gaussFilterDimTextFieldFocusLost(evt);
+            }
+        });
+        gaussFilterDimTextField.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                gaussFilterDimTextFieldActionPerformed(evt);
+            }
+        });
+
+        jButtonvlp1.setText("+");
+        jButtonvlp1.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonvlp1.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonGFDPactionPerformed(evt);
+            }
+        });
+
+        jButtonvlp2.setText("-");
+        jButtonvlp2.setPreferredSize(new java.awt.Dimension(67, 19));
+        jButtonvlp2.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButtonGFDMactionPerformed(evt);
             }
         });
 
@@ -763,7 +804,12 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                                 .addComponent(jButtonGFSM, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(jButtonGFSP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(gaussFilterSigmaTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(gaussFilterSigmaTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(gaussFilterDimTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jButtonvlp2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButtonvlp1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -806,13 +852,16 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(SaturationLowerTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(saturationUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(saturationUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(gaussFilterDimTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonslm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonslp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonsum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonsup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButtonsup, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonvlp1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonvlp2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(valueUpperTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -979,14 +1028,14 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 
     private void snapshotButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_snapshotButtonActionPerformed
     {//GEN-HEADEREND:event_snapshotButtonActionPerformed
-         try {
-                String name = "" + System.currentTimeMillis();
-                File outputfile = new File(name + ".png");
-                ImageIO.write(v1.getImage(), "png", outputfile);
-            }
-            catch (IOException ex) {
-            }
-        
+        try {
+            String name = "" + System.currentTimeMillis();
+            File outputfile = new File(name + ".png");
+            ImageIO.write(v1.getImage(), "png", outputfile);
+        }
+        catch (IOException ex) {
+        }
+
 //        try {
 //            String name = "" + dh.getCentroidAndRadius()[2];
 //            File outputfile = new File(name + ".png");
@@ -1383,17 +1432,45 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 //==============================================================================
 // Gauss filter sigma parameter buttons
 //============================================================================== 
-    private void jButtonGFSMActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGFSMActionPerformed
-    {//GEN-HEADEREND:event_jButtonGFSMActionPerformed
+    private void jButtonGFSMactionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGFSMactionPerformed
+    {//GEN-HEADEREND:event_jButtonGFSMactionPerformed
         cd.setSigmaX(cd.getSigmaX() - 1);
         updateTextFields();
-    }//GEN-LAST:event_jButtonGFSMActionPerformed
+    }//GEN-LAST:event_jButtonGFSMactionPerformed
 
-    private void jButtonGFSPActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGFSPActionPerformed
-    {//GEN-HEADEREND:event_jButtonGFSPActionPerformed
+    private void jButtonGFSPactionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGFSPactionPerformed
+    {//GEN-HEADEREND:event_jButtonGFSPactionPerformed
         cd.setSigmaX(cd.getSigmaX() + 1);
         updateTextFields();
-    }//GEN-LAST:event_jButtonGFSPActionPerformed
+    }//GEN-LAST:event_jButtonGFSPactionPerformed
+
+    private void gaussFilterDimTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_gaussFilterDimTextFieldActionPerformed
+    {//GEN-HEADEREND:event_gaussFilterDimTextFieldActionPerformed
+        try {
+            cd.setGaussKernelDim(Integer.valueOf(getValueFromTextInput(
+                    gaussFilterSigmaTextField.getText())));
+        }
+        catch (Exception e) {
+        }
+        updateTextFields();
+    }//GEN-LAST:event_gaussFilterDimTextFieldActionPerformed
+
+    private void gaussFilterDimTextFieldFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_gaussFilterDimTextFieldFocusLost
+    {//GEN-HEADEREND:event_gaussFilterDimTextFieldFocusLost
+        updateTextFields();
+    }//GEN-LAST:event_gaussFilterDimTextFieldFocusLost
+
+    private void jButtonGFDPactionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGFDPactionPerformed
+    {//GEN-HEADEREND:event_jButtonGFDPactionPerformed
+        cd.setGaussKernelDim(cd.getGaussKernelDim() + 1);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonGFDPactionPerformed
+
+    private void jButtonGFDMactionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGFDMactionPerformed
+    {//GEN-HEADEREND:event_jButtonGFDMactionPerformed
+        cd.setGaussKernelDim(cd.getGaussKernelDim() - 1);
+        updateTextFields();
+    }//GEN-LAST:event_jButtonGFDMactionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -1404,6 +1481,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private javax.swing.JTextField altitudeTextField;
     private javax.swing.JButton autoButton;
     private javax.swing.JTextField batTextField;
+    private javax.swing.JTextField gaussFilterDimTextField;
     private javax.swing.JTextField gaussFilterSigmaTextField;
     private javax.swing.JTextField hueLowerTF;
     private javax.swing.JTextField hueUpperTF;
@@ -1421,6 +1499,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private javax.swing.JButton jButtonsup;
     private javax.swing.JButton jButtonvlm;
     private javax.swing.JButton jButtonvlp;
+    private javax.swing.JButton jButtonvlp1;
+    private javax.swing.JButton jButtonvlp2;
     private javax.swing.JButton jButtonvum;
     private javax.swing.JButton jButtonvup;
     private javax.swing.JLabel jLabel1;
@@ -1492,6 +1572,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 
     private void updateTextFields()
     {
+        // HSV
+        // ---------------------------------------------------------------------
+
         // Hue  
         hueLowerTF.setText("H lower thresh: "
                 + df.format(cd.getHl()).replace(",", "."));
@@ -1507,9 +1590,18 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                 + df.format(cd.getVl()).replace(",", "."));
         valueUpperTF.setText("V upper thresh: "
                 + df.format(cd.getVu()).replace(",", "."));
-        // Sigma
+
+        // Gauss filter
+        // ---------------------------------------------------------------------
+        // sigma
         gaussFilterSigmaTextField.setText("Gauss filter sigma: "
                 + df.format(cd.getSigmaX()).replace(",", "."));
+        // Mask 
+        gaussFilterDimTextField.setText("Gauss filter dimensions: "
+                + cd.getGaussKernelDim());
+
+        // PID
+        // ---------------------------------------------------------------------
         // Yaw 
         yawProportionalTextField.setText("Propotional: " + regulator.getKpYaw());
         yawIntegralTextField.setText("Integral: " + regulator.getKiYaw());
