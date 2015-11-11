@@ -164,10 +164,10 @@ public class Regulator extends TimerTask {
             droneInputs[2] = zPID.runPID();
             float dist = 0;
             float dist_input = dist - dist_err; // negative pich angle means forward movement, this compensates for that
-            pitchPID.setSetpoint(dist);
-            pitchPID.setInput(dist_input);
-            droneInputs[1] = pitchPID.runPID();
-//            droneInputs[1]=0;
+//            pitchPID.setSetpoint(dist);
+//            pitchPID.setInput(dist_input);
+//            droneInputs[1] = pitchPID.runPID();
+            droneInputs[1]=0;
             // DEBUG
             System.out.println("YAW D/A/I: " + String.format("%.3f", yawDes) + "/" + 
                     String.format("%.3f", yawAct) + "/" + String.format("%.3f", droneInputs[3])
