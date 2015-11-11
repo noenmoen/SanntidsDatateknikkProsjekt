@@ -21,9 +21,9 @@ public class ProcessedImagePanel extends JPanel
     /**
      * Constructor. Sets panel size and visibility
      */
-    public ProcessedImagePanel()
+    public ProcessedImagePanel(int[] resolution)
     {
-        setSize(640, 360);
+        setSize(resolution[0], resolution[1]);
         setVisible(true);
     }
 
