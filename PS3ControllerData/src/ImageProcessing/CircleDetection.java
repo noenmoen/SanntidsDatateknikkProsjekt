@@ -12,6 +12,7 @@ import java.lang.reflect.Array;
 import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -32,8 +33,8 @@ public class CircleDetection extends Thread implements ImageListener
     private int lineWidth = 4;
     private int circle_max = 500;
     private int circle_min = 20;
-    private int cannyThresh_upper;
-    private int cannyThresh_inner;
+    private int cannyThresh_upper = 1000;
+    private int cannyThresh_inner = 30;
     private int denom;
     private double hl;
     private double hu;
@@ -53,6 +54,8 @@ public class CircleDetection extends Thread implements ImageListener
      * @param cannyThresh_upper
      * @param cannyThresh_inner
      * @param denom
+     * @param pip
+     * @param dh
      * @param kernel
      * @param highthreshold
      * @param lowthreshold
@@ -60,25 +63,17 @@ public class CircleDetection extends Thread implements ImageListener
      * @param sigmaX
      */
     public CircleDetection(
-            int cannyThresh_upper,
-            int cannyThresh_inner,
             int denom,
-            int kernel,
             IARDrone drone,
-            int bufferSize,
             ProcessedImagePanel pip,
             DataHandler dh)
     {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        this.cannyThresh_upper = cannyThresh_upper;
-        this.cannyThresh_inner = cannyThresh_inner;
         this.denom = denom;
-        this.gaussKernel = new Size(kernel, kernel);
         drone.getVideoManager().addImageListener(this);
         this.pip = pip;
         this.dh = dh;
         loadParameters();
-
     }
 
     @Override
@@ -94,8 +89,6 @@ public class CircleDetection extends Thread implements ImageListener
 
                 Imgproc.GaussianBlur(image, image, getGaussKernel(),
                         getSigmaX());
-
-                Mat originalImage = image.clone();
 
                 Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2HSV_FULL);
 
@@ -143,17 +136,11 @@ public class CircleDetection extends Thread implements ImageListener
                         getCircle_min(),
                         getCircle_max());
 
-                Vector<Mat> channels = new Vector<>();
-                Core.split(originalImage, channels);
-                Core.multiply(channels.get(0), image, channels.get(0));
-                Core.multiply(channels.get(1), image, channels.get(1));
-                Core.multiply(channels.get(2), image, channels.get(2));
-                Core.merge(channels, originalImage);
-
+               Imgproc.cvtColor(image, image, Imgproc.COLOR_GRAY2RGB);
                 Mat out = new Mat();
                 out = DrawCircles(
                         circles,
-                        originalImage,
+                        image,
                         getColor(),
                         lineWidth);
                 pip.setBufferedImage((BufferedImage) ic.toBufferedImage(out));
@@ -195,6 +182,7 @@ public class CircleDetection extends Thread implements ImageListener
             vl = params[4];
             vu = params[5];
             sigmaX = params[6];
+            setGaussKernelDim(params[7]);
         }
         catch (IOException ex) {
             System.out.println("Parameter Loading Failed: " + ex);
@@ -292,9 +280,9 @@ public class CircleDetection extends Thread implements ImageListener
     /**
      * @return the gaussKernel
      */
-    public synchronized int getGaussKernelDim()
+    public synchronized double getGaussKernelDim()
     {
-        return (int) gaussKernel.width;
+        return gaussKernel.width;
     }
 
     /**
@@ -308,9 +296,10 @@ public class CircleDetection extends Thread implements ImageListener
     /**
      * @param gaussKernel the gaussKernel to set
      */
-    public synchronized void setGaussKernelDim(int dim)
+    public synchronized void setGaussKernelDim(double dim)
     {
-        this.gaussKernel = new Size(dim, dim);
+        System.out.println("dimension: " + dim);
+        gaussKernel = new Size(dim, dim);
     }
 
     /**
