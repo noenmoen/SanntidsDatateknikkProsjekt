@@ -69,8 +69,8 @@ public class DroneControl extends Thread {
                 case AUTO_MODE:
                     // If the drone is not flying, take off.
                     if (!flying) {
-                        drone.getCommandManager().flatTrim();
-                        drone.getCommandManager().takeOff();
+                        //drone.getCommandManager().flatTrim();
+                        //drone.getCommandManager().takeOff();
                         flying = true;
                     }
                     // Check for manual landing input from the DS3
@@ -132,10 +132,10 @@ public class DroneControl extends Thread {
         }
         float[] inputs = new float[4];
         inputs[0] = getLeftJoystickX();
-        inputs[1] = -getLeftJoystickY();
-        inputs[2] = -getRightJoystickY();
+        inputs[1] = getLeftJoystickY(); // Positive value means going backwards
+        inputs[2] = -getRightJoystickY(); // Negative value means going down
         inputs[3] = getRightJoystickX();
-        System.out.println("Coord: left x = " + getLeftJoystickX() + " left y = " + -getLeftJoystickY() + " right y = " + -getRightJoystickY() + " right x = " + getRightJoystickX());
+        System.out.println("Coord: left x = " + inputs[0] + " left y = " + inputs[1] + " right y = " + inputs[2] + " right x = " + inputs[3]);
         System.out.println("----------------------------------------------------------------------");
         move(inputs);
     }
