@@ -31,7 +31,6 @@ public class YADrone
     static Timer timer = new Timer();
     static Semaphore mySem = new Semaphore(1, true);
     static ControllerStateStorage store = new ControllerStateStorage();
-    static DataHandler dh = new DataHandler();
     static int[] resolution = new int[2];
 
     /**
@@ -43,6 +42,7 @@ public class YADrone
         declarePS3Controller();
         declareDrone();
 
+        DataHandler dh = new DataHandler(resolution);
         ProcessedImagePanel pip = new ProcessedImagePanel(resolution);
         DroneControl cont = new DroneControl(drone, mySem, store);
         TimerTask reg = new Regulator(cont, dh, PERIOD);
