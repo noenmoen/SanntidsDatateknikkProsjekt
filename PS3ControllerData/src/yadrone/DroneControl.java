@@ -7,6 +7,7 @@ package yadrone;
 
 import com.codeminders.ardrone.controllers.GameControllerState;
 import de.yadrone.base.IARDrone;
+import de.yadrone.base.command.CommandManager;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,14 +33,15 @@ public class DroneControl extends Thread
     private Regulator reg;
     private DroneMode mode;
     private boolean flying;
+    private CommandManager cm;
 
     public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage)
     {
         sem = s;
         this.storage = storage;
-        this.drone = drone;
         mode = DroneMode.MAN_MODE;
-
+        this.drone = drone;
+        cm = drone.getCommandManager();     
     }
 
     @Override
@@ -74,8 +76,8 @@ public class DroneControl extends Thread
                 case AUTO_MODE:
                     // If the drone is not flying, take off.
                     if (!flying) {
-                        drone.getCommandManager().flatTrim();
-                        drone.getCommandManager().takeOff();
+                        cm.flatTrim();
+                        cm.takeOff();
                         flying = true;
                     }
                     // Check for manual landing input from the DS3
@@ -104,8 +106,8 @@ public class DroneControl extends Thread
                         reg.setAutoMode(false);
                     }
                     if (flying) {
-                        drone.getCommandManager().landing();
-                        drone.getCommandManager().flatTrim();
+                        cm.landing();
+                        cm.flatTrim();
                         flying = false;
                     }
             }
@@ -136,15 +138,15 @@ public class DroneControl extends Thread
     private void moveMan(GameControllerState st)
     {
         if (st.isTriangle()) {
-            drone.getCommandManager().flatTrim();
-            drone.getCommandManager().takeOff();
+            cm.flatTrim();
+            cm.takeOff();
             flying = true;
         }
 
         // Pressing cross on the DS3 will make the drone land
         if (st.isCross()) {
-            drone.getCommandManager().landing();
-            drone.getCommandManager().flatTrim();
+            cm.landing();
+            cm.flatTrim();
             flying = false;
         }
         float[] inputs = new float[4];
@@ -174,7 +176,8 @@ public class DroneControl extends Thread
 
     public void move(float inputs[])
     {
-        drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
+        System.out.println("************************Called move!***************************");
+        cm.move(inputs[0], inputs[1], inputs[2], inputs[3]);
     }
 
     public IARDrone getDrone()
