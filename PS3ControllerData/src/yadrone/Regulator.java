@@ -19,8 +19,6 @@ public class Regulator extends TimerTask {
 
     private float[] droneInputs = new float[4];
     private float yawAct;
-    private float pitchAct;
-    private float rollAct;
     private float zAct;
     private boolean autoMode;
     private final float TIME_SHIFT;
@@ -143,8 +141,6 @@ public class Regulator extends TimerTask {
             }
             isReset = false;
             yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
-            pitchAct = navData.getPitch() / 1000f;
-            rollAct = navData.getRoll() / 1000f;
             zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
 
             float yaw = diff[0];
@@ -157,7 +153,7 @@ public class Regulator extends TimerTask {
 
             yawPID.setSetpoint(mapAngles(yawDes)); // map the desired yaw angle to values in [-1,1]
             yawPID.setInput(mapAngles(yawAct)); // map the actual yaw angle to values in [-1,1]
-            droneInputs[3] = -yawPID.runPID();
+            droneInputs[3] = yawPID.runPID();
             // DEBUG
 
             float z = diff[1] / 100f;
