@@ -63,7 +63,7 @@ public class DataHandler {
         float[] diff = new float[4];
         diff[0] = (((float) getCentroidAndRadius()[0] - imageWidth / 2)
                 / imageWidth) * 93;
-        diff[1] = ((float) getCentroidAndRadius()[1] - imageHeight / 2);
+        diff[1] = -((float) getCentroidAndRadius()[1] - imageHeight / 2);
 
         //System.out.println("Filtered values: YAW diff: " + diff[0]
         //      + " Altitude Diff: " + diff[1]);
