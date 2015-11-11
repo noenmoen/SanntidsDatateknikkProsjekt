@@ -30,6 +30,7 @@ public class Regulator extends TimerTask {
     private PIDController pitchPID;
     private boolean isReset;
     private boolean scanning;
+    private long lastRun;
 
     public Regulator(DroneControl dc, DataHandler dh, int CYCLE_TIME) {
         TIME_SHIFT = (float) CYCLE_TIME / 1000f;
@@ -128,7 +129,7 @@ public class Regulator extends TimerTask {
     @Override
     public void run() {
 
-        long start = System.currentTimeMillis();
+        
         // Only run while drone is in autonomous mode, and the drone has found a hulahoop
         if (autoMode && dh.HasCircle()) {
             float[] diff = new float[4];
@@ -205,7 +206,9 @@ public class Regulator extends TimerTask {
             isReset = true;
             scanning = false;
         }
-        System.out.println("Cycletime regulator: " + (System.currentTimeMillis() - start));
+        
+        System.out.println("Time since last run regulator: " + (System.currentTimeMillis() - lastRun));
+        lastRun = System.currentTimeMillis();
     }
 
     /*
