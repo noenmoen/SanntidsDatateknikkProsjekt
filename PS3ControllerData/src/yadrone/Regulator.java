@@ -170,6 +170,7 @@ public class Regulator extends TimerTask {
             pitchPID.setSetpoint(dist);
             pitchPID.setInput(dist_input);
             droneInputs[1] = pitchPID.runPID();
+//            droneInputs[1]=0;
             // DEBUG
             System.out.println("Desired yaw angle: " + yawDes
                     + "  |  actual yaw angle: " + yawAct

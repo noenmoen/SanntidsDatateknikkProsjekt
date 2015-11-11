@@ -16,7 +16,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
-
 /**
  *
  * @author vegard
@@ -25,7 +24,7 @@ import java.util.concurrent.Semaphore;
 public class YADrone
 {
 
-    static final int PERIOD = 50;
+    static final int PERIOD = 100;
     static IARDrone drone;
     static PS3ControllerReader reader;
     static Timer timer = new Timer();
@@ -44,8 +43,7 @@ public class YADrone
         DroneControl cont = new DroneControl(drone, mySem, store);
         TimerTask reg = new Regulator(cont, dh, PERIOD);
         cont.setRegulator((Regulator) reg);
-        CircleDetection cd = new CircleDetection(
-                1000, 30, 4, 3, drone, 3, pip, dh);
+        CircleDetection cd = new CircleDetection(4, drone, pip, dh);
         DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd);
         Thread guiThread = new Thread(gui);
 

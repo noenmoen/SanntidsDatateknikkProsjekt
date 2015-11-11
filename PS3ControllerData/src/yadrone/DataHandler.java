@@ -14,7 +14,7 @@ import org.opencv.core.Mat;
 public class DataHandler {
 
     private long lastTimeCircleDetected = 0;
-    private final long CIRCLE_EXPIRATION_TIME = 100;
+    private final long CIRCLE_EXPIRATION_TIME = 250;
     private final int CAPACITY = 25;
     private final double dev = 0.1;
     private Deque<double[]> centroidAndRadiusFilt = new ArrayDeque<>();

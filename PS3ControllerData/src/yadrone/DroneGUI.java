@@ -1382,7 +1382,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                     + " " + cd.getSu()
                     + " " + cd.getVl()
                     + " " + cd.getVu()
-                    + " " + cd.getSigmaX();
+                    + " " + cd.getSigmaX()
+                    + " " + cd.getGaussKernelDim();
             FileUtils.writeStringToFile(new File("imProParameters.txt"), s);
         }
         catch (Exception ex) {
@@ -1443,12 +1444,14 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         cd.setSigmaX(cd.getSigmaX() + 1);
         updateTextFields();
     }//GEN-LAST:event_jButtonGFSPactionPerformed
-
+//==============================================================================
+// Gauss filter dimensions text field
+//============================================================================== 
     private void gaussFilterDimTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_gaussFilterDimTextFieldActionPerformed
     {//GEN-HEADEREND:event_gaussFilterDimTextFieldActionPerformed
         try {
-            cd.setGaussKernelDim(Integer.valueOf(getValueFromTextInput(
-                    gaussFilterSigmaTextField.getText())));
+            cd.setGaussKernelDim(Double.valueOf(getValueFromTextInput(
+                    gaussFilterDimTextField.getText())));
         }
         catch (Exception e) {
         }
@@ -1459,16 +1462,18 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     {//GEN-HEADEREND:event_gaussFilterDimTextFieldFocusLost
         updateTextFields();
     }//GEN-LAST:event_gaussFilterDimTextFieldFocusLost
-
+//==============================================================================
+// Gauss filter dimensions parameter buttons
+//============================================================================== 
     private void jButtonGFDPactionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGFDPactionPerformed
     {//GEN-HEADEREND:event_jButtonGFDPactionPerformed
-        cd.setGaussKernelDim(cd.getGaussKernelDim() + 1);
+        cd.setGaussKernelDim(cd.getGaussKernelDim() + 2);
         updateTextFields();
     }//GEN-LAST:event_jButtonGFDPactionPerformed
 
     private void jButtonGFDMactionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonGFDMactionPerformed
     {//GEN-HEADEREND:event_jButtonGFDMactionPerformed
-        cd.setGaussKernelDim(cd.getGaussKernelDim() - 1);
+        cd.setGaussKernelDim(cd.getGaussKernelDim() - 2);
         updateTextFields();
     }//GEN-LAST:event_jButtonGFDMactionPerformed
 
@@ -1598,7 +1603,7 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
                 + df.format(cd.getSigmaX()).replace(",", "."));
         // Mask 
         gaussFilterDimTextField.setText("Gauss filter dimensions: "
-                + cd.getGaussKernelDim());
+                + (int)cd.getGaussKernelDim());
 
         // PID
         // ---------------------------------------------------------------------
