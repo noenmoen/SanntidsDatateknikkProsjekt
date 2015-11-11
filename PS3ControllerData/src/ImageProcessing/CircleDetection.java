@@ -273,7 +273,7 @@ public class CircleDetection extends Thread implements ImageListener {
     @Override
     public synchronized void imageUpdated(BufferedImage bi) {
         bufferedImage = bi;
-        System.out.println("Buffered image updated!");
+        //System.out.println("Buffered image updated!");
         notify();
     }
 
