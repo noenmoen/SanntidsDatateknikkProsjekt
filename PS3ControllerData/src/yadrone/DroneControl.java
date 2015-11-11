@@ -25,7 +25,6 @@ public class DroneControl extends Thread {
     };
 
     private final IARDrone drone;
-    private boolean freeroam;
     private Semaphore sem;
     private ControllerStateStorage storage;
     private GameControllerState state;
@@ -37,7 +36,6 @@ public class DroneControl extends Thread {
         sem = s;
         this.storage = storage;
         this.drone = drone;
-        freeroam = false;
         mode = DroneMode.MAN_MODE;
 
     }
@@ -123,43 +121,24 @@ public class DroneControl extends Thread {
     private void moveMan(GameControllerState st) {
         if (st.isTriangle()) {
             drone.getCommandManager().flatTrim();
-            System.out.println("Drone take off");
             drone.getCommandManager().takeOff();
             flying = true;
+        }
 
-        }
-        // Pressing square will enable/disable free roaming
-        // While free roaming, the drone is controlled by the analog sticks of the DS3
-        if (st.isSquare()) {
-            System.out.println("Freeroaming");
-            freeroam = true;
-        }
-        if (st.isCircle()) {
-            System.out.println("Disabled freeroam");
-            freeroam = false;
-            drone.freeze(); // Stop all movement of drone if free roam is disabled
-        }
-        // If free roam is enabled and the drone is hovering, it can be controlled by the DS3
-        if (freeroam) {
-            float[] inputs = new float[4];
-            inputs[0] = getLeftJoystickX();
-            inputs[1] = -getLeftJoystickY();
-            inputs[2] = -getRightJoystickY();
-            inputs[3] = getRightJoystickX();
-            System.out.println("Coord: left x = " + getLeftJoystickX() + " left y = " + -getLeftJoystickY() + " right y = " + -getRightJoystickY() + " right x = " + getRightJoystickX());
-            System.out.println("----------------------------------------------------------------------");
-            move(inputs);
-
-        }
         // Pressing cross on the DS3 will make the drone land
         if (st.isCross()) {
-            System.out.println("Drone landing");
-            freeroam = false;
             drone.getCommandManager().landing().
                     flatTrim();
             flying = false;
-
         }
+        float[] inputs = new float[4];
+        inputs[0] = getLeftJoystickX();
+        inputs[1] = -getLeftJoystickY();
+        inputs[2] = -getRightJoystickY();
+        inputs[3] = getRightJoystickX();
+        System.out.println("Coord: left x = " + getLeftJoystickX() + " left y = " + -getLeftJoystickY() + " right y = " + -getRightJoystickY() + " right x = " + getRightJoystickX());
+        System.out.println("----------------------------------------------------------------------");
+        move(inputs);
     }
 
     public synchronized void setMode(DroneMode mode) {
@@ -175,7 +154,7 @@ public class DroneControl extends Thread {
     }
 
     public void move(float inputs[]) {
-            drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
+        drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
     }
 
     public IARDrone getDrone() {
