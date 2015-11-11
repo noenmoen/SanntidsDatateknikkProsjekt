@@ -32,7 +32,6 @@ public class DroneControl extends Thread {
     private Regulator reg;
     private DroneMode mode;
     private boolean flying;
-    private float[] oldInputs = new float[4];
 
     public DroneControl(IARDrone drone, Semaphore s, ControllerStateStorage storage) {
         sem = s;
@@ -176,10 +175,7 @@ public class DroneControl extends Thread {
     }
 
     public void move(float inputs[]) {
-        if (oldInputs != inputs) {
             drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
-        }
-        oldInputs = inputs;
     }
 
     public IARDrone getDrone() {
