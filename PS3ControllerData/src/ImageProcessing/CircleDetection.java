@@ -264,7 +264,6 @@ public class CircleDetection extends Thread implements ImageListener
      */
     public synchronized void setGaussKernelDim(double dim)
     {
-        System.out.println("dimension: " + dim);
         gaussKernel = new Size(dim, dim);
     }
 
