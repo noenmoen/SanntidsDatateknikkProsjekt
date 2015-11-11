@@ -74,8 +74,8 @@ public class DroneControl extends Thread
                 case AUTO_MODE:
                     // If the drone is not flying, take off.
                     if (!flying) {
-                        drone.getCommandManager().flatTrim();
-                        drone.getCommandManager().takeOff();
+//                        drone.getCommandManager().flatTrim();
+//                        drone.getCommandManager().takeOff();
                         flying = true;
                     }
                     // Check for manual landing input from the DS3
@@ -133,8 +133,8 @@ public class DroneControl extends Thread
     private void moveMan(GameControllerState st)
     {
         if (st.isTriangle()) {
-            drone.getCommandManager().flatTrim();
-            drone.getCommandManager().takeOff();
+//            drone.getCommandManager().flatTrim();
+//            drone.getCommandManager().takeOff();
             flying = true;
         }
 
@@ -171,7 +171,7 @@ public class DroneControl extends Thread
 
     public void move(float inputs[])
     {
-        drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
+//        drone.getCommandManager().move(inputs[0], inputs[1], inputs[2], inputs[3]);
     }
 
     public IARDrone getDrone()
