@@ -57,10 +57,11 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         this.pil = pil;
         this.regulator = (Regulator) regulator;
         this.cd = cd;
-        v1 = new VideoListener(drone,resolution);
+        v1 = new VideoListener(drone, resolution);
         navData = new NavDataListener(drone);
         try {
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            for (UIManager.LookAndFeelInfo info 
+                    : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     UIManager.setLookAndFeel(info.getClassName());
                     break;
@@ -69,7 +70,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         }
         catch (Exception e) {
             try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                UIManager.setLookAndFeel(
+                        UIManager.getSystemLookAndFeelClassName());
             }
             catch (Exception ex) {
             }
@@ -1016,7 +1018,9 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+//==============================================================================
+// Mode buttons
+//==============================================================================  
     private void manButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manButtonActionPerformed
         cont.setMode(DroneControl.DroneMode.MAN_MODE);
         manButton.setForeground(Color.GREEN);
@@ -1051,21 +1055,6 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         }
         catch (IOException ex) {
         }
-
-//        try {
-//            String name = "" + dh.getCentroidAndRadius()[2];
-//            File outputfile = new File(name + ".png");
-//            ImageIO.write(v1.getImage(), "png", outputfile);
-//        }
-//        catch (IOException e) {
-//            try {
-//                String name = "" + System.currentTimeMillis();
-//                File outputfile = new File(name + ".png");
-//                ImageIO.write(v1.getImage(), "png", outputfile);
-//            }
-//            catch (IOException ex) {
-//            }
-//        }
     }//GEN-LAST:event_snapshotButtonActionPerformed
 
 //==============================================================================
@@ -1075,7 +1064,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private void hueLowerTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_hueLowerTFActionPerformed
     {//GEN-HEADEREND:event_hueLowerTFActionPerformed
         try {
-            cd.setHl(Double.valueOf(getValueFromTextInput(hueLowerTF.getText())));
+            cd.setHl(Double.valueOf(
+                    getValueFromTextInput(hueLowerTF.getText())));
         }
         catch (Exception e) {
         }
@@ -1085,7 +1075,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private void hueUpperTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_hueUpperTFActionPerformed
     {//GEN-HEADEREND:event_hueUpperTFActionPerformed
         try {
-            cd.setHu(Double.valueOf(getValueFromTextInput(hueUpperTF.getText())));
+            cd.setHu(Double.valueOf(
+                    getValueFromTextInput(hueUpperTF.getText())));
         }
         catch (Exception e) {
         }
@@ -1095,7 +1086,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private void SaturationLowerTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_SaturationLowerTFActionPerformed
     {//GEN-HEADEREND:event_SaturationLowerTFActionPerformed
         try {
-            cd.setSl(Double.valueOf(getValueFromTextInput(SaturationLowerTF.getText())));
+            cd.setSl(Double.valueOf(
+                    getValueFromTextInput(SaturationLowerTF.getText())));
         }
         catch (Exception e) {
         }
@@ -1105,7 +1097,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private void saturationUpperTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_saturationUpperTFActionPerformed
     {//GEN-HEADEREND:event_saturationUpperTFActionPerformed
         try {
-            cd.setSu(Double.valueOf(getValueFromTextInput(saturationUpperTF.getText())));
+            cd.setSu(Double.valueOf(
+                    getValueFromTextInput(saturationUpperTF.getText())));
         }
         catch (Exception e) {
         }
@@ -1115,7 +1108,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private void valueLowerTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_valueLowerTFActionPerformed
     {//GEN-HEADEREND:event_valueLowerTFActionPerformed
         try {
-            cd.setVl(Double.valueOf(getValueFromTextInput(valueLowerTF.getText())));
+            cd.setVl(Double.valueOf(
+                    getValueFromTextInput(valueLowerTF.getText())));
         }
         catch (Exception e) {
         }
@@ -1125,7 +1119,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private void valueUpperTFActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_valueUpperTFActionPerformed
     {//GEN-HEADEREND:event_valueUpperTFActionPerformed
         try {
-            cd.setVu(Double.valueOf(getValueFromTextInput(valueUpperTF.getText())));
+            cd.setVu(                    Double.valueOf(
+                    getValueFromTextInput(valueUpperTF.getText())));
         }
         catch (Exception e) {
         }
@@ -1267,8 +1262,8 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
     private void pitchProportionalTextFieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pitchProportionalTextFieldActionPerformed
     {//GEN-HEADEREND:event_pitchProportionalTextFieldActionPerformed
         try {
-            regulator.setKpPitch(Float.valueOf(
-                    getValueFromTextInput(pitchProportionalTextField.getText())));
+            regulator.setKpPitch(Float.valueOf(getValueFromTextInput(
+                    pitchProportionalTextField.getText())));
         }
         catch (Exception e) {
         }
@@ -1563,15 +1558,11 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
 
     public void run()
     {
-
         while (true) {
             try {
                 updateNavDataText();
-
-                //System.out.println("Navdata updated--------------------------------------------------------------------+");
             }
             catch (Exception e) {
-                // System.out.println("NavData Fail -----------------------------------------*");
             }
         }
     }
@@ -1609,15 +1600,18 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         // PID
         // ---------------------------------------------------------------------
         // Yaw 
-        yawProportionalTextField.setText("Propotional: " + regulator.getKpYaw());
+        yawProportionalTextField.setText(
+                "Propotional: " + regulator.getKpYaw());
         yawIntegralTextField.setText("Integral: " + regulator.getKiYaw());
         yawDerivateTextField.setText("Derivate: " + regulator.getKdYaw());
         // Z
-        zProportionalTextField.setText("Propotional: " + regulator.getKpZ());
+        zProportionalTextField.setText(
+                "Propotional: " + regulator.getKpZ());
         zIntegralTextField.setText("Integral: " + regulator.getKiZ());
         zDerivateTextField.setText("Derivate: " + regulator.getKdZ());
         // Pitch
-        pitchProportionalTextField.setText("Propotional: " + regulator.getKpPitch());
+        pitchProportionalTextField.setText(
+                "Propotional: " + regulator.getKpPitch());
         pitchIntegralTextField.setText("Integral: " + regulator.getKiPitch());
         pitchDerivateTextField.setText("Derivate: " + regulator.getKdPitch());
     }
@@ -1633,7 +1627,10 @@ public class DroneGUI extends javax.swing.JFrame implements Runnable
         RollTextLabel.setText("Roll: " + navData.getRoll());
         PitchTextLabel.setText("Pitch: " + navData.getPitch());
         yawTextLabel.setText("Yaw: " + navData.getYaw());
-        altidudeTextLabel.setText("Altitude: " + navData.getExtAltitude().getRaw() / 1000f);
+        altidudeTextLabel.setText("Altitude: "
+                + navData.getExtAltitude().getRaw() / 1000f);
+
+        // Battery status with color coding
         int percentage = navData.getPercentage();
         if (percentage > 75) {
             batteryTextLabel.setText(
