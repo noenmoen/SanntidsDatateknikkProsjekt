@@ -163,21 +163,18 @@ public class Regulator extends TimerTask {
             zPID.setInput(zAct);
             droneInputs[2] = zPID.runPID();
             float dist = 0;
-            float dist_input = dist - dist_err; // negative pich angle means forward movement, this compensates for this
+            float dist_input = dist - dist_err; // negative pich angle means forward movement, this compensates for that
             pitchPID.setSetpoint(dist);
             pitchPID.setInput(dist_input);
             droneInputs[1] = pitchPID.runPID();
 //            droneInputs[1]=0;
             // DEBUG
-            System.out.println("Desired yaw angle: " + yawDes
-                    + "  |  actual yaw angle: " + yawAct
-                    + "  |  Yaw control input: " + droneInputs[3]
-                    + "  |  Desired altitude: " + zDes
-                    + "  |  actual altitude: " + zAct
-                    + "  |  Z control input: " + droneInputs[2]
-                    + "  |  Desired distance: " + dist
-                    + "  |  Actual distance: " + dist_input
-                    + "  |  Pitch control input: " + droneInputs[1]);
+            System.out.println("YAW D/A/I: " + String.format("%.3f", yawDes) + "/" + 
+                    String.format("%.3f", yawAct) + "/" + String.format("%.3f", droneInputs[3])
+                    + " ALTITUDE D/A/I: " + String.format("%.3f", zDes) + "/" + 
+                    String.format("%.3f", zAct) + "/" + String.format("%.3f", droneInputs[2])
+                    + " DISTANCE D/A/I: " + String.format("%.3f", dist) + "/" + 
+                    String.format("%.3f", dist_input) + "/" + String.format("%.3f", droneInputs[1]));
 
             droneInputs[0] = 0f; // Roll angle = 0;
             dc.move(droneInputs);
