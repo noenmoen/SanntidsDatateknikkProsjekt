@@ -24,7 +24,7 @@ import java.util.concurrent.Semaphore;
 public class YADrone
 {
 
-    static final int PERIOD = 50;
+    static final int PERIOD = 20;
     static final boolean IS_RESOLUTION_HIGH = false;
     static IARDrone drone;
     static PS3ControllerReader reader;
