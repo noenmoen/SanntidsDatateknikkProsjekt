@@ -43,6 +43,7 @@ public class MotioninJoyVirtualStateDecoder implements ControllerStateDecoder {
         boolean PS = bs.get(i++);
 
         // Modified 09.09.15 (wrong index used for right joystick, also some problems with values being mapped to different joystick inputs)
+        // Beware of bugs here.
         int leftJoystickX = joystickCoordConv(buf[3]);//3
         int leftJoystickY = joystickCoordConv(buf[4]);//4
         int rightJoystickX = joystickCoordConv(buf[6]);
