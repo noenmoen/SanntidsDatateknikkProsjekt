@@ -173,10 +173,11 @@ public class DroneControl extends Thread
     {
         this.reg = reg;
     }
-
+    // Own class NonStickyMoveCommand sent as a command to avoid
+    // unnecessary UDP packets being sent.
     public void move(float inputs[])
     {
-        cm.move(inputs[0], inputs[1], inputs[2], inputs[3]);
+        cm.setCommand(new NonStickyMoveCommand(false, inputs[0], inputs[1], inputs[2], inputs[3]));
     }
 
     public IARDrone getDrone()
