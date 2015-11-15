@@ -21,7 +21,7 @@ public class DataHandler {
     private int imageWidth;
     private int imageHeight;
     private double[] avg = new double[3];
-    private float minDistance = 148;
+    private float minDistance = 130;
     private float distanceDiff = 0;
     private int[] resolution;
 
@@ -30,7 +30,7 @@ public class DataHandler {
      */
     public DataHandler(int[] resolution) {
         this.resolution = resolution;
-        setImageWidthAndHight();
+        setImageWidthAndHeight();
     }
 
     /**
@@ -46,7 +46,7 @@ public class DataHandler {
      *
      * @param image
      */
-    public synchronized void setImageWidthAndHight() {
+    public synchronized void setImageWidthAndHeight() {
         this.imageWidth = this.resolution[0];
         this.imageHeight = this.resolution[1];
     }
