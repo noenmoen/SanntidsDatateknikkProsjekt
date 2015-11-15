@@ -6,11 +6,11 @@
 package yadrone;
 
 /**
- * A class for running the PID-algorithm
- * By setting the integral gain and/or derivative gain = 0,
- * the controller can be either PD or PI (or P)
+ * A class for running the PID-algorithm By setting the integral gain and/or
+ * derivative gain = 0, the controller can be either PD or PI (or P)
+ *
  * @author vegard
- * 
+ *
  */
 public class PIDController {
 
@@ -25,7 +25,7 @@ public class PIDController {
     private boolean continuous; // do the endpoints wrap around? (abs encoder, yaw angle...)
     private float prevError;
     private float totError;
-    private float tolerance;
+    private float tolerance = 0.2f;
     private float setPoint;
     private float error;
     private float output;
@@ -38,9 +38,10 @@ public class PIDController {
         this.cycleTime = cycleTime;
     }
     /*
-    The PID-algorithm that calculates the control input
-    based on the error, accumulated errors, and upcoming error (derivative)
-    */
+     The PID-algorithm that calculates the control input
+     based on the error, accumulated errors, and upcoming error (derivative)
+     */
+
     private void calculate() {
         error = setPoint - input;
 
@@ -51,16 +52,15 @@ public class PIDController {
                 if (error > 0) {
                     error = error - maxInp + minInp;
                 } else {
-                    error = error
-                            + maxInp - minInp;
+                    error = error + maxInp - minInp;
                 }
             }
         }
         /* Integrate the errors as long as the upcoming integrator does
          not exceed the minimum and maximum output thresholds */
-        if ((totError + error*cycleTime) * ki < maxOutp
-                && (totError + error*cycleTime) * ki > minOutp) {
-            totError += error*cycleTime;
+        if ((totError + error * cycleTime) * ki < maxOutp
+                && (totError + error * cycleTime) * ki > minOutp) {
+            totError += error * cycleTime;
         }
         // Perform the PID calculations
         output = kp * error + ki * totError + kd * ((error - prevError) / cycleTime);
@@ -72,8 +72,8 @@ public class PIDController {
         prevError = error;
     }
     /*
-    Setters and getters for the gains
-    */
+     Setters and getters for the gains
+     */
 
     public float getKp() {
         return kp;
@@ -100,34 +100,51 @@ public class PIDController {
     }
 
     /*
-    Method that is called by the regulator class.
-    Performs the PID algorithm, and returns the control input to the drone.
-    */
+     Method that is called by the regulator class.
+     Performs the PID algorithm, and returns the control input to the drone.
+     */
     public float runPID() {
         calculate();
+        if (onTarget()) {
+            return 0.0f;
+        }
         return output;
     }
-    /*
-    Set to continuous if the measured value wraps around.
-    (absolute encoder, yaw angle etc...)
-    */
+
+    /**
+     * Set the PID controller to consider the input to be continuous, Rather
+     * then using the max and min in as constraints, it considers them to be the
+     * same point and automatically calculates the shortest route to the
+     * setpoint.
+     *
+     * @param continuous Set to true turns on continuous, false turns off
+     * continuous
+     */
     public void setContinuous(boolean cont) {
         continuous = cont;
     }
 
+    /**
+     * Set the PID controller to consider the input to be continuous, Rather
+     * then using the max and min in as constraints, it considers them to be the
+     * same point and automatically calculates the shortest route to the
+     * setpoint.
+     */
     public void setContinuous() {
         this.setContinuous(true);
     }
     /*
-    Sets the maximum allowed input range, used for inputs that wrap around
-    */
+     Sets the maximum allowed input range, used for inputs that wrap around
+     */
+
     public void setInputRange(float minInput, float maxInput) {
         minInp = minInput;
         maxInp = maxInput;
     }
     /*
-    Set the max allowed output range
-    */
+     Set the max allowed output range
+     */
+
     public void setOutputRange(float minOutput, float maxOutput) {
         maxOutp = maxOutput;
         minOutp = minOutput;
@@ -153,6 +170,22 @@ public class PIDController {
     }
 
     /**
+     * Return true if the error is within a preset tolerance of the max and min
+     * input range. Only applicable for the yaw axis, since this has a well
+     * defined input range.
+     *
+     * @return true if the error is less than the tolerance
+     */
+    public boolean onTarget() {
+        if (continuous) {
+            return (Math.abs(error) < tolerance / 100
+                    * (maxInp - minInp));
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Returns the current difference of the input from the setpoint
      *
      * @return the current error
@@ -160,9 +193,9 @@ public class PIDController {
     public synchronized float getError() {
         return error;
     }
-    
+
     public void setInput(float input) {
-        this.input = input; 
+        this.input = input;
     }
 
     /**
