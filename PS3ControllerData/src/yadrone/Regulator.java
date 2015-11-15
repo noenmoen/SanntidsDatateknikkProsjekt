@@ -129,21 +129,22 @@ public class Regulator extends TimerTask {
     @Override
     public void run() {
 
-        
         // Only run while drone is in autonomous mode, and the drone has found a hulahoop
         if (autoMode && dh.HasCircle()) {
             float[] diff = new float[4];
             float dist_err = 0;
+            // Get values from the datahandler class
             try {
                 diff = dh.GetDiff();
                 dist_err = dh.getDistanceDiff();
             } catch (Exception e) {
                 System.out.println("Automode: " + e);
             }
-            isReset = false;
+            // Get navdata from the navDataListener
             yawAct = navData.getYaw() / 1000f; // angles from the drone is in 1/1000 degrees
             zAct = navData.getExtAltitude().getRaw() / 1000f; // altitude from the drone is in mm
 
+            // Run the yaw axis calculations
             float yaw = diff[0];
             float yawDes = yawAct + yaw; // convert desired angular movement to global yaw coordinates
             if (yawDes >= 180f) {
@@ -155,13 +156,15 @@ public class Regulator extends TimerTask {
             yawPID.setSetpoint(mapAngles(yawDes)); // map the desired yaw angle to values in [-1,1]
             yawPID.setInput(mapAngles(yawAct)); // map the actual yaw angle to values in [-1,1]
             droneInputs[3] = yawPID.runPID();
-            // DEBUG
 
+            // Run the z-axis (altitude) calculations
             float z = diff[1] / 100f;
             float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
             zPID.setSetpoint(zDes);
             zPID.setInput(zAct);
             droneInputs[2] = zPID.runPID();
+            
+            // Get a (rough) estimate of the distance error to the ring
             float dist = 0;
             float dist_input = dist - dist_err; // negative pich angle means forward movement, this compensates for that
             pitchPID.setSetpoint(dist);
@@ -169,31 +172,33 @@ public class Regulator extends TimerTask {
             droneInputs[1] = pitchPID.runPID();
 //            droneInputs[1]=0;
             // DEBUG
-            System.out.println("YAW D/A/I: " + String.format("%.3f", yawDes) + "/" + 
-                    String.format("%.3f", yawAct) + "/" + String.format("%.3f", droneInputs[3])
-                    + " ALTITUDE D/A/I: " + String.format("%.3f", zDes) + "/" + 
-                    String.format("%.3f", zAct) + "/" + String.format("%.3f", droneInputs[2])
-                    + " DISTANCE D/A/I: " + String.format("%.3f", dist) + "/" + 
-                    String.format("%.3f", dist_input) + "/" + String.format("%.3f", droneInputs[1]));
+            System.out.println("YAW D/A/I: " + String.format("%.3f", yawDes) + "/"
+                    + String.format("%.3f", yawAct) + "/" + String.format("%.3f", droneInputs[3])
+                    + " ALTITUDE D/A/I: " + String.format("%.3f", zDes) + "/"
+                    + String.format("%.3f", zAct) + "/" + String.format("%.3f", droneInputs[2])
+                    + " DISTANCE D/A/I: " + String.format("%.3f", dist) + "/"
+                    + String.format("%.3f", dist_input) + "/" + String.format("%.3f", droneInputs[1]));
 
             droneInputs[0] = 0f; // Roll angle = 0;
             dc.move(droneInputs);
             scanning = false;
-        }
-        if (autoMode && !dh.HasCircle() && !scanning) {
             isReset = false;
-            // Reset yaw and pitch PIDs
+        }
+        // If the drone is in automode and has not found a circle, scan the surroundings
+        if (autoMode && !dh.HasCircle() && !scanning) {
+            // Reset the PIDs
             pitchPID.reset();
             yawPID.reset();
+            zPID.reset();
             // Scan the surroundings for rings
 
-            droneInputs[3] = 0.0f; // Set a yaw speed for scanning
-            droneInputs[2] = 0.0f;
-            droneInputs[0] = droneInputs[1] = 0f;
+            droneInputs[3] = 0.05f; // Set a yaw speed for scanning
+            droneInputs[0] = droneInputs[1] = droneInputs[2] = 0f;
             dc.move(droneInputs);
             scanning = true;
+            isReset = true;
         }
-
+        // If not in automode, reset the controllers (once)
         if (!autoMode && !isReset) {
             // if the drone is not in autoMode, we reset the controllers
             droneInputs[0] = droneInputs[1] = droneInputs[2] = droneInputs[3] = 0f;
@@ -203,7 +208,7 @@ public class Regulator extends TimerTask {
             isReset = true;
             scanning = false;
         }
-        
+        // Print out the time between regulator cycles
         System.out.println("Time since last run regulator: " + (System.currentTimeMillis() - lastRun));
         lastRun = System.currentTimeMillis();
     }
