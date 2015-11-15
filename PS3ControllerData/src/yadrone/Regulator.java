@@ -235,7 +235,7 @@ public class Regulator extends TimerTask {
         pitchPID = new PIDController(0, 0, 0, TIME_SHIFT);
         pitchPID.setContinuous(false);
         // Limit the pitch angle, aggressive manouvers are not desirable
-        pitchPID.setOutputRange(-0.1f, 0.1f);
+        pitchPID.setOutputRange(-0.1f, 0.2f);
         // Load and set PID gains
         loadAndSetGainParameters();
     }
