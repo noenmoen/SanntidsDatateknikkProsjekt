@@ -159,26 +159,36 @@ public class CircleDetection extends Thread implements ImageListener
     /**
      * detects circles, returned as MAT type, every colon in the Mat has a
      * double[] with {x,y,R} (R = Radius)
-     *
-     * @param image
-     * @param dp dp = 1: The inverse ratio of resolution
-     * @param denominator((image.height()+image.width())/2)/denominator: minimum
-     * distance between circles
-     * @param cannyThresh param_1 = 200: Upper threshold for the internal Canny
-     * edge detector
-     * @param centerThresh param_2 = 100*: Threshold for center detection.
-     * @param minRatio min_radius = 0: Minimum radio to be detected.
-     * @param maxRatio max_radius = 0: Maximum radius to be detected.
-     * @return Mat Circles in 3-layered vector
+     * @param image 8-bit, single-channel, grayscale input image.
+     * 
+     * @param minCenterDistance Minimum distance between the centers of the 
+     * detected circles. If the parameter is too small, multiple neighbor 
+     * circles may be falsely detected in addition to a true one. If it is too 
+     * large, some circles may be missed.
+     * 
+     * @param cannyThresh First method-specific parameter. In case of 
+     * CV_HOUGH_GRADIENT , it is the higher threshold of the two passed to the 
+     * Canny() edge detector (the lower one is twice smaller).
+     * 
+     * @param centerThresh Second method-specific parameter. In case of 
+     * CV_HOUGH_GRADIENT , it is the accumulator threshold for the circle 
+     * centers at the detection stage. The smaller it is, the more false 
+     * circles may be detected. Circles, corresponding to the larger 
+     * accumulator values, will be returned first.
+     * 
+     * @param minRadius Minimum circle radius.
+     * @param maxRadius Maximum circle radius.
+     * @return Output vector of found circles. Each vector is encoded as a 
+     * 3-element floating-point vector(x,y,radius).
      */
     private Mat CircleFinder(
             Mat image,
-            int denominator,
+            int minCenterDistance,
             int cannyThresh,
             int centerThresh,
-            int minRatio,
-            int maxRatio)
-    {
+            int minRadius,
+            int maxRadius
+)    {
 
         Mat circles = new Mat();
         Imgproc.HoughCircles(
@@ -186,11 +196,11 @@ public class CircleDetection extends Thread implements ImageListener
                 circles,
                 Imgproc.CV_HOUGH_GRADIENT,
                 1,
-                ((image.height() + image.width()) / 2) / denominator,
+                minCenterDistance,
                 cannyThresh,
                 centerThresh,
-                minRatio,
-                maxRatio);
+                minRadius,
+                maxRadius);
 
         return circles;
     }
