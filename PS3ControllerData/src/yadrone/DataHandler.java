@@ -16,12 +16,12 @@ public class DataHandler {
     private long lastTimeCircleDetected = 0;
     private final long CIRCLE_EXPIRATION_TIME = 250;
     private final double dev = 0.1;
-    private int capacity = 25;
+    private int capacity = 10;
     private Deque<double[]> centroidAndRadiusFilt = new ArrayDeque<>();
     private int imageWidth;
     private int imageHeight;
     private double[] avg = new double[3];
-    private float minDistance = 130;
+    private float minDistance = 110;
     private float distanceDiff = 0;
     private int[] resolution;
 

@@ -47,7 +47,7 @@ public class YADrone
         DroneControl cont = new DroneControl(drone, mySem, store);
         TimerTask reg = new Regulator(cont, dh, PERIOD);
         cont.setRegulator((Regulator) reg);
-        CircleDetection cd = new CircleDetection(4, drone, pip, dh);
+        CircleDetection cd = new CircleDetection(125, drone, pip, dh);
         DroneGUI gui = new DroneGUI(drone, cont, pip, reg, cd, resolution);
         Thread guiThread = new Thread(gui);
 
