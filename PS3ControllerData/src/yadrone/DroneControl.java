@@ -76,8 +76,8 @@ public class DroneControl extends Thread
                 case AUTO_MODE:
                     // If the drone is not flying, take off.
                     if (!flying) {
-                        cm.flatTrim();
-                        cm.takeOff();
+//                        cm.flatTrim();
+//                        cm.takeOff();
                         flying = true;
                     }
                     // Check for manual landing input from the DS3
@@ -106,8 +106,8 @@ public class DroneControl extends Thread
                         reg.setAutoMode(false);
                     }
                     if (flying) {
-                        cm.landing();
-                        cm.flatTrim();
+//                        cm.landing();
+//                        cm.flatTrim();
                         flying = false;
                     }
             }
@@ -125,36 +125,40 @@ public class DroneControl extends Thread
         return state.getLeftJoystickY() / 128f;
     }
 
-    private float getRightJoystickX()
+    private float getRotation()
     {
-        return state.getRightJoystickX() / 128f;
+        if(state.isR1()) return 1f;
+        else if (state.isL1()) return -1f;
+        else return 0f;
     }
 
-    private float getRightJoystickY()
+    private float getZSpeed()
     {
-        return state.getRightJoystickY() / 128f;
+        if(state.isR2()) return 1f;
+        else if (state.isL2()) return -1f;
+        else return 0f;
     }
 
     private void moveMan(GameControllerState st)
     {
         if (st.isTriangle()) {
-            cm.flatTrim();
-            cm.takeOff();
+//            cm.flatTrim();
+//            cm.takeOff();
             flying = true;
         }
 
         // Pressing cross on the DS3 will make the drone land
         if (st.isCross()) {
-            cm.landing();
-            cm.flatTrim();
+//            cm.landing();
+//            cm.flatTrim();
             flying = false;
         }
         float[] inputs = new float[4];
         inputs[0] = getLeftJoystickX();
         inputs[1] = getLeftJoystickY(); // Positive value means going backwards
-        inputs[2] = -getRightJoystickY(); // Negative value means going down
-        inputs[3] = getRightJoystickX();
-        System.out.println("Coord: left x = " + inputs[0] + " left y = " + inputs[1] + " right y = " + inputs[2] + " right x = " + inputs[3]);
+        inputs[2] = getZSpeed(); // Negative value means going down
+        inputs[3] = getRotation();
+        System.out.println("Coord: Roll = " + inputs[0] + " pitch = " + inputs[1] + " Z speed = " + inputs[2] + " Yaw = " + inputs[3]);
         System.out.println("----------------------------------------------------------------------");
         move(inputs);
     }
@@ -177,7 +181,7 @@ public class DroneControl extends Thread
     // unnecessary UDP packets being sent.
     public void move(float inputs[])
     {
-        cm.setCommand(new NonStickyMoveCommand(false, inputs[0], inputs[1], inputs[2], inputs[3]));
+//        cm.setCommand(new NonStickyMoveCommand(false, inputs[0], inputs[1], inputs[2], inputs[3]));
     }
 
     public IARDrone getDrone()
