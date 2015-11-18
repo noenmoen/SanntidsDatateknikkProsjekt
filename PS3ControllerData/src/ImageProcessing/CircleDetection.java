@@ -32,7 +32,7 @@ public class CircleDetection extends Thread implements ImageListener
     private Scalar color = new Scalar(0, 0, 255);
     private int lineWidth = 4;
     private int circle_max = 500;
-    private int circle_min = 40;
+    private int circle_min = 20;
     private int cannyThresh_upper = 1000;
     private int cannyThresh_inner = 30;
     private int denom;
