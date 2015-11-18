@@ -21,7 +21,7 @@ public class DataHandler {
     private int imageWidth;
     private int imageHeight;
     private double[] avg = new double[3];
-    private float minDistance = 110;
+    private float minDistance = 105;
     private float distanceDiff = 0;
     private int[] resolution;
 
