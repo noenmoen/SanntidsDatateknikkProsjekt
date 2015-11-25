@@ -185,14 +185,6 @@ public class PIDController {
         }
     }
 
-    /**
-     * Returns the current difference of the input from the setpoint
-     *
-     * @return the current error
-     */
-    public synchronized float getError() {
-        return error;
-    }
 
     public void setInput(float input) {
         this.input = input;
