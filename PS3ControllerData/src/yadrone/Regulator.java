@@ -199,12 +199,12 @@ public class Regulator extends TimerTask
             droneInputs[1] = pitchPID.runPID();
 //            droneInputs[1]=0;
             // DEBUG
-            System.out.println("YAW D/A/I: " + String.format("%.3f", yawDes) + "/"
-                    + String.format("%.3f", yawAct) + "/" + String.format("%.3f", droneInputs[3])
-                    + " ALTITUDE D/A/I: " + String.format("%.3f", zDes) + "/"
-                    + String.format("%.3f", zAct) + "/" + String.format("%.3f", droneInputs[2])
-                    + " DISTANCE D/A/I: " + String.format("%.3f", dist) + "/"
-                    + String.format("%.3f", dist_input) + "/" + String.format("%.3f", droneInputs[1]));
+//            System.out.println("YAW D/A/I: " + String.format("%.3f", yawDes) + "/"
+//                    + String.format("%.3f", yawAct) + "/" + String.format("%.3f", droneInputs[3])
+//                    + " ALTITUDE D/A/I: " + String.format("%.3f", zDes) + "/"
+//                    + String.format("%.3f", zAct) + "/" + String.format("%.3f", droneInputs[2])
+//                    + " DISTANCE D/A/I: " + String.format("%.3f", dist) + "/"
+//                    + String.format("%.3f", dist_input) + "/" + String.format("%.3f", droneInputs[1]));
 
             droneInputs[0] = 0f; // Roll angle = 0;
             dc.move(droneInputs);
@@ -241,7 +241,7 @@ public class Regulator extends TimerTask
             scanning = false;
         }
         // Print out the time between regulator cycles
-        System.out.println("Time since last run regulator: " + (System.currentTimeMillis() - lastRun));
+//        System.out.println("Time since last run regulator: " + (System.currentTimeMillis() - lastRun));
         lastRun = System.currentTimeMillis();
     }
 
@@ -269,7 +269,7 @@ public class Regulator extends TimerTask
         pitchPID = new PIDController(0, 0, 0, TIME_SHIFT);
         pitchPID.setContinuous(false);
         // Limit the pitch angle, aggressive manouvers are not desirable
-        pitchPID.setOutputRange(-0.1f, 0.1f);
+        pitchPID.setOutputRange(-0.2f, 0.2f);
         // Load and set PID gains
         loadAndSetGainParameters();
     }
