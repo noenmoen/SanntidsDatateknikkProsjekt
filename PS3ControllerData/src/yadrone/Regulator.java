@@ -181,21 +181,21 @@ public class Regulator extends TimerTask
             }
 
             yawPID.setSetpoint(mapAngles(yawDes)); // map the desired yaw angle to values in [-1,1]
-            yawPID.setInput(mapAngles(yawAct)); // map the actual yaw angle to values in [-1,1]
+            yawPID.setReference(mapAngles(yawAct)); // map the actual yaw angle to values in [-1,1]
             droneInputs[3] = yawPID.runPID();
 
             // Run the z-axis (altitude) calculations
             float z = diff[1] / 100f;
             float zDes = zAct + z; // Convert desired upward movement to altitude referenced from ground
             zPID.setSetpoint(zDes);
-            zPID.setInput(zAct);
+            zPID.setReference(zAct);
             droneInputs[2] = zPID.runPID();
 
             // Get a (rough) estimate of the distance error to the ring
             float dist = 0;
             float dist_input = dist - dist_err; // negative pich angle means forward movement, this compensates for that
             pitchPID.setSetpoint(dist);
-            pitchPID.setInput(dist_input);
+            pitchPID.setReference(dist_input);
             droneInputs[1] = pitchPID.runPID();
 //            droneInputs[1]=0;
             // DEBUG
