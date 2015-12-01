@@ -17,7 +17,7 @@ public class PIDController {
     private float kp;
     private float ki;
     private float kd;
-    private float input;
+    private float reference;
     private float maxOutp;
     private float minOutp;
     private float maxInp;
@@ -43,7 +43,7 @@ public class PIDController {
      */
 
     private void calculate() {
-        error = setPoint - input;
+        error = setPoint - reference;
 
         // If continuous is set to true allow wrap around
         if (continuous) {
@@ -186,8 +186,8 @@ public class PIDController {
     }
 
 
-    public void setInput(float input) {
-        this.input = input;
+    public void setReference(float input) {
+        this.reference = input;
     }
 
     /**
