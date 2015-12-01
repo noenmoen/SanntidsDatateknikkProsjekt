@@ -82,6 +82,7 @@ public class YADrone
             declareDrone();
             System.out.println("Failed. Trying to reconnect to drone.");
         }
+        drone.getCommandManager().setVideoCodecFps(30);
         drone.getCommandManager().setVideoBitrateControl(
                 VideoBitRateMode.DISABLED); // Test this   
         if (IS_RESOLUTION_HIGH) {
