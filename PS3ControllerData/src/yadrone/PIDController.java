@@ -185,7 +185,7 @@ public class PIDController {
         }
     }
 
-
+    // Set the reference value for the PID algorithm
     public void setReference(float input) {
         this.reference = input;
     }
