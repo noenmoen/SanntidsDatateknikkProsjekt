@@ -18,7 +18,7 @@ import java.util.concurrent.Semaphore;
 
 /**
  *
- * @author vegard
+ * @author vegard/martin/morten
  *
  */
 public class YADrone
@@ -84,7 +84,7 @@ public class YADrone
         }
         drone.getCommandManager().setVideoCodecFps(30);
         drone.getCommandManager().setVideoBitrateControl(
-                VideoBitRateMode.DISABLED); // Test this   
+                VideoBitRateMode.DISABLED);   
         if (IS_RESOLUTION_HIGH) {
             drone.getCommandManager().setVideoCodec(VideoCodec.H264_720P);
         }
