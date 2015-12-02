@@ -25,27 +25,30 @@ public class ControllerStateStorage {
     public ControllerStateStorage() {
         available = false;
     }
-
+    // Check if the storage has a new GameControllerState
     public boolean getAvailable() {
         return available;
     }
-
+    // Get the GameControllerState, set available=false
     public GameControllerState getState() {
         available = false;
         return state;
 
     }
-
+    // Set the GameControllerState
     public void setState(GameControllerState state) {        
         this.state = state;
         available = true;
     }
+    // Set a flag telling the drone to land.
     public void setLandingFlag() {
         newFlag = true;        
     }
+    // Reset the landing flag
     public void getLandingFlag() {
         newFlag = false;
     }
+    // Check if the landing flag is set
     public boolean isNewFlag() {
         return newFlag;
     }
