@@ -14,15 +14,15 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author vegard Class for testing flight of the drone using PS3 dual shock
- * controller
+ * @author vegard Class for setting the modes of the drone, and generating control
+ * commands to the drone
  */
 public class DroneControl extends Thread
 {
 
     public enum DroneMode
     {
-
+        // Enumerated variables for the various modes the drone can be in
         MAN_MODE, AUTO_MODE, LANDING;
     };
 
@@ -49,6 +49,7 @@ public class DroneControl extends Thread
     {
         while (true) {
             DroneMode m = getDroneMode();
+            // Switch case for the three possible modes of the drone.
             switch (m) {
                 case MAN_MODE:
                     if (reg.isAutoMode()) {
@@ -115,23 +116,24 @@ public class DroneControl extends Thread
     }
 
     // Converting joystick coordinates (int from -128 to 127) to float values between -1 and 1
+    // Get the roll angle from the controller
     private float getLeftJoystickX()
     {
         return state.getLeftJoystickX() / 128f;
     }
-
+    // Get the pitch angle from the controller
     private float getLeftJoystickY()
     {
         return state.getLeftJoystickY() / 128f;
     }
-
+    // Get the yaw speed of the drone
     private float getRotation()
     {
         if(state.isR1()) return 1f;
         else if (state.isL1()) return -1f;
         else return 0f;
     }
-
+    // Get the vertical speed from the controller
     private float getZSpeed()
     {
         if(state.isR2()) return 1f;
@@ -140,7 +142,7 @@ public class DroneControl extends Thread
     }
 
     private void moveMan(GameControllerState st)
-    {
+    {   // Pressing triangle on the DS3 will make the drone take off
         if (st.isTriangle()) {
             cm.flatTrim();
             cm.takeOff();
@@ -155,19 +157,18 @@ public class DroneControl extends Thread
         }
         float[] inputs = new float[4];
         inputs[0] = getLeftJoystickX();
-        inputs[1] = getLeftJoystickY(); // Positive value means going backwards
-        inputs[2] = getZSpeed(); // Negative value means going down
+        inputs[1] = getLeftJoystickY(); 
+        inputs[2] = getZSpeed(); 
         inputs[3] = getRotation();
-        System.out.println("Coord: Roll = " + inputs[0] + " pitch = " + inputs[1] + " Z speed = " + inputs[2] + " Yaw = " + inputs[3]);
-        System.out.println("----------------------------------------------------------------------");
+        // Send the inputs to the drone as move command
         move(inputs);
     }
-
+    // Set the mode of the drone
     public synchronized void setMode(DroneMode mode)
     {
         this.mode = mode;
     }
-
+    // Get the current mode
     private synchronized DroneMode getDroneMode()
     {
         return mode;
