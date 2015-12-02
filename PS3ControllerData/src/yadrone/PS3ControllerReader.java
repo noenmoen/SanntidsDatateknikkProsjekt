@@ -21,8 +21,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author vegard Class for testing the dualshock 3 -> java inteface Prints out
- * the states of the ds3
+ * @author vegard Class for reading the state of the DualShock 3 controller
  */
 public class PS3ControllerReader extends Thread {
 
@@ -45,13 +44,16 @@ public class PS3ControllerReader extends Thread {
         oldState = null;
         try {
 
-            while (c != null) {
+            while (c != null) { // if controller is connected
 
-                state = c.read();
+                state = c.read(); // read the current state
                 ControllerStateChange cont_change = new ControllerStateChange(oldState, state);
+                // Check if the state is different from the previous state
                 if (cont_change.isChanged()) {
+                    // Set the state
                     setState(state);
                 }
+                // Save the state for comparison next time
                 oldState = state;
 
             }
@@ -60,13 +62,17 @@ public class PS3ControllerReader extends Thread {
         }
     }
 
-
+    /*
+    Method for storing the GameControllerState in the ControllerStateStorage
+    */
     private void setState(GameControllerState s) {
+        // Aquire the semaphore, granting access to the ControllerStateStorage
         try {
             sem.acquire();
         } catch (InterruptedException ex) {
             Logger.getLogger(PS3ControllerReader.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // Check if DroneControl has read the previous state. If so, store the new one
         if (!storage.getAvailable()) {
             storage.setState(s);
         }
