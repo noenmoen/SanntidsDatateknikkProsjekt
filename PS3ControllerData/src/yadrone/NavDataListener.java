@@ -13,7 +13,7 @@ import de.yadrone.base.navdata.BatteryListener;
 
 /**
  *
- * @author vegard
+ * @author vegard Class for receiving navigational data from the drone
  */
 public class NavDataListener {
 
@@ -25,7 +25,7 @@ public class NavDataListener {
     private int altitude;
     private Altitude extAltitude;
     
-    
+    // Setters and getters for the variables
     public synchronized Altitude getExtAltitude() {
         return extAltitude;
     }
@@ -68,15 +68,13 @@ public class NavDataListener {
         this.altitude = altitude;
     }
     
-
+    
     public NavDataListener(IARDrone drone) {
+        // Add attitudelistener in the navdatamanager
         drone.getNavDataManager().addAttitudeListener(new AttitudeListener() {
-            
+            // Receive the attitude of the drone
             public void attitudeUpdated(float pitch, float roll, float yaw) {
-//                System.out.println("Received new navdata: ");
-//                System.out.println("Pitch: " + pitch + " Roll: " + roll + " Yaw: " + yaw);
                 setRollPitchYaw(roll, pitch, yaw);
-
             }
 
             public void attitudeUpdated(float pitch, float roll) {
@@ -85,21 +83,21 @@ public class NavDataListener {
             public void windCompensation(float pitch, float roll) {
             }
         });
-
+        // Add batterylistener in the navdatamanager
         drone.getNavDataManager().addBatteryListener(new BatteryListener() {
-
+            // Receive the battery level of the drone
             public void batteryLevelChanged(int percentage) {
-//                System.out.println("Battery: " + percentage + " %");
+
                 setPercentage(percentage);
             }
 
             public void voltageChanged(int vbat_raw) {
             }
         });
-
+        // Add altitudelistener in the navdatamanager
         drone.getNavDataManager().addAltitudeListener(new AltitudeListener() {
+            // receive the altitude from the drone
             public void receivedAltitude(int altitude) {
-//                System.out.println("Altitude: " + altitude);
                 setAltitude(altitude);
             }
 
