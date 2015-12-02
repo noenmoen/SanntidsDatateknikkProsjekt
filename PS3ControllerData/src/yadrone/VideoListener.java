@@ -18,7 +18,8 @@ import javax.swing.SwingUtilities;
 
 /**
  *
- * @author vegard
+ * @author vegard Class for receiving the BufferedImage from the videostream
+ * Will update the image in the GUI
  */
 public class VideoListener extends JPanel implements ImageListener {
 
@@ -31,7 +32,7 @@ public class VideoListener extends JPanel implements ImageListener {
 
         drone.getVideoManager().addImageListener(this);
         
-       
+       // Switch video input to other camera with mouseclick on the image in the GUI
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -41,13 +42,14 @@ public class VideoListener extends JPanel implements ImageListener {
 
     }
 
+    // Repaint the panel
     @Override
     public void paint(Graphics g) {
         if (image != null) {
             g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
         }
     }
-
+    // Gets called when a new image is received
     @Override
     public void imageUpdated(BufferedImage newImage) {
         
